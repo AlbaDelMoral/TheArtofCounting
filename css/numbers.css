@@ -1,0 +1,14 @@
+/* ── sketch page — full-screen canvas, no scroll ────────────────────────── */
+body {
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.sketch-page {
+  position: fixed;
+  inset: 0;
+}
+
+canvas {
+  display: block;
+}
