@@ -1,0 +1,87 @@
+/* ── homepage banner ─────────────────────────────────────────────────────── */
+.home-banner {
+  width: 100%;
+  background: #e9e8e3;
+  padding-top: 20px;
+  overflow: hidden;
+}
+
+/* nav sits in the right half of the banner, 3 equal columns */
+.home-nav {
+  width: 50%;
+  margin-left: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 0 24px;
+  height: var(--nav-height);
+  align-items: center;
+  position: relative;
+}
+
+.home-nav > a,
+.home-nav .nav-dropdown > a {
+  font-family: var(--font-display);
+  font-weight: bold;
+  font-size: var(--text-sm);
+  color: #b7b6b6;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  display: block;
+  line-height: var(--nav-height);
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.home-nav > a:hover,
+.home-nav .nav-dropdown > a:hover {
+  color: #888;
+}
+
+/* dropdown inside the home nav */
+.home-nav .nav-dropdown {
+  position: relative;
+}
+
+.home-nav .nav-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #e9e8e3;
+  min-width: 100%;
+  padding: 4px 0;
+  z-index: 100;
+}
+
+.home-nav .nav-dropdown:hover .nav-dropdown-menu {
+  display: block;
+}
+
+.home-nav .nav-dropdown-menu a {
+  font-family: var(--font-display);
+  font-weight: bold;
+  font-size: var(--text-sm);
+  color: #b7b6b6;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  display: block;
+  padding: 5px 10px;
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.home-nav .nav-dropdown-menu a:hover {
+  color: #888;
+}
+
+/* logo fills the full banner width */
+.home-logo {
+  display: block;
+  width: 100%;
+  line-height: 0;
+}
+
+.home-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
