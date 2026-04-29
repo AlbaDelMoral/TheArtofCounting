@@ -1,19 +1,48 @@
-/* ── site nav — fixed, far right, 3 of 12 Bootstrap columns ─────────────── */
+/* ── site nav — full width, logo left half, links right half ─────────────── */
 .site-nav {
   position: fixed;
   top: 0;
-  right: 0;
-  width: calc(6 / 12 * 100%);
+  left: 0;
+  width: 100%;
   height: var(--nav-height);
-  margin-top: 20px;
   background: #000;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* one column per nav item */
-  align-items: center;
+  display: flex;
+  align-items: stretch;
   z-index: 100;
 }
 
-.site-nav > a,
+/* small logo on the left — home button */
+.nav-logo-link {
+  width: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  text-decoration: none;
+}
+
+.nav-logo-img {
+  height: 11px;
+  width: auto;
+  display: block;
+  opacity: 0.75;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+.nav-logo-link:hover .nav-logo-img {
+  opacity: 1;
+}
+
+/* three links on the right */
+.nav-links {
+  width: 50%;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+}
+
+.nav-links > a,
 .nav-dropdown > a {
   font-family: var(--font-display);
   font-weight: bold;
@@ -21,21 +50,20 @@
   color: #fff;
   letter-spacing: 0.02em;
   text-decoration: none;
-  text-align: left;
   padding-left: 10px;
   display: block;
   line-height: var(--nav-height);
   transition: color var(--duration-fast) var(--ease);
 }
 
-.site-nav > a:hover,
+.nav-links > a:hover,
 .nav-dropdown > a:hover {
   color: aqua;
 }
 
-.site-nav > a.active,
+.nav-links > a.active,
 .nav-dropdown > a.active {
-  color: #fff;
+  color: aqua;
 }
 
 /* ── play dropdown ───────────────────────────────────────────────────────── */
@@ -70,10 +98,5 @@
   transition: color var(--duration-fast) var(--ease);
 }
 
-.nav-dropdown-menu a:hover {
-  color: aqua;
-}
-
-.nav-dropdown-menu a.active {
-  color: aqua;
-}
+.nav-dropdown-menu a:hover { color: aqua; }
+.nav-dropdown-menu a.active { color: aqua; }

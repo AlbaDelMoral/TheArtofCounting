@@ -1,87 +1,41 @@
-/* ── homepage banner ─────────────────────────────────────────────────────── */
+/* ── nav and banner stay above the canvas (z-index: 5) ──────────────────── */
 .home-banner {
-  width: 100%;
-  background: #e9e8e3;
-  padding-top: 20px;
-  overflow: hidden;
-}
-
-/* nav sits in the right half of the banner, 3 equal columns */
-.home-nav {
-  width: 50%;
-  margin-left: auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  padding: 0 24px;
-  height: var(--nav-height);
-  align-items: center;
   position: relative;
+  z-index: 10;
+  margin-top: var(--nav-height);   /* sits flush below the fixed nav */
+  background: #e9e8e300;
+  border-top: 0.5px solid #555555; /* dividing line between nav and logo */
 }
 
-.home-nav > a,
-.home-nav .nav-dropdown > a {
-  font-family: var(--font-display);
-  font-weight: bold;
-  font-size: var(--text-sm);
-  color: #b7b6b6;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  display: block;
-  line-height: var(--nav-height);
-  transition: color var(--duration-fast) var(--ease);
-}
-
-.home-nav > a:hover,
-.home-nav .nav-dropdown > a:hover {
-  color: #888;
-}
-
-/* dropdown inside the home nav */
-.home-nav .nav-dropdown {
-  position: relative;
-}
-
-.home-nav .nav-dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #e9e8e3;
-  min-width: 100%;
-  padding: 4px 0;
-  z-index: 100;
-}
-
-.home-nav .nav-dropdown:hover .nav-dropdown-menu {
-  display: block;
-}
-
-.home-nav .nav-dropdown-menu a {
-  font-family: var(--font-display);
-  font-weight: bold;
-  font-size: var(--text-sm);
-  color: #b7b6b6;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  display: block;
-  padding: 5px 10px;
-  white-space: nowrap;
-  transition: color var(--duration-fast) var(--ease);
-}
-
-.home-nav .nav-dropdown-menu a:hover {
-  color: #888;
-}
-
-/* logo fills the full banner width */
+/* logo: full width, flush edges */
 .home-logo {
   display: block;
   width: 100%;
+  height: auto;
   line-height: 0;
 }
 
-.home-logo img {
+.home-logo svg {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* ── mathematics — fixed at vertical center, full viewport width ─────────── */
+.home-mathematics {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-weight: 900;
+  font-size: 29px;
+  color: #b7b6b6;
+  user-select: none;
+  z-index: 10;
 }
