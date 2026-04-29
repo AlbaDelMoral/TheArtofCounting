@@ -1,6 +1,6 @@
 /* ── shared section scaffolding ──────────────────────────────────────────── */
 .section {
-  padding: 80px 0;
+  padding: 30px 0;
   border-top: 0.5px solid #d0d0d0;
 }
 
@@ -23,7 +23,7 @@
 
 /* ── § 2 manifesto ───────────────────────────────────────────────────────── */
 .manifesto-text {
-  font-family: "ABCROM", var(--font-sans);
+  font-family: "KMRWaldenburg", var(--font-sans);
   font-weight: 500;
   font-size: 22px;
   line-height: 1.5;
@@ -261,7 +261,7 @@
   font-family: "ABCROM", var(--font-sans);
   font-weight: bold;
   font-size: var(--text-md);
-  line-height: 1.0;
+  line-height: 1;
   color: #111111;
   letter-spacing: 0.01em;
 }

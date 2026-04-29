@@ -2,6 +2,10 @@
 // Depends on: p5.js, number-system.js (must load first)
 // Overrides number-system.js's preload() — still loads paletteTable.
 
+// ─── toggle ───────────────────────────────────────────────────────────────────
+const FALLING_CIRCLES = true; // set to false to hide the falling number circles
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Drawing parameters used by number-system.js's drawNumber()
 const CONFIG = {
   ringAreaRatio: 0.9,
@@ -22,12 +26,12 @@ const CONFIG = {
 
 // Physics parameters
 const HOME = {
-  ballCount: 20,
+  ballCount: 7,
   gravity: 0.03,
   bounce: 0.78,
   friction: 0.9998,
-  minRadius: 10,
-  maxRadius: 50,
+  minRadius: 15,
+  maxRadius: 40,
 };
 
 let balls = [];
@@ -48,6 +52,12 @@ function setup() {
   cnv.style("left", "0");
   cnv.style("z-index", "5");
   cnv.style("pointer-events", "none");
+
+  if (!FALLING_CIRCLES) {
+    cnv.style("display", "none");
+    noLoop();
+    return;
+  }
 
   // Clip canvas to the hero section (100vh) — hides balls when user scrolls
   window.addEventListener("scroll", _clipToHero, { passive: true });

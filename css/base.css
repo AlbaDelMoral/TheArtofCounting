@@ -113,7 +113,7 @@
 /* ── CSS variables ───────────────────────────────────────────────────────── */
 :root {
   /* colors */
-  --color-bg: #f1f1f1; /* page background */
+  --color-bg: #f6f6f6; /* page background */
   --color-main: #111111; /* primary text & ui */
   --color-second: #555555; /* secondary text, labels */
   --color-muted: #aaaaaa; /* placeholders, disabled, hints */
@@ -170,8 +170,9 @@
 html,
 body {
   height: 100%;
+  overflow-x: hidden; /* prevent horizontal scroll from rotated hero group */
   background: var(--color-bg);
-  color: var(--color-text);
+  color: var(--color-second);
   font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.5;

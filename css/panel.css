@@ -9,17 +9,17 @@
   height: 100vh;
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(20px);
   border-right: 0.5px solid #e0e0e0;
   padding: calc(var(--nav-height) + 48px) 18px 24px 18px;
   display: flex;
   flex-direction: column;
   gap: 0;
   z-index: 50;
-  font-family: "ABCROM", sans-serif;
+  font-family: "KMRWaldenburg", sans-serif;
   font-weight: 500;
   font-size: 10px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0em;
   box-sizing: border-box;
   overflow-y: auto;
 }
@@ -44,8 +44,9 @@
   border: none;
   border-bottom: 0.5px solid #111;
   background: transparent;
-  font-family: "ABCROM", sans-serif;
+  font-family: "KMRWaldenburg", sans-serif;
   font-size: 10px;
+  font-weight: 500;
   padding: 4px 0;
   outline: none;
   color: #111;
