@@ -1,6 +1,10 @@
 // nav.js — shared site navigation, injected into every page
 // Structure: [small white logo → home] on left · [learn · play · gallery] on right
 
+// ── debug grid ─────────────────────────────────────────────────────────────────
+// Set to true to show the 12-column layout grid as a fixed overlay.
+const DEBUG_GRID = false;
+
 (function () {
   function buildNav() {
     const page = location.pathname.split("/").pop() || "index.html";
@@ -53,6 +57,34 @@
     `;
 
     document.body.prepend(nav);
+
+    if (DEBUG_GRID) {
+      const overlay = document.createElement("div");
+      overlay.style.cssText = [
+        "position:fixed", "inset:0", "width:100%", "height:100%",
+        "display:grid", "grid-template-columns:repeat(12,1fr)",
+        "pointer-events:none", "z-index:99999",
+      ].join(";");
+
+      for (let i = 0; i < 12; i++) {
+        const col = document.createElement("div");
+        col.style.cssText = [
+          "background:rgba(255,30,90,0.05)",
+          "border-left:1px solid rgba(255,30,90,0.25)",
+          "box-sizing:border-box",
+        ].join(";");
+        const label = document.createElement("span");
+        label.textContent = i + 1;
+        label.style.cssText = [
+          "font-family:monospace", "font-size:9px",
+          "color:rgba(255,30,90,0.45)", "padding:52px 4px 0",
+          "display:block", "text-align:center",
+        ].join(";");
+        col.appendChild(label);
+        overlay.appendChild(col);
+      }
+      document.body.appendChild(overlay);
+    }
   }
 
   if (document.readyState === "loading") {
