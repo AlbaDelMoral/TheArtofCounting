@@ -11,7 +11,7 @@
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-right: 0.5px solid #e0e0e0;
-  padding: calc(var(--nav-height) + 20px) 18px 24px 18px;
+  padding: calc(var(--nav-height) + 48px) 18px 24px 18px;
   display: flex;
   flex-direction: column;
   gap: 0;

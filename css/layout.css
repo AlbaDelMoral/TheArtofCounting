@@ -18,7 +18,9 @@
   display: flex;
   align-items: center;
   padding-left: 14px;
+  padding-right: 14px;
   text-decoration: none;
+  overflow: hidden;
 }
 
 .nav-logo-img {
@@ -38,9 +40,11 @@
   pointer-events: none;
 }
 
-/* three links on the right */
+/* three links — columns 9, 10, 11 out of 12; column 12 = right margin */
 .nav-links {
-  width: 75%;
+  width: calc(100% / 4);      /* 3/12 = one quarter */
+  margin-left: auto;
+  margin-right: calc(100% / 12);  /* 1/12 right gap */
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
