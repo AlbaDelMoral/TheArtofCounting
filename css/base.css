@@ -25,7 +25,8 @@
 
 @font-face {
   font-family: "ABCROMWide";
-  src: url("../assets/fonts/ABCROMWide-RegularItalic-Trial.otf") format("opentype");
+  src: url("../assets/fonts/ABCROMWide-RegularItalic-Trial.otf")
+    format("opentype");
   font-weight: 400;
   font-style: italic;
   font-display: swap;
@@ -41,7 +42,8 @@
 
 @font-face {
   font-family: "ABCROMExtended";
-  src: url("../assets/fonts/ABCROMExtended-Regular-Trial.otf") format("opentype");
+  src: url("../assets/fonts/ABCROMExtended-Regular-Trial.otf")
+    format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -49,7 +51,8 @@
 
 @font-face {
   font-family: "ABCROMCompressed";
-  src: url("../assets/fonts/ABCROMCompressed-Light-Trial.otf") format("opentype");
+  src: url("../assets/fonts/ABCROMCompressed-Light-Trial.otf")
+    format("opentype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -57,7 +60,8 @@
 
 @font-face {
   font-family: "ABCROMCompressed";
-  src: url("../assets/fonts/ABCROMCompressed-Black-Trial.otf") format("opentype");
+  src: url("../assets/fonts/ABCROMCompressed-Black-Trial.otf")
+    format("opentype");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -65,7 +69,8 @@
 
 @font-face {
   font-family: "KMRWaldenburg";
-  src: url("../assets/fonts/KMRWaldenburg-SemiCondensedBlack.otf") format("opentype");
+  src: url("../assets/fonts/KMRWaldenburg-SemiCondensedBlack.otf")
+    format("opentype");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -95,7 +100,7 @@
 /* ── CSS variables ───────────────────────────────────────────────────────── */
 :root {
   /* colors */
-  --color-bg: #ffffff; /* page background */
+  --color-bg: #f8f8f5; /* page background */
   --color-main: #111111; /* primary text & ui */
   --color-second: #555555; /* secondary text, labels */
   --color-muted: #aaaaaa; /* placeholders, disabled, hints */
@@ -137,7 +142,7 @@
   --space-2xl: 128px;
 
   /* layout */
-  --nav-height: 25px;
+  --nav-height: 42px;
   --max-width: 1200px;
   --gutter: 0px;
 

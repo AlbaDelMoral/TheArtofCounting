@@ -9,12 +9,14 @@
       return pages.includes(page) ? ' class="active"' : "";
     }
 
+    const isHome = page === "index.html" || page === "";
+
     const nav = document.createElement("nav");
     nav.className = "site-nav";
     nav.innerHTML = `
-      <a href="index.html" class="nav-logo-link" aria-label="Home">
+      <a href="index.html" class="nav-logo-link${isHome ? " nav-logo-link--hidden" : ""}" aria-label="Home">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 214.41 25.94" class="nav-logo-img" aria-hidden="true">
-          <text style="fill:#ffffff;font-family:AeonikTRIAL-SemiBold,'Aeonik TRIAL';font-size:28.01px;font-weight:600"
+          <text style="fill:#000000;font-family:AeonikTRIAL-SemiBold,'Aeonik TRIAL';font-size:28.01px;font-weight:600"
                 transform="translate(-.14 20.17)">
             <tspan style="letter-spacing:-.04em" x="0"      y="0">t</tspan>
             <tspan style="letter-spacing:-.05em" x="9.36"   y="0">h</tspan>

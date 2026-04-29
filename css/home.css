@@ -2,9 +2,9 @@
 .home-banner {
   position: relative;
   z-index: 10;
-  margin-top: var(--nav-height);   /* sits flush below the fixed nav */
+  margin-top: var(--nav-height); /* sits flush below the fixed nav */
   background: #e9e8e300;
-  border-top: 0.5px solid #555555; /* dividing line between nav and logo */
+  border-top: 0.5px solid #444444; /* dividing line between nav and logo */
 }
 
 /* logo: full width, flush edges */
@@ -35,7 +35,7 @@
   font-family: "KMRWaldenburg", sans-serif;
   font-weight: 900;
   font-size: 29px;
-  color: #b7b6b6;
+  color: #cfcfcf;
   user-select: none;
   z-index: 10;
 }

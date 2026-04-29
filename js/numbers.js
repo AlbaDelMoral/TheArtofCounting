@@ -300,7 +300,7 @@ function setup() {
 
 function draw() {
   blendMode(BLEND);
-  background(PAL.bg);
+  background(0, 0, 100); // HSB white
 
   for (let i = 0; i < composition.length; i++) {
     const item = composition[i];
@@ -337,7 +337,7 @@ function draw() {
 
   if (CONFIG.bokeh > 0) {
     const snap = get();
-    background(PAL.bg);
+    background(0, 0, 100);
     drawingContext.filter = `blur(${CONFIG.bokeh}px)`;
     blendMode(BLEND);
     image(snap, 0, 0);

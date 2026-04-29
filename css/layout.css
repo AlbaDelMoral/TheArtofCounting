@@ -5,7 +5,7 @@
   left: 0;
   width: 100%;
   height: var(--nav-height);
-  background: #000;
+  background: #ffffff00;
   display: flex;
   align-items: stretch;
   z-index: 100;
@@ -13,16 +13,16 @@
 
 /* small logo on the left — home button */
 .nav-logo-link {
-  width: 50%;
+  width: 25%;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  padding-left: 10px;
+  padding-left: 14px;
   text-decoration: none;
 }
 
 .nav-logo-img {
-  height: 11px;
+  height: 30px;
   width: auto;
   display: block;
   opacity: 0.75;
@@ -33,9 +33,14 @@
   opacity: 1;
 }
 
+.nav-logo-link--hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* three links on the right */
 .nav-links {
-  width: 50%;
+  width: 75%;
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -45,9 +50,9 @@
 .nav-links > a,
 .nav-dropdown > a {
   font-family: var(--font-display);
-  font-weight: bold;
+  font-weight: medium;
   font-size: var(--text-sm);
-  color: #fff;
+  color: #000000;
   letter-spacing: 0.02em;
   text-decoration: none;
   padding-left: 10px;
@@ -58,12 +63,12 @@
 
 .nav-links > a:hover,
 .nav-dropdown > a:hover {
-  color: aqua;
+  font-weight: bolder;
 }
 
 .nav-links > a.active,
 .nav-dropdown > a.active {
-  color: aqua;
+  font-weight: bolder;
 }
 
 /* ── play dropdown ───────────────────────────────────────────────────────── */
@@ -98,5 +103,9 @@
   transition: color var(--duration-fast) var(--ease);
 }
 
-.nav-dropdown-menu a:hover { color: aqua; }
-.nav-dropdown-menu a.active { color: aqua; }
+.nav-dropdown-menu a:hover {
+  color: aqua;
+}
+.nav-dropdown-menu a.active {
+  color: aqua;
+}
