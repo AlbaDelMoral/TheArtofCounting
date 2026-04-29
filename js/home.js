@@ -32,6 +32,10 @@ const HOME = {
 
 let balls = [];
 
+// Cached DOM refs for colliders — resolved once on first draw
+let _bandEl = null;
+let _tiltEl = null;
+
 // ─── p5 lifecycle ─────────────────────────────────────────────────────────────
 
 // Overrides number-system.js preload — still assigns to its paletteTable global
@@ -53,6 +57,8 @@ function setup() {
 }
 
 function draw() {
+  resolveBandRefs(); // no-op after first successful query
+
   blendMode(BLEND);
   clear();
   colorMode(HSB, 360, 100, 100, 255);
@@ -91,6 +97,9 @@ function draw() {
     // per-letter collision
     for (const rect of letterRects) rectBounce(b, rect);
 
+    // band collision (OBB — respects the CSS rotation)
+    if (_bandEl && _tiltEl) obbBounce(b, _bandEl, _tiltEl);
+
     // draw as a number circle
     randomSeed(b.colorSeed);
     reshuffleColors();
@@ -126,6 +135,73 @@ function spawnBalls() {
       angle: random(TWO_PI),
       rotSpeed: (random() < 0.5 ? -1 : 1) * random(0.002, 0.01),
     });
+  }
+}
+
+// ─── DOM query helpers (run once) ─────────────────────────────────────────────
+function resolveBandRefs() {
+  if (!_bandEl) _bandEl = document.querySelector(".home-band");
+  if (!_tiltEl) _tiltEl = document.querySelector(".home-tilt");
+}
+
+// Extract rotation angle (degrees) from an element's computed CSS transform matrix
+function getRotationDeg(el) {
+  const m = window.getComputedStyle(el).transform;
+  if (!m || m === "none") return 0;
+  const v = m.match(/matrix\(([^)]+)\)/);
+  if (!v) return 0;
+  const [a, b] = v[1].split(",").map(parseFloat);
+  return Math.atan2(b, a) * (180 / Math.PI);
+}
+
+// Circle vs OBB — handles CSS-rotated rectangles
+// Uses the element's offsetWidth/Height (pre-transform) for the half-extents
+// and reads the actual rotation from the ancestor tiltEl's computed matrix.
+function obbBounce(b, el, tiltEl) {
+  const rect   = el.getBoundingClientRect();
+  const cx     = (rect.left + rect.right)   / 2;
+  const cy     = (rect.top  + rect.bottom)  / 2;
+  const hw     = el.offsetWidth  / 2;
+  const hh     = el.offsetHeight / 2;
+  const ang    = getRotationDeg(tiltEl) * (Math.PI / 180); // radians
+
+  // Transform ball into OBB local space (un-rotate)
+  const dx  =  b.x - cx;
+  const dy  =  b.y - cy;
+  const cos =  Math.cos(-ang);
+  const sin =  Math.sin(-ang);
+  const lx  =  dx * cos - dy * sin;
+  const ly  =  dx * sin + dy * cos;
+
+  // Nearest point on the unrotated rect in local space
+  const nlx = constrain(lx, -hw, hw);
+  const nly = constrain(ly, -hh, hh);
+
+  // Distance from nearest point to ball centre
+  const ex = lx - nlx;
+  const ey = ly - nly;
+  const d  = Math.sqrt(ex * ex + ey * ey);
+
+  if (d > 0 && d < b.r) {
+    // Contact normal in local space
+    const nx_l = ex / d;
+    const ny_l = ey / d;
+
+    // Rotate normal back to world space
+    const cosA = Math.cos(ang);
+    const sinA = Math.sin(ang);
+    const nx = nx_l * cosA - ny_l * sinA;
+    const ny = nx_l * sinA + ny_l * cosA;
+
+    // Push ball out of the surface
+    const overlap = b.r - d;
+    b.x += nx * overlap;
+    b.y += ny * overlap;
+
+    // Reflect velocity along the world-space normal
+    const dot = b.vx * nx + b.vy * ny;
+    b.vx = (b.vx - 2 * dot * nx) * HOME.bounce;
+    b.vy = (b.vy - 2 * dot * ny) * HOME.bounce;
   }
 }
 
