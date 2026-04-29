@@ -76,6 +76,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "KMRWaldenburg";
+  src: url("../assets/fonts/KMRWaldenburg-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Aeonik — used for the inline SVG logo */
 @font-face {
   font-family: "AeonikTRIAL-SemiBold";
@@ -85,6 +93,11 @@
 @font-face {
   font-family: "Aeonik TRIAL";
   src: url("../assets/fonts/Aeonik-Bold.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/Aeonik-Light.ttf") format("truetype");
   font-display: swap;
 }
 
@@ -100,7 +113,7 @@
 /* ── CSS variables ───────────────────────────────────────────────────────── */
 :root {
   /* colors */
-  --color-bg: #f8f8f5; /* page background */
+  --color-bg: #f1f1f1; /* page background */
   --color-main: #111111; /* primary text & ui */
   --color-second: #555555; /* secondary text, labels */
   --color-muted: #aaaaaa; /* placeholders, disabled, hints */
@@ -129,7 +142,7 @@
   --weight-bold: 700;
 
   /* typography — line height */
-  --leading-tight: 1.1;
+  --leading-tight: 1;
   --leading-normal: 1.5;
   --leading-loose: 1.8;
 
@@ -145,6 +158,7 @@
   --nav-height: 42px;
   --max-width: 1200px;
   --gutter: 0px;
+  --home-margin: 25px; /* adjust this value as needed */
 
   /* motion */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);

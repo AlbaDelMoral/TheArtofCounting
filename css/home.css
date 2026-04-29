@@ -13,12 +13,16 @@
   width: 100%;
   height: auto;
   line-height: 0;
+  padding-left: var(--home-margin);
+  padding-right: var(--home-margin);
 }
 
 .home-logo svg {
   display: block;
   width: 100%;
   height: auto;
+  padding-left: var(--home-margin);
+  padding-right: var(--home-margin);
 }
 
 /* ── mathematics — fixed at vertical center, full viewport width ─────────── */
@@ -34,8 +38,81 @@
   padding: 0;
   font-family: "KMRWaldenburg", sans-serif;
   font-weight: 900;
-  font-size: 29px;
+  font-size: 22px;
   color: #cfcfcf;
   user-select: none;
   z-index: 10;
+  padding-left: var(--home-margin);
+  padding-right: var(--home-margin);
+}
+
+/* ── band text (before ticks) ─────────────────── */
+.home-band-text {
+  position: relative;
+  position: relative;
+  top: -150px; /* aligns vertically with tick line */
+
+  font-family: "Aeonik TRIAL";
+  font-weight: 400;
+  font-size: var(--text-xl);
+  letter-spacing: -0.03em;
+  line-height: var(--leading-tight);
+
+  color: rgb(0, 201, 232, 100);
+}
+
+.home-band-text2 {
+  position: relative;
+  top: -15px; /* aligns vertically with tick line */
+
+  font-family: "KMRWaldenburg";
+  font-weight: 500;
+  font-size: 14px;
+
+  line-height: 1.2;
+
+  color: rgb(0, 201, 232, 100);
+}
+
+/* ── horizontal band under mathematics ───────── */
+.home-band {
+  position: relative;
+  top: 75%; /* slightly below the centered MATHEMATICS */
+  left: 0;
+  width: 100%;
+  height: 60px;
+
+  background: #ddfff9; /* same mint tone as your design */
+
+  z-index: 2; /* below math text, above background */
+  pointer-events: none;
+}
+
+/* ── vertical tick line above band ───────────── */
+.home-band::before {
+  position: fixed;
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: 0;
+  width: 100%;
+  height: 8px; /* makes the line "taller" */
+
+  background: repeating-linear-gradient(
+    to right,
+    rgba(35, 35, 35, 0.35) 0px,
+    rgba(35, 35, 35, 0.35) 1.5px,
+    /* 👈 thickness (was 1px) */ transparent 1.5px,
+    transparent 30px
+  );
+
+  z-index: 3;
+}
+
+/* ── tilt entire hero group ───────────────── */
+.home-tilt {
+  transform: translateY(400px);
+
+  /* - transform: rotate(-15deg) translateY(350px) translateX(-50px); /* adjust angle */
+  /* transform-origin: center; */
 }
