@@ -24,7 +24,7 @@
 }
 
 .nav-logo-img {
-  height: 22px;
+  height: 28px;
   width: auto;
   max-width: 100%;
   display: block;
@@ -43,9 +43,9 @@
 
 /* three links — columns 9, 10, 11 out of 12; column 12 = right margin */
 .nav-links {
-  width: calc(100% / 4);      /* 3/12 = one quarter */
+  width: calc(100% / 2); /* 3/12 = one quarter */
   margin-left: auto;
-  margin-right: calc(100% / 12);  /* 1/12 right gap */
+
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -68,12 +68,12 @@
 
 .nav-links > a:hover,
 .nav-dropdown > a:hover {
-  font-weight: bolder;
+  font-weight: var(--weight-bold);
 }
 
 .nav-links > a.active,
 .nav-dropdown > a.active {
-  font-weight: bolder;
+  font-weight: var(--weight-bold);
 }
 
 /* ── play dropdown ───────────────────────────────────────────────────────── */
@@ -84,9 +84,9 @@
 .nav-dropdown-menu {
   display: none;
   position: absolute;
-  top: 100%;
+  top: 70%;
   left: 0;
-  background: #000;
+  background: #00000000;
   min-width: 100%;
   padding: 4px 0;
 }
@@ -97,20 +97,21 @@
 
 .nav-dropdown-menu a {
   font-family: var(--font-display);
-  font-weight: bold;
+  font-weight: normal;
   font-size: var(--text-sm);
-  color: #fff;
+  color: #0073ff;
   letter-spacing: 0.02em;
   text-decoration: none;
   display: block;
-  padding: 5px 10px;
+  padding: 0px 10px;
   white-space: nowrap;
   transition: color var(--duration-fast) var(--ease);
 }
 
 .nav-dropdown-menu a:hover {
-  color: aqua;
+  text-decoration: underline;
+  font-weight: bold;
 }
 .nav-dropdown-menu a.active {
-  color: aqua;
+  text-decoration: underline;
 }

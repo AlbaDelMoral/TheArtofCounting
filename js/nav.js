@@ -20,7 +20,7 @@ const DEBUG_GRID = false;
     nav.innerHTML = `
       <a href="index.html" class="nav-logo-link${isHome ? " nav-logo-link--hidden" : ""}" aria-label="Home">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 214.41 25.94" class="nav-logo-img" aria-hidden="true">
-          <text style="fill:#000000;font-family:AeonikTRIAL-SemiBold,'Aeonik TRIAL';font-size:28.01px;font-weight:600"
+          <text style="fill:#d7d7d7;font-family:AeonikTRIAL-SemiBold,'Aeonik TRIAL';font-size:28.01px;font-weight:600"
                 transform="translate(-.14 20.17)">
             <tspan style="letter-spacing:-.04em" x="0"      y="0">t</tspan>
             <tspan style="letter-spacing:-.05em" x="9.36"   y="0">h</tspan>
@@ -61,9 +61,14 @@ const DEBUG_GRID = false;
     if (DEBUG_GRID) {
       const overlay = document.createElement("div");
       overlay.style.cssText = [
-        "position:fixed", "inset:0", "width:100%", "height:100%",
-        "display:grid", "grid-template-columns:repeat(12,1fr)",
-        "pointer-events:none", "z-index:99999",
+        "position:fixed",
+        "inset:0",
+        "width:100%",
+        "height:100%",
+        "display:grid",
+        "grid-template-columns:repeat(12,1fr)",
+        "pointer-events:none",
+        "z-index:99999",
       ].join(";");
 
       for (let i = 0; i < 12; i++) {
@@ -76,9 +81,12 @@ const DEBUG_GRID = false;
         const label = document.createElement("span");
         label.textContent = i + 1;
         label.style.cssText = [
-          "font-family:monospace", "font-size:9px",
-          "color:rgba(255,30,90,0.45)", "padding:52px 4px 0",
-          "display:block", "text-align:center",
+          "font-family:monospace",
+          "font-size:9px",
+          "color:rgba(255,30,90,0.45)",
+          "padding:52px 4px 0",
+          "display:block",
+          "text-align:center",
         ].join(";");
         col.appendChild(label);
         overlay.appendChild(col);

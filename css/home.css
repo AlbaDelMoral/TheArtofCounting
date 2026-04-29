@@ -4,7 +4,7 @@
   z-index: 10;
   margin-top: var(--nav-height); /* sits flush below the fixed nav */
   background: #e9e8e300;
-  border-top: 0.5px solid #444444; /* dividing line between nav and logo */
+  border-top: 0px solid #444444; /* dividing line between nav and logo */
 }
 
 /* logo: full width, flush edges */
