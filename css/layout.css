@@ -24,8 +24,9 @@
 }
 
 .nav-logo-img {
-  width: 100%;
-  height: auto;
+  height: 22px;
+  width: auto;
+  max-width: 100%;
   display: block;
   opacity: 0.75;
   transition: opacity var(--duration-fast) var(--ease);
