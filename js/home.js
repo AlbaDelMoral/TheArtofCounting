@@ -31,6 +31,7 @@ const HOME = {
 };
 
 let balls = [];
+let _cnv;  // canvas element ref for clip-path updates
 
 // Cached DOM refs for colliders — resolved once on first draw
 let _bandEl = null;
@@ -45,11 +46,16 @@ function preload() {
 
 function setup() {
   const cnv = createCanvas(windowWidth, windowHeight);
+  _cnv = cnv.elt;
   cnv.style("position", "fixed");
   cnv.style("top", "0");
   cnv.style("left", "0");
   cnv.style("z-index", "5");
   cnv.style("pointer-events", "none");
+
+  // Clip canvas to the hero section (100vh) — hides balls when user scrolls
+  window.addEventListener("scroll", _clipToHero, { passive: true });
+  _clipToHero();
 
   colorMode(HSB, 360, 100, 100, 255);
   buildPalette(); // from number-system.js — populates PAL + SWATCHES
@@ -117,6 +123,7 @@ function draw() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  _clipToHero();
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -136,6 +143,17 @@ function spawnBalls() {
       rotSpeed: (random() < 0.5 ? -1 : 1) * random(0.002, 0.01),
     });
   }
+}
+
+// ─── scroll clip ──────────────────────────────────────────────────────────────
+// The canvas is position:fixed so it floats over every section.
+// clip-path inset clips it from the bottom as the user scrolls,
+// making the balls disappear exactly as the hero leaves the viewport.
+function _clipToHero() {
+  if (!_cnv) return;
+  const sy = window.scrollY || 0;
+  // inset(top right bottom left) — clip `sy` px from the bottom edge
+  _cnv.style.clipPath = `inset(0 0 ${sy}px 0)`;
 }
 
 // ─── DOM query helpers (run once) ─────────────────────────────────────────────
