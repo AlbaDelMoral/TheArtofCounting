@@ -46,10 +46,11 @@ const DEBUG_GRID = false;
       <div class="nav-links">
         <a href="learn.html"${active("learn.html")}>learn</a>
         <div class="nav-dropdown">
-          <a href="numbers.html"${active("numbers.html", "operations.html")}>play</a>
+          <a href="numbers.html"${active("numbers.html", "operations.html", "multiplication.html")}>play</a>
           <div class="nav-dropdown-menu">
             <a href="numbers.html"${active("numbers.html")}>Numbers</a>
             <a href="operations.html"${active("operations.html")}>Operations</a>
+            <a href="multiplication.html"${active("multiplication.html")}>Multiplication</a>
           </div>
         </div>
         <a href="gallery.html"${active("gallery.html")}>gallery</a>
