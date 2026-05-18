@@ -1,73 +1,5 @@
 /* ── fonts ───────────────────────────────────────────────────────────────── */
 @font-face {
-  font-family: "ABCROM";
-  src: url("../assets/fonts/ABCROM-Bold-Trial.otf") format("opentype");
-  font-weight: bold;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "ABCROM";
-  src: url("../assets/fonts/ABCROM-Medium-Trial.otf") format("opentype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "ABCROMWide";
-  src: url("../assets/fonts/ABCROMWide-Black-Trial.otf") format("opentype");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "ABCROMWide";
-  src: url("../assets/fonts/ABCROMWide-RegularItalic-Trial.otf")
-    format("opentype");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "ABCROMExtended";
-  src: url("../assets/fonts/ABCROMExtended-Black-Trial.otf") format("opentype");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "ABCROMExtended";
-  src: url("../assets/fonts/ABCROMExtended-Regular-Trial.otf")
-    format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "ABCROMCompressed";
-  src: url("../assets/fonts/ABCROMCompressed-Light-Trial.otf")
-    format("opentype");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "ABCROMCompressed";
-  src: url("../assets/fonts/ABCROMCompressed-Black-Trial.otf")
-    format("opentype");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
   font-family: "KMRWaldenburg";
   src: url("../assets/fonts/KMRWaldenburg-SemiCondensedBlack.otf")
     format("opentype");
@@ -81,6 +13,14 @@
   src: url("../assets/fonts/KMRWaldenburg-Medium.otf") format("opentype");
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KMRWaldenburg";
+  src: url("../assets/fonts/KMRWaldenburg-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
   font-display: swap;
 }
 
@@ -114,7 +54,7 @@
 :root {
   /* colors */
   --color-bg: #f6f6f6; /* page background */
-  --color-main: #111111; /* primary text & ui */
+  --color-main: #5f5f5f; /* primary text & ui */
   --color-second: #555555; /* secondary text, labels */
   --color-muted: #aaaaaa; /* placeholders, disabled, hints */
   --color-accent: #111111; /* interactive highlight / brand color */
@@ -123,12 +63,13 @@
   --color-on-accent: #ffffff; /* text placed on top of --color-accent */
 
   /* typography — families */
-  --font-display: "ABCROM", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display:
+    "KMRWaldenburg", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono: "Courier New", Courier, monospace;
 
   /* typography — scale */
-  --text-xs: 11px;
+  --text-xs: 10px;
   --text-sm: 12px;
   --text-base: 16px;
   --text-md: 20px;

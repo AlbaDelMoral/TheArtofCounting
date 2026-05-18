@@ -69,31 +69,58 @@ function generateCompositionData() {
 }
 
 // Rebuilds composition[] from compositionData[] + current CONFIG values.
+// Auto-scales to always fit within the usable area (excluding panel + nav).
 function computePositions() {
   composition = [];
   const n = compositionData.length;
   if (n === 0) return;
 
-  const m    = min(width, height);
+  // ── Usable area ─────────────────────────────────────────────────────────────
+  const pad    = 24;
+  const panelW = (typeof panel !== 'undefined' && panel && panel.elt)
+                   ? panel.elt.offsetWidth : 0;
+  const navEl  = document.querySelector('.site-nav');
+  const navH   = navEl ? navEl.offsetHeight : 0;
+  const areaX  = panelW + pad;
+  const areaY  = navH   + pad;
+  const areaW  = width  - areaX - pad;
+  const areaH  = height - areaY - pad;
+
+  // ── Base radii from config (sized against usable area) ──────────────────────
+  const m     = min(areaW, areaH);
   const radii = compositionData.map((d) => {
     const lo = Math.max(0.01, CONFIG.compScale * (1 - CONFIG.sizeVariation));
     const hi = CONFIG.compScale * (1 + CONFIG.sizeVariation);
     return lerp(lo, hi, d.sizeT) * m;
   });
 
-  const xs = [radii[0]];
+  // ── Compute raw total width ──────────────────────────────────────────────────
+  const xs0 = [radii[0]];
   for (let i = 1; i < n; i++)
-    xs.push(xs[i - 1] + (radii[i - 1] + radii[i]) * (1 - CONFIG.overlapFactor));
+    xs0.push(xs0[i - 1] + (radii[i - 1] + radii[i]) * (1 - CONFIG.overlapFactor));
+  const totalW0 = xs0[n - 1] + radii[n - 1];
+  const maxR0   = Math.max(...radii);
 
-  const totalW = xs[n - 1] + radii[n - 1];
-  const ox     = (width - totalW) / 2;
-  const cy     = height / 2;
+  // ── Scale down if circles overflow width or height ───────────────────────────
+  const scaleW = totalW0    > areaW       ? areaW       / totalW0    : 1;
+  const scaleH = maxR0 * 2  > areaH       ? areaH       / (maxR0*2)  : 1;
+  const scale  = Math.min(scaleW, scaleH, 1);
+
+  const scaledR = radii.map((r) => r * scale);
+  const xs      = [scaledR[0]];
+  for (let i = 1; i < n; i++)
+    xs.push(xs[i - 1] + (scaledR[i - 1] + scaledR[i]) * (1 - CONFIG.overlapFactor));
+  const totalW = xs[n - 1] + scaledR[n - 1];
+
+  // ── Center within usable area ────────────────────────────────────────────────
+  const ox = areaX + (areaW - totalW) / 2;
+  const cy = areaY + areaH / 2;
 
   for (let i = 0; i < n; i++) {
     composition.push({
       x:         ox + xs[i],
       y:         cy,
-      r:         radii[i],
+      r:         scaledR[i],
       numStr:    compositionData[i].numStr,
       colorSeed: compositionData[i].colorSeed,
     });

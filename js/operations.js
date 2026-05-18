@@ -97,34 +97,55 @@ function computePositions() {
   const nChains = chainData.length;
   if (nChains === 0) return;
 
-  const m = min(width, height);
-  const lo = Math.max(0.01, CONFIG.compScale * (1 - CONFIG.sizeVariation));
-  const hi = CONFIG.compScale * (1 + CONFIG.sizeVariation);
-  const rowH = height / nChains;
+  // ── Usable area: exclude panel on left and nav on top ───────────────────────
+  const pad     = 24;
+  const panelEl = document.querySelector('.side-panel');
+  const navEl   = document.querySelector('.site-nav');
+  const panelW  = panelEl ? panelEl.offsetWidth : 0;
+  const navH    = navEl   ? navEl.offsetHeight  : 0;
+  const areaX   = panelW + pad;
+  const areaY   = navH   + pad;
+  const areaW   = width  - areaX - pad;
+  const areaH   = height - areaY - pad;
+
+  const m    = min(areaW, areaH);
+  const lo   = Math.max(0.01, CONFIG.compScale * (1 - CONFIG.sizeVariation));
+  const hi   = CONFIG.compScale * (1 + CONFIG.sizeVariation);
+  const rowH = areaH / nChains;
 
   for (let c = 0; c < nChains; c++) {
     const data = chainData[c];
-    const n = data.nums.length;
-    const cy = rowH * (c + 0.5);
+    const n    = data.nums.length;
+    const cy   = areaY + rowH * (c + 0.5);
 
     const radii = data.sizeTs.map((t) => lerp(lo, hi, t) * m);
 
-    const xs = [radii[0]];
+    // ── Raw total width ────────────────────────────────────────────────────────
+    const xs0 = [radii[0]];
     for (let i = 1; i < n; i++)
-      xs.push(
-        xs[i - 1] + (radii[i - 1] + radii[i]) * (1 - CONFIG.chainSpacing),
-      );
+      xs0.push(xs0[i - 1] + (radii[i - 1] + radii[i]) * (1 - CONFIG.chainSpacing));
+    const totalW0 = xs0[n - 1] + radii[n - 1];
+    const maxR0   = Math.max(...radii);
 
-    const totalW = xs[n - 1] + radii[n - 1];
-    const ox = (width - totalW) / 2;
+    // ── Scale down if circles overflow width or row height ────────────────────
+    const scaleW = totalW0    > areaW ? areaW / totalW0          : 1;
+    const scaleH = maxR0 * 2  > rowH  ? rowH  / (maxR0 * 2)     : 1;
+    const scale  = Math.min(scaleW, scaleH, 1);
+
+    const scaledR = radii.map((r) => r * scale);
+    const xs = [scaledR[0]];
+    for (let i = 1; i < n; i++)
+      xs.push(xs[i - 1] + (scaledR[i - 1] + scaledR[i]) * (1 - CONFIG.chainSpacing));
+    const totalW = xs[n - 1] + scaledR[n - 1];
+    const ox     = areaX + (areaW - totalW) / 2;
 
     const circles = data.nums.map((numStr, i) => ({
-      x: ox + xs[i],
-      y: cy,
-      r: radii[i],
+      x:         ox + xs[i],
+      y:         cy,
+      r:         scaledR[i],
       numStr,
       colorSeed: data.colorSeeds[i],
-      fontIdx: data.fontIdxs[i],
+      fontIdx:   data.fontIdxs[i],
     }));
 
     const lightSwatches = SWATCHES.filter((s) => s.type === "light");

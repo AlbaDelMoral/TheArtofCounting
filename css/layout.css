@@ -9,6 +9,7 @@
   display: flex;
   align-items: stretch;
   z-index: 100;
+  overflow: visible;
 }
 
 /* small logo on the left — home button */
@@ -45,7 +46,7 @@
 .nav-links {
   width: calc(100% / 2); /* 3/12 = one quarter */
   margin-left: auto;
-
+  color: var(--color-main);
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -53,11 +54,12 @@
 }
 
 .nav-links > a,
-.nav-dropdown > a {
+.nav-dropdown > a,
+.nav-dropdown-inner > a {
   font-family: var(--font-display);
-  font-weight: medium;
-  font-size: var(--text-sm);
-  color: #000000;
+  font-weight: 900;
+  font-size: var(--text-xs);
+  color: var(--color-main);
   letter-spacing: 0.02em;
   text-decoration: none;
   padding-left: 10px;
@@ -66,52 +68,78 @@
   transition: color var(--duration-fast) var(--ease);
 }
 
+.nav-num {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-main);
+  margin-right: 15px;
+  padding-right: 15px;
+  border-right: 2px solid currentColor;
+  opacity: 1px;
+  height: 10px; /* ← controls the line length */
+}
+
 .nav-links > a:hover,
-.nav-dropdown > a:hover {
+.nav-dropdown > a:hover,
+.nav-dropdown-inner > a:hover {
   font-weight: var(--weight-bold);
+  color: #121212;
 }
 
 .nav-links > a.active,
-.nav-dropdown > a.active {
+.nav-dropdown > a.active,
+.nav-dropdown-inner > a.active {
   font-weight: var(--weight-bold);
 }
 
 /* ── play dropdown ───────────────────────────────────────────────────────── */
 .nav-dropdown {
+  display: flex;
+  align-items: center;
+}
+
+/* inner wrapper is only as wide as the "2 | Play" text —
+   the menu is positioned relative to this, not the full grid cell */
+.nav-dropdown-inner {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: var(--nav-height);
 }
 
 .nav-dropdown-menu {
   display: none;
   position: absolute;
-  top: 70%;
-  left: 0;
-  background: #00000000;
-  min-width: 100%;
-  padding: 4px 0;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-9px);
+  flex-direction: column;
+  gap: 5px;
+  padding-left: 20px;
+  white-space: nowrap;
 }
 
 .nav-dropdown:hover .nav-dropdown-menu {
-  display: block;
+  display: flex;
 }
 
 .nav-dropdown-menu a {
   font-family: var(--font-display);
-  font-weight: normal;
-  font-size: var(--text-sm);
-  color: #0073ff;
+  font-weight: 500;
+  font-style: italic;
+  font-size: var(--text-xs);
+  color: #838383;
   letter-spacing: 0.02em;
   text-decoration: none;
   display: block;
-  padding: 0px 10px;
-  white-space: nowrap;
+  line-height: 1.6;
   transition: color var(--duration-fast) var(--ease);
 }
 
 .nav-dropdown-menu a:hover {
-  text-decoration: underline;
-  font-weight: bold;
+  color: var(--color-main);
 }
+
 .nav-dropdown-menu a.active {
-  text-decoration: underline;
+  color: var(--color-main);
 }

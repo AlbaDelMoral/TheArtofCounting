@@ -61,7 +61,9 @@ let PAL = {};
 let SWATCHES = [];
 
 function preload() {
-  paletteTable = loadTable("data/palette.csv", "csv", "header");
+  paletteTable      = loadTable('data/palette.csv',  'csv', 'header');
+  numberColorsTable = loadTable('data/palette2.csv', 'csv', 'header');
+  bgColorTable      = loadTable('data/palette3.csv', 'csv', 'header');
 }
 
 function buildPalette() {

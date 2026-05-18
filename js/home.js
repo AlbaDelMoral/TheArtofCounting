@@ -3,7 +3,7 @@
 // Overrides number-system.js's preload() — still loads paletteTable.
 
 // ─── toggle ───────────────────────────────────────────────────────────────────
-const FALLING_CIRCLES = true; // set to false to hide the falling number circles
+const FALLING_CIRCLES = false; // set to false to hide the falling number circles
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Drawing parameters used by number-system.js's drawNumber()
@@ -42,6 +42,8 @@ let _cnv; // canvas element ref for clip-path updates
 // Overrides number-system.js preload — still assigns to its paletteTable global
 function preload() {
   paletteTable = loadTable("data/palette.csv", "csv", "header");
+  numberColorsTable = loadTable("data/palette2.csv", "csv", "header");
+  bgColorTable = loadTable("data/palette3.csv", "csv", "header");
 }
 
 function setup() {

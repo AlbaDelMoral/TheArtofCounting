@@ -2,28 +2,33 @@
 // Used by numbers.js and operations.js.
 // Depends on: p5.js, CONFIG (defined in the page sketch), data/palette.csv
 
+// ─── digit color palette (loaded from palette2.csv + palette3.csv) ────────────
+// Populated by buildPalette() — do not use before setup() runs.
+let NUMBER_COLORS    = {};   // { 1: { dark, mid, light }, … }  HSB values
+let NUMBER_BG_COLORS = {};   // { 1: p5color, 2: p5color, … } — one bg per digit
 // ─── font table ───────────────────────────────────────────────────────────────
 const FONTS = [
-  { family: "ABCROM",           weight: "bold", style: "normal" },
-  { family: "ABCROMWide",       weight: "900",  style: "normal" },
-  { family: "ABCROMWide",       weight: "400",  style: "italic" },
-  { family: "ABCROMExtended",   weight: "900",  style: "normal" },
-  { family: "ABCROMExtended",   weight: "400",  style: "normal" },
-  { family: "ABCROMCompressed", weight: "300",  style: "normal" },
-  { family: "ABCROMCompressed", weight: "900",  style: "normal" },
+  { family: "KMRWaldenburg", weight: "900",  style: "normal" },
+  { family: "KMRWaldenburg", weight: "500",  style: "normal" },
 ];
 
 // ─── palette ──────────────────────────────────────────────────────────────────
 let paletteTable;
+let numberColorsTable;
+let bgColorTable;
 let PAL = {};
 let SWATCHES = [];
 
 function preload() {
-  paletteTable = loadTable("data/palette.csv", "csv", "header");
+  paletteTable      = loadTable('data/palette.csv',  'csv', 'header');
+  numberColorsTable = loadTable('data/palette2.csv', 'csv', 'header');
+  bgColorTable      = loadTable('data/palette3.csv', 'csv', 'header');
 }
 
 function buildPalette() {
   colorMode(HSB, 360, 100, 100, 255);
+
+  // ── palette.csv → SWATCHES ───────────────────────────────────────────────────
   SWATCHES = [];
   for (let i = 0; i < paletteTable.getRowCount(); i++) {
     const row  = paletteTable.getRow(i);
@@ -35,6 +40,26 @@ function buildPalette() {
     const col  = color(h, s, b);
     PAL[name]  = col;
     if (name.startsWith("swatch_")) SWATCHES.push({ col, type });
+  }
+
+  // ── palette2.csv → NUMBER_COLORS ─────────────────────────────────────────────
+  NUMBER_COLORS = {};
+  for (let i = 0; i < numberColorsTable.getRowCount(); i++) {
+    const row   = numberColorsTable.getRow(i);
+    const digit = row.getNum('digit');
+    const tier  = row.getString('tier');
+    const H     = row.getNum('H');
+    const S     = row.getNum('S');
+    const B     = row.getNum('B');
+    if (!NUMBER_COLORS[digit]) NUMBER_COLORS[digit] = {};
+    NUMBER_COLORS[digit][tier] = { H, S, B };
+  }
+
+  // ── palette3.csv → NUMBER_BG_COLORS (row 0 = digit 1, row 8 = digit 9) ───────
+  NUMBER_BG_COLORS = {};
+  for (let i = 0; i < bgColorTable.getRowCount(); i++) {
+    const row = bgColorTable.getRow(i);
+    NUMBER_BG_COLORS[i + 1] = color(row.getNum('H'), row.getNum('S'), row.getNum('B'));
   }
 }
 
@@ -163,15 +188,12 @@ function drawNumber(numStr, cx, cy, outerR) {
   const bdry     = computeRingBoundaries(numRings, innerR);
 
   blendMode(window[CONFIG.blendModeName] || BLEND);
+  // Background circle: colour keyed to the most significant digit (palette3.csv)
+  const mostSigDigit = digits[numRings - 1];
+  const bgCol = NUMBER_BG_COLORS[mostSigDigit] || color(0, 0, 90);
   push();
-  if (isNegative) {
-    noFill();
-    stroke(PAL.outer_stroke);
-    strokeWeight(outerR * CONFIG.outerStrokeRatio);
-  } else {
-    fill(PAL.outer_fill);
-    noStroke();
-  }
+  fill(bgCol);
+  noStroke();
   ellipse(cx, cy, outerR * 2, outerR * 2);
   pop();
   blendMode(BLEND);
@@ -182,14 +204,26 @@ function drawNumber(numStr, cx, cy, outerR) {
     if (digit === 0) continue;
     const r1  = i === 0 ? 0 : bdry[i - 1];
     const r2  = bdry[i];
-    const col = PAL.rings[i % PAL.rings.length];
-    for (let p = 0; p < digit; p++) {
+    // Fixed colour per digit — mid tier gives the clearest hue for each number
+    const t   = NUMBER_COLORS[digit].mid;
+    const col = color(t.H, t.S, t.B);
+    if (isNegative) {
+      // One single outlined arc spanning the full digit angle
       annularWedge(
         cx, cy, r1, r2,
-        -HALF_PI + p * portionAngle,
-        -HALF_PI + (p + 1) * portionAngle,
-        col, isNegative, outerR,
+        -HALF_PI,
+        -HALF_PI + digit * portionAngle,
+        col, true, outerR,
       );
+    } else {
+      for (let p = 0; p < digit; p++) {
+        annularWedge(
+          cx, cy, r1, r2,
+          -HALF_PI + p * portionAngle,
+          -HALF_PI + (p + 1) * portionAngle,
+          col, false, outerR,
+        );
+      }
     }
   }
 

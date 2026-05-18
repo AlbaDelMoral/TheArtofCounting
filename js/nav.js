@@ -44,16 +44,18 @@ const DEBUG_GRID = false;
         </svg>
       </a>
       <div class="nav-links">
-        <a href="learn.html"${active("learn.html")}>learn</a>
+        <a href="learn.html"${active("learn.html")}><span class="nav-num">1</span>Learn</a>
         <div class="nav-dropdown">
-          <a href="numbers.html"${active("numbers.html", "operations.html", "multiplication.html")}>play</a>
-          <div class="nav-dropdown-menu">
-            <a href="numbers.html"${active("numbers.html")}>Numbers</a>
-            <a href="operations.html"${active("operations.html")}>Operations</a>
-            <a href="multiplication.html"${active("multiplication.html")}>Multiplication</a>
+          <div class="nav-dropdown-inner">
+            <a href="numbers.html"${active("numbers.html", "operations.html", "multiplication.html")}><span class="nav-num">2</span>Play</a>
+            <div class="nav-dropdown-menu">
+              <a href="numbers.html"${active("numbers.html")}>Numbers</a>
+              <a href="operations.html"${active("operations.html")}>Operations</a>
+              <a href="multiplication.html"${active("multiplication.html")}>Multiplication</a>
+            </div>
           </div>
         </div>
-        <a href="gallery.html"${active("gallery.html")}>gallery</a>
+        <a href="gallery.html"${active("gallery.html")}><span class="nav-num">3</span>Gallery</a>
       </div>
     `;
 

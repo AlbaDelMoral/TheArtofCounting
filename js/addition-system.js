@@ -61,14 +61,8 @@ function parseChains(str) {
 }
 
 // ─── belt color helper ────────────────────────────────────────────────────────
-// Returns the CSS rgb string that reshuffleColors would assign as outer_fill
-// for a given colorSeed — used to prevent belt colors matching circle fills.
-function getOuterCss(colorSeed) {
-  randomSeed(colorSeed);
-  const pool = shuffle(SWATCHES.slice());
-  const di   = pool.findIndex((s) => s.type === "dark");
-  pool.splice(di, 1);
-  const li  = pool.findIndex((s) => s.type === "light");
-  const col = pool[li].col;
-  return `${floor(red(col))},${floor(green(col))},${floor(blue(col))}`;
+// Background circles are now always flat grey HSB(0,0,85) = RGB(216,216,216).
+// Belt color exclusion checks against this fixed value.
+function getOuterCss() {
+  return '216,216,216';
 }

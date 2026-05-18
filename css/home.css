@@ -3,7 +3,7 @@
   position: relative;
   z-index: 10;
   margin-top: var(--nav-height); /* sits flush below the fixed nav */
-  background: #e9e8e300;
+  background: #efefef00;
   border-top: 0px solid #444444; /* dividing line between nav and logo */
 }
 
@@ -52,7 +52,7 @@
   width: 100%;
   height: 26px; /* tall enough to frame the letters */
 
-  background: #007f02;
+  background: #d6ffd7;
 
   z-index: 2; /* below math text (z-index:4), above background */
   pointer-events: none;
@@ -107,5 +107,31 @@
 
 /* ── tilt entire hero group ───────────────── */
 .home-tilt {
-  transform: rotate(-15deg) translateY(180px) translateX(-50px);
+  /*transform: rotate(-15deg) translateY(180px) translateX(-50px);*/
+}
+
+/* ── hero image container ────────────────────────────────────────────────── */
+/* Change --home-image-height to resize the container */
+:root {
+  --home-image-height: 60vh;
+}
+
+.home-image-wrap {
+  position: relative;
+  z-index: 6;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+.home-image {
+  height: var(--home-image-height);
+  overflow: hidden;
+}
+
+.home-image img,
+.home-image video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
