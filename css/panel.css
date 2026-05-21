@@ -1,39 +1,91 @@
-/* ── sketch page panel — shared by numbers.html and operations.html ──────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANEL DESIGN TOKENS — tweak everything here
+   ═══════════════════════════════════════════════════════════════════════════ */
+.side-panel {
+  /* ── typography ──────────────────────────────────────────────────────────── */
+  --panel-font-size: 8px; /* label + value size (both always equal)  */
+  --panel-font-weight: 700; /* KMRWaldenburg Bold                       */
+  --panel-label-opacity: 1; /* opacity of the parameter name           */
+  --panel-value-opacity: 0.38; /* opacity of the number on the right      */
+  --panel-letter-spacing: 0em; /* tracking for labels                   */
+
+  /* ── row spacing ─────────────────────────────────────────────────────────── */
+  --panel-row-pad-top: 8px; /* space above label in each row           */
+  --panel-row-pad-bottom: 4px; /* space below ruler in each row           */
+  --panel-label-gap: 5px; /* gap between label row and slider track  */
+
+  /* ── ruler ───────────────────────────────────────────────────────────────── */
+  --panel-ruler-height: 5px; /* height of the tick-mark strip           */
+  --panel-ruler-gap: 2.5px; /* gap between slider track and ruler      */
+  --panel-ruler-opacity: 0.18; /* darkness of each tick mark              */
+  --panel-ruler-width: 0.5px; /* width of each individual tick mark      */
+
+  /* ── slider track ────────────────────────────────────────────────────────── */
+  --panel-track-height: 2.5px; /* thickness of the horizontal line        */
+  --panel-track-color: #d8d8d8;
+
+  /* ── slider thumb ────────────────────────────────────────────────────────── */
+  --panel-thumb-size: 8px; /* diameter of the circle                  */
+  --panel-thumb-color: #606369;
+
+  /* ── section headers (Technical / Artistic) ─────────────────────────────── */
+  --panel-section-bg: #efefe8; /* rectangle fill colour            */
+  --panel-section-pad-bottom: 30px; /* empty space below title text     */
+  --panel-section-margin-top: 15px; /* gap above the rectangle          */
+  --panel-section-font-size: 8px;
+  --panel-section-font-weight: 700;
+  --panel-section-letter-spacing: 0em;
+
+  /* ── panel shell ─────────────────────────────────────────────────────────── */
+  --panel-width: 25vw;
+  --panel-min-width: 160px;
+  --panel-max-width: 260px;
+  --panel-bg: rgba(255, 255, 255, 0.82);
+  --panel-padding-h: 18px; /* left / right inner padding              */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANEL SHELL
+   ═══════════════════════════════════════════════════════════════════════════ */
 .side-panel {
   position: fixed;
   top: 0;
   left: 0;
-  width: 25vw;
-  min-width: 160px;
-  max-width: 260px;
+  width: var(--panel-width);
+  min-width: var(--panel-min-width);
+  max-width: var(--panel-max-width);
   height: 100vh;
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--panel-bg);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(20px);
   border-right: 0.5px solid #e0e0e0;
-  padding: calc(var(--nav-height) + 48px) 18px 24px 18px;
+  padding: calc(var(--nav-height) + 20px) var(--panel-padding-h) 24px
+    var(--panel-padding-h);
   display: flex;
   flex-direction: column;
   gap: 0;
   z-index: 50;
   font-family: "KMRWaldenburg", sans-serif;
   font-weight: 500;
-  font-size: 10px;
-  letter-spacing: 0em;
+  font-size: var(--panel-font-size);
+  letter-spacing: 0;
   box-sizing: border-box;
   overflow-y: auto;
 }
 
-/* ── text input section ───────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   TEXT INPUT SECTION (expression / numbers field)
+   ═══════════════════════════════════════════════════════════════════════════ */
 .custom-section {
   padding-bottom: 14px;
   margin-bottom: 2px;
-  border-bottom: 0.5px solid #e0e0e0;
+  margin-top: 10px;
+  border-bottom: 1px dashed #e0e0e0;
 }
 
 .custom-label {
   display: block;
-  color: #111;
+  color: #444444;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 10px;
@@ -42,14 +94,14 @@
 .custom-input {
   width: 100%;
   border: none;
-  border-bottom: 0.5px solid #111;
+  border-bottom: 0.5px solid #606369;
   background: transparent;
   font-family: "KMRWaldenburg", sans-serif;
-  font-size: 10px;
+  font-size: var(--panel-font-size);
   font-weight: 500;
   padding: 4px 0;
   outline: none;
-  color: #111;
+  color: #606369;
 }
 
 .custom-input::placeholder {
@@ -64,35 +116,109 @@
   letter-spacing: 0.04em;
 }
 
-/* ── slider rows ──────────────────────────────────────────────────────────── */
-.slider-row {
-  padding: 7px 0;
-  border-bottom: 0.5px solid #e8e8e8;
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION HEADERS  (Technical / Artistic)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.panel-section {
+  /* top: flush — text sits right at the rectangle edge
+     right: extends to panel border — no gap on that side */
+  margin: var(--panel-section-margin-top) calc(-1 * var(--panel-padding-h)) 0 0;
+  padding: 0 var(--panel-padding-h) var(--panel-section-pad-bottom) 0;
+  background: var(--panel-section-bg);
 }
 
-.slider-row:first-child {
-  border-top: 0.5px solid #e8e8e8;
+.panel-section-title {
+  display: block;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-size: var(--panel-section-font-size);
+  font-weight: var(--panel-section-font-weight);
+  letter-spacing: var(--panel-section-letter-spacing);
+  text-transform: uppercase;
+  color: #606369;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SLIDER ROWS
+   ═══════════════════════════════════════════════════════════════════════════ */
+.slider-row {
+  padding: var(--panel-row-pad-top) 0 var(--panel-row-pad-bottom);
+  /* no border — the ruler IS the visual separator */
 }
 
 .slider-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 6px;
+  margin-bottom: var(--panel-label-gap);
 }
 
 .slider-label {
-  color: #111;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  color: #606369;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-size: var(--panel-font-size);
+  font-weight: var(--panel-font-weight);
+  letter-spacing: var(--panel-letter-spacing);
+  opacity: var(--panel-label-opacity);
 }
 
 .slider-value {
-  color: #aaa;
-  font-size: 9px;
+  color: #111;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-size: var(--panel-font-size); /* same as label — always in sync */
+  font-weight: var(--panel-font-weight);
+  opacity: var(--panel-value-opacity);
 }
 
-/* ── range input — thin track ─────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   COLOR PICKER ROW  (background colour selector)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.color-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--panel-row-pad-top) 0 var(--panel-row-pad-bottom);
+}
+
+.color-swatch {
+  width: 32px;
+  height: 14px;
+  border: 0.5px solid #606369;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  flex-shrink: 0;
+}
+.color-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.color-swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+.color-swatch::-moz-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RULER TICK MARKS  (JS sets background-size per slider based on step count)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.slider-ruler {
+  width: 100%;
+  height: var(--panel-ruler-height);
+  margin-top: var(--panel-ruler-gap);
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, var(--panel-ruler-opacity)) var(--panel-ruler-width),
+    transparent var(--panel-ruler-width)
+  );
+  background-size: 5% var(--panel-ruler-height); /* JS overrides the width % per slider */
+  background-repeat: repeat-x;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RANGE INPUT
+   ═══════════════════════════════════════════════════════════════════════════ */
 .side-panel input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -108,41 +234,43 @@
 
 /* webkit track */
 .side-panel input[type="range"]::-webkit-slider-runnable-track {
-  height: 1.5px;
-  background: #d8d8d8;
+  height: var(--panel-track-height);
+  background: var(--panel-track-color);
   border-radius: 0;
 }
 
 /* webkit thumb */
 .side-panel input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 7px;
-  height: 7px;
-  background: #111;
+  width: var(--panel-thumb-size);
+  height: var(--panel-thumb-size);
+  background: var(--panel-thumb-color);
   border-radius: 50%;
-  margin-top: -2.75px; /* (1.5px track - 7px thumb) / 2 */
+  margin-top: calc((var(--panel-track-height) - var(--panel-thumb-size)) / 2);
   cursor: pointer;
 }
 
 /* moz track */
 .side-panel input[type="range"]::-moz-range-track {
-  height: 1.5px;
-  background: #d8d8d8;
+  height: var(--panel-track-height);
+  background: var(--panel-track-color);
   border-radius: 0;
   border: none;
 }
 
 /* moz thumb */
 .side-panel input[type="range"]::-moz-range-thumb {
-  width: 7px;
-  height: 7px;
-  background: #111;
+  width: var(--panel-thumb-size);
+  height: var(--panel-thumb-size);
+  background: var(--panel-thumb-color);
   border-radius: 50%;
   border: none;
   cursor: pointer;
 }
 
-/* ── panel button ─────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANEL BUTTON  (e.g. "random" in multiplication)
+   ═══════════════════════════════════════════════════════════════════════════ */
 .panel-btn {
   width: 100%;
   margin-top: 10px;
@@ -150,9 +278,9 @@
   background: transparent;
   border: none;
   border-top: 0.5px solid #e0e0e0;
-  color: #111;
+  color: #606369;
   font-family: "KMRWaldenburg", sans-serif;
-  font-size: 10px;
+  font-size: var(--panel-font-size);
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -165,7 +293,9 @@
   color: #aaa;
 }
 
-/* ── bottom hint ──────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   BOTTOM HINT  (keyboard shortcuts)
+   ═══════════════════════════════════════════════════════════════════════════ */
 .panel-hint {
   margin-top: auto;
   color: #bbb;

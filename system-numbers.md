@@ -129,13 +129,13 @@ Each circle gets its own **stable, unique color assignment** determined by a fix
 
 ### Assignment rules (per circle)
 
-| Slot | Source | Used for |
-|---|---|---|
-| `ticks` | 1 dark swatch | all 10 tick marks on all rings |
-| `outer_fill` / `outer_stroke` | 1 light swatch | outer circle fill (positive) or stroke (negative) |
-| `ring_0` … `ring_5` | next 6 swatches (any type) | ring fill / outline color, cycling if >6 rings |
-| `decimal` | next swatch | dashed decimal ring |
-| `label` | next swatch | (reserved for future label use) |
+| Slot                          | Source                     | Used for                                          |
+| ----------------------------- | -------------------------- | ------------------------------------------------- |
+| `ticks`                       | 1 dark swatch              | all 10 tick marks on all rings                    |
+| `outer_fill` / `outer_stroke` | 1 light swatch             | outer circle fill (positive) or stroke (negative) |
+| `ring_0` … `ring_5`           | next 6 swatches (any type) | ring fill / outline color, cycling if >6 rings    |
+| `decimal`                     | next swatch                | dashed decimal ring                               |
+| `label`                       | next swatch                | (reserved for future label use)                   |
 
 The pool is shuffled each time, so every circle gets a different color arrangement while remaining consistent frame-to-frame.
 
@@ -145,9 +145,9 @@ The pool is shuffled each time, so every circle gets a different color arrangeme
 
 Each circle has two rotation properties assigned once when the composition is generated:
 
-| Property | Value |
-|---|---|
-| `angle` | random starting angle (`0 → 2π`) |
+| Property        | Value                                                                       |
+| --------------- | --------------------------------------------------------------------------- |
+| `angle`         | random starting angle (`0 → 2π`)                                            |
 | `rotationSpeed` | random speed between `0.003` and `0.018` rad/frame, sign random (CW or CCW) |
 
 Every frame: `data.angle += data.rotationSpeed`
@@ -160,13 +160,14 @@ The circle is drawn inside a `push() / translate(cx, cy) / rotate(angle) / pop()
 
 The **reality** parameter (0–100) controls a crossfade between the abstract visual representation and a plain readable numeral.
 
-| Reality | What you see |
-|---|---|
-| 0 | Pure circles — no text, fully abstract |
-| 50 | 50% circle opacity + 50% text opacity (overlaid) |
-| 100 | Pure numeral — circles invisible, just the number |
+| Reality | What you see                                      |
+| ------- | ------------------------------------------------- |
+| 0       | Pure circles — no text, fully abstract            |
+| 50      | 50% circle opacity + 50% text opacity (overlaid)  |
+| 100     | Pure numeral — circles invisible, just the number |
 
 Implementation:
+
 - `drawingContext.globalAlpha = 1 − reality/100` → applied before drawing the circle
 - `drawingContext.globalAlpha = reality/100` → applied before drawing the text
 - Both are drawn inside the same rotated block, so the numeral rotates with the circle
@@ -176,15 +177,15 @@ Implementation:
 
 Each circle is assigned a random font at composition time (`fontIdx`), chosen from 7 ABCROM typeface variants:
 
-| Family | Weight | Style |
-|---|---|---|
-| ABCROM | bold | normal |
-| ABCROMWide | 900 | normal |
-| ABCROMWide | 400 | italic |
-| ABCROMExtended | 900 | normal |
-| ABCROMExtended | 400 | normal |
-| ABCROMCompressed | 300 | normal |
-| ABCROMCompressed | 900 | normal |
+| Family           | Weight | Style  |
+| ---------------- | ------ | ------ |
+| ABCROM           | bold   | normal |
+| ABCROMWide       | 900    | normal |
+| ABCROMWide       | 400    | italic |
+| ABCROMExtended   | 900    | normal |
+| ABCROMExtended   | 400    | normal |
+| ABCROMCompressed | 300    | normal |
+| ABCROMCompressed | 900    | normal |
 
 Font size = `outerR × 0.65`, so text scales with the circle.
 
@@ -209,11 +210,12 @@ x[i] = x[i−1] + (r[i−1] + r[i]) × (1 − overlapFactor)
 ```
 
 `overlapFactor = 0` → circles just touch  
-`overlapFactor = 1` → all circles stacked on the same center  
+`overlapFactor = 1` → all circles stacked on the same center
 
 The whole line is then re-centered on the canvas horizontally.
 
 **Stable data vs. recomputed positions:**
+
 - `compositionData[]` stores the number strings, sizes, color seeds, rotation state, and font assignments — these never change unless SPACE is pressed
 - `composition[]` stores the actual pixel coordinates — recomputed any time the canvas resizes or sliders change
 
@@ -222,44 +224,46 @@ The whole line is then re-centered on the canvas horizontally.
 ## 13. Visual Effects
 
 ### Bokeh
+
 A Gaussian blur applied to the whole canvas via `drawingContext.filter = blur(Npx)`. The current frame is captured, the canvas is cleared, and the blurred snapshot is redrawn. Strength 0–30px.
 
 ### Grain
+
 A static noise texture (random grayscale pixels, generated once) is overlaid using OVERLAY blend mode. Alpha scales from 0 (invisible) to 200 (heavy grain) as the slider moves 0–100.
 
 ---
 
 ## 14. Interaction
 
-| Key / Action | Effect |
-|---|---|
-| `SPACE` | Generate a new random composition |
-| `S` | Save a 3× resolution PNG with timestamp |
+| Key / Action                | Effect                                                                        |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| `SPACE`                     | Generate a new random composition                                             |
+| `S`                         | Save a 3× resolution PNG with timestamp                                       |
 | Number input (top of panel) | Type space/comma-separated numbers → Enter to apply, Esc to go back to random |
 
 ---
 
 ## 15. Config Reference
 
-| Parameter | Default | Description |
-|---|---|---|
-| `numCircles` | 10 | Number of circles in a random composition |
-| `compScale` | 0.12 | Base radius as fraction of `min(width, height)` |
-| `sizeVariation` | 0.5 | Spread of circle sizes (0 = uniform, 1 = wide range) |
-| `overlapFactor` | 0 | 0 = touching, 1 = fully overlapping |
-| `ringAreaRatio` | 0.9 | Fraction of `outerR` used for rings |
-| `ringGrowth` | 1.4 | Geometric growth rate of ring widths |
-| `outerStrokeRatio` | 0.04 | Outer circle stroke weight / outerR |
-| `negStrokeRatio` | 0.035 | Negative portion outline weight / outerR |
-| `portionArcSteps` | 38 | Polygon resolution for arc approximation |
-| `tickLengthRatio` | 0.15 | Tick length / local ring width |
-| `tickStrokeWeight` | 1 | Tick stroke in px (absolute) |
-| `tickOpacity` | 255 | Tick opacity (0–255) |
-| `decimalStrokeRatio` | 0.05 | Decimal ring stroke weight / outerR |
-| `decimalDashCount` | 10 | Number of dash segments in decimal ring |
-| `decimalDashRatio` | 0.9 | Fraction of each segment that is solid (vs gap) |
-| `decimalMarginRatio` | 0.09 | Gap between units ring and decimal ring / outerR |
-| `centerDotRatio` | 0.025 | Center dot radius / outerR |
-| `bokeh` | 0 | Gaussian blur in px (0 = off) |
-| `grainAmount` | 0 | Grain intensity 0–100 |
-| `reality` | 0 | 0 = abstract circles, 100 = readable numerals |
+| Parameter            | Default | Description                                          |
+| -------------------- | ------- | ---------------------------------------------------- |
+| `numCircles`         | 10      | Number of circles in a random composition            |
+| `compScale`          | 0.12    | Base radius as fraction of `min(width, height)`      |
+| `sizeVariation`      | 0.5     | Spread of circle sizes (0 = uniform, 1 = wide range) |
+| `overlapFactor`      | 0       | 0 = touching, 1 = fully overlapping                  |
+| `ringAreaRatio`      | 0.9     | Fraction of `outerR` used for rings                  |
+| `ringGrowth`         | 1.4     | Geometric growth rate of ring widths                 |
+| `outerStrokeRatio`   | 0.04    | Outer circle stroke weight / outerR                  |
+| `negStrokeRatio`     | 0.035   | Negative portion outline weight / outerR             |
+| `portionArcSteps`    | 38      | Polygon resolution for arc approximation             |
+| `tickLengthRatio`    | 0.15    | Tick length / local ring width                       |
+| `tickStrokeWeight`   | 1       | Tick stroke in px (absolute)                         |
+| `tickOpacity`        | 255     | Tick opacity (0–255)                                 |
+| `decimalStrokeRatio` | 0.05    | Decimal ring stroke weight / outerR                  |
+| `decimalDashCount`   | 10      | Number of dash segments in decimal ring              |
+| `decimalDashRatio`   | 0.9     | Fraction of each segment that is solid (vs gap)      |
+| `decimalMarginRatio` | 0.09    | Gap between units ring and decimal ring / outerR     |
+| `centerDotRatio`     | 0.025   | Center dot radius / outerR                           |
+| `bokeh`              | 0       | Gaussian blur in px (0 = off)                        |
+| `grainAmount`        | 0       | Grain intensity 0–100                                |
+| `reality`            | 0       | 0 = abstract circles, 100 = readable numerals        |

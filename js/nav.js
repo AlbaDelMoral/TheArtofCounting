@@ -55,7 +55,7 @@ const DEBUG_GRID = false;
             </div>
           </div>
         </div>
-        <a href="gallery.html"${active("gallery.html")}><span class="nav-num">3</span>Gallery</a>
+        <a href="gallery.html"${active("gallery.html")}><span class="nav-num">3</span>About</a>
       </div>
     `;
 

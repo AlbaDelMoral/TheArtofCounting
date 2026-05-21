@@ -53,7 +53,8 @@ const CONFIG = {
 // chains[i]    — recomputed pixel positions on resize / slider change
 let chainData = [];
 let chains = [];
-let customOps = []; // [] = random; filled = array of [numStr, …] per chain
+let customOps   = []; // [] = random; filled = array of [numStr, …] per chain
+let canvasBgHex = '#ffffff'; // canvas background — driven by colour picker
 
 function generateChainData() {
   const parsed = customOps.length > 0 ? customOps : null;
@@ -191,14 +192,14 @@ const valSpans = {};
 function createPanel() {
   const panel = createDiv("").class("side-panel");
 
+  addSection("Technical variables");
+
   // ── expression input ────────────────────────────────────────────────────────
   const customSection = createDiv("").class("custom-section");
   customSection.parent(panel);
-  createSpan("expression").class("custom-label").parent(customSection);
-
   const opInput = createElement("input").class("custom-input");
   opInput.attribute("type", "text");
-  opInput.attribute("placeholder", "2 + 3 - 10");
+  opInput.attribute("placeholder", "write your own operation: 2 + 3 − 4…");
   opInput.attribute("spellcheck", "false");
   opInput.parent(customSection);
 
@@ -223,6 +224,24 @@ function createPanel() {
   });
 
   // ── sliders ─────────────────────────────────────────────────────────────────
+  function addSection(title) {
+    const sec = createDiv("").class("panel-section");
+    sec.parent(panel);
+    createSpan(title).class("panel-section-title").parent(sec);
+  }
+
+  function addColorRow(label, defaultHex, onChange) {
+    const row = createDiv("").class("color-row");
+    row.parent(panel);
+    createSpan(label).class("slider-label").parent(row);
+    const swatch = createElement("input");
+    swatch.attribute("type", "color");
+    swatch.attribute("value", defaultHex);
+    swatch.class("color-swatch");
+    swatch.parent(row);
+    swatch.input(() => onChange(swatch.value()));
+  }
+
   function addRow(key, label, mn, mx, val, step) {
     const row = createDiv("").class("slider-row");
     row.parent(panel);
@@ -234,35 +253,22 @@ function createPanel() {
     valSpans[key] = vs;
     const sl = createSlider(mn, mx, val, step);
     sl.parent(row);
+    // ruler: tick count capped at 25 so marks stay visible
+    const numTicks = Math.min(Math.round((mx - mn) / step), 25);
+    const ruler = createDiv("").class("slider-ruler");
+    ruler.parent(row);
+    ruler.elt.style.backgroundSize = (100 / numTicks).toFixed(2) + '% 5px';
     return sl;
   }
 
   sliderLength = addRow("length", "length", 2, 6, CONFIG.numChainNums, 1);
   sliderScale = addRow("size", "size", 1, 40, CONFIG.compScale * 100, 1);
-  sliderSpread = addRow(
-    "spread",
-    "spread",
-    0,
-    95,
-    CONFIG.sizeVariation * 100,
-    1,
-  );
-  sliderSpacing = addRow(
-    "spacing",
-    "spacing",
-    -150,
-    95,
-    CONFIG.chainSpacing * 100,
-    1,
-  );
-  sliderMargin = addRow(
-    "margin",
-    "margin",
-    0,
-    50,
-    CONFIG.beltMarginRatio * 100,
-    1,
-  );
+  sliderSpread = addRow("spread", "spread", 0, 95, CONFIG.sizeVariation * 100, 1);
+  sliderSpacing = addRow("spacing", "spacing", -150, 95, CONFIG.chainSpacing * 100, 1);
+  sliderMargin = addRow("margin", "margin", 0, 50, CONFIG.beltMarginRatio * 100, 1);
+
+  addSection("Artistic variables");
+  addColorRow("background", canvasBgHex, (hex) => { canvasBgHex = hex; });
   sliderBokeh = addRow("bokeh", "bokeh", 0, 30, CONFIG.bokeh, 1);
   sliderGrain = addRow("grain", "grain", 0, 100, CONFIG.grainAmount, 1);
   sliderReality = addRow("reality", "reality", 0, 100, CONFIG.reality, 1);
@@ -332,7 +338,8 @@ function setup() {
 
 function draw() {
   blendMode(BLEND);
-  background(0, 0, 100); // HSB white
+  drawingContext.fillStyle = canvasBgHex;
+  drawingContext.fillRect(0, 0, width, height);
 
   for (let c = 0; c < chains.length; c++) {
     const chain = chains[c];
@@ -411,7 +418,8 @@ function draw() {
 
   if (CONFIG.bokeh > 0) {
     const snap = get();
-    background(0, 0, 100);
+    drawingContext.fillStyle = canvasBgHex;
+    drawingContext.fillRect(0, 0, width, height);
     drawingContext.filter = `blur(${CONFIG.bokeh}px)`;
     blendMode(BLEND);
     image(snap, 0, 0);

@@ -48,7 +48,10 @@ const CONFIG = {
   blendModeName: "NONE",
   bokeh: 0,
   grainAmount: 0,
+  reality: 0,
 };
+
+let canvasBgHex = '#ffffff'; // canvas background — driven by colour picker
 
 // ─── state ────────────────────────────────────────────────────────────────────
 let parsedSteps = null; // array of {sideA, sideB, result} — one per × step
@@ -134,19 +137,19 @@ function _overUI() {
 function createPanel() {
   const panel = createDiv("").class("side-panel");
 
+  addSection("Technical variables");
+
   // ── expression input ────────────────────────────────────────────────────────
   const inputSection = createDiv("").class("custom-section");
   inputSection.parent(panel);
-  createSpan("expression").class("custom-label").parent(inputSection);
-
   const exprInput = createElement("input").class("custom-input");
   exprInput.attribute("type", "text");
-  exprInput.attribute("placeholder", "14x15  (2+4)x8  14x15x5");
+  exprInput.attribute("placeholder", "write your own multiplication: 2 × 4…");
   exprInput.attribute("spellcheck", "false");
   exprInput.value(currentExpr);
   exprInput.parent(inputSection);
 
-  createDiv("↵ apply  ·  esc → default")
+  createDiv("↵ apply")
     .class("custom-input-hint")
     .parent(inputSection);
 
@@ -197,6 +200,11 @@ function createPanel() {
     valSpans[key] = vs;
     const sl = createSlider(mn, mx, val, step);
     sl.parent(row);
+    // ruler: tick count capped at 25 so marks stay visible
+    const numTicks = Math.min(Math.round((mx - mn) / step), 25);
+    const ruler = createDiv("").class("slider-ruler");
+    ruler.parent(row);
+    ruler.elt.style.backgroundSize = (100 / numTicks).toFixed(2) + '% 5px';
     sl.input(() => {
       setter(parseFloat(sl.value()));
       updateValues();
@@ -205,133 +213,23 @@ function createPanel() {
     return sl;
   }
 
-  // ── basic bands ──────────────────────────────────────────────────────────────
-  addSlider("bw", "thickness", 2, 60, CONFIG.bw, 1, (v) => {
-    CONFIG.bw = v;
-  });
-  addSlider("oh", "overhang", 0, 150, CONFIG.oh, 2, (v) => {
-    CONFIG.oh = v;
-  });
-  addSlider("lgap", "line gap", 0, 60, CONFIG.lgap, 1, (v) => {
-    CONFIG.lgap = v;
-  });
-  addSlider("dgap", "digit gap", 0, 400, CONFIG.dgap, 2, (v) => {
-    CONFIG.dgap = v;
-  });
-  addSlider("decExt", "decimal ext %", 10, 100, CONFIG.decExt, 1, (v) => {
-    CONFIG.decExt = v;
-  });
+  function addSection(title) {
+    const sec = createDiv("").class("panel-section");
+    sec.parent(panel);
+    createSpan(title).class("panel-section-title").parent(sec);
+  }
 
-  // ── op chain bands ───────────────────────────────────────────────────────────
-  addSlider("obw", "band thickness", 10, 100, CONFIG.obw, 1, (v) => {
-    CONFIG.obw = v;
-  });
-  addSlider(
-    "circleScale",
-    "circle size",
-    30,
-    100,
-    CONFIG.circleScale * 100,
-    1,
-    (v) => {
-      CONFIG.circleScale = v / 100;
-    },
-  );
-  addSlider("bandMargin", "band margin", 0, 80, CONFIG.bandMargin, 1, (v) => {
-    CONFIG.bandMargin = v;
-  });
-  addSlider("pad", "belt padding", 0, 30, CONFIG.pad, 1, (v) => {
-    CONFIG.pad = v;
-  });
+  // ── Technical variables ───────────────────────────────────────────────────────
+  addSlider("bw",   "thickness", 2,   60,  CONFIG.bw,   1, (v) => { CONFIG.bw   = v; });
+  addSlider("dgap", "digit gap", 0,   400, CONFIG.dgap, 2, (v) => { CONFIG.dgap = v; });
+  addSlider("lgap", "line gap",  0,   60,  CONFIG.lgap, 1, (v) => { CONFIG.lgap = v; });
+  addSlider("oh",   "overhang",  0,   150, CONFIG.oh,   2, (v) => { CONFIG.oh   = v; });
 
-  // ── number circle ────────────────────────────────────────────────────────────
-  addSlider(
-    "ringArea",
-    "ring area %",
-    40,
-    98,
-    CONFIG.ringAreaRatio * 100,
-    1,
-    (v) => {
-      CONFIG.ringAreaRatio = v / 100;
-    },
-  );
-  addSlider(
-    "ringGrowth",
-    "ring growth ×100",
-    100,
-    250,
-    CONFIG.ringGrowth * 100,
-    5,
-    (v) => {
-      CONFIG.ringGrowth = v / 100;
-    },
-  );
-  addSlider(
-    "negSW",
-    "neg stroke %",
-    1,
-    12,
-    CONFIG.negStrokeRatio * 100,
-    0.5,
-    (v) => {
-      CONFIG.negStrokeRatio = v / 100;
-    },
-  );
-  addSlider(
-    "tickLen",
-    "tick length %",
-    5,
-    60,
-    CONFIG.tickLengthRatio * 100,
-    1,
-    (v) => {
-      CONFIG.tickLengthRatio = v / 100;
-    },
-  );
-
-  // ── decimal ring ─────────────────────────────────────────────────────────────
-  addSlider(
-    "decMargin",
-    "dec margin %",
-    0,
-    15,
-    CONFIG.decimalMarginRatio * 100,
-    0.5,
-    (v) => {
-      CONFIG.decimalMarginRatio = v / 100;
-    },
-  );
-  addSlider(
-    "decDash",
-    "dash fill %",
-    20,
-    98,
-    CONFIG.decimalDashRatio * 100,
-    1,
-    (v) => {
-      CONFIG.decimalDashRatio = v / 100;
-    },
-  );
-  addSlider(
-    "decSW",
-    "dec stroke %",
-    1,
-    15,
-    CONFIG.decimalStrokeRatio * 100,
-    0.5,
-    (v) => {
-      CONFIG.decimalStrokeRatio = v / 100;
-    },
-  );
-
-  // ── effects ──────────────────────────────────────────────────────────────────
-  addSlider("bokeh", "bokeh", 0, 30, CONFIG.bokeh, 1, (v) => {
-    CONFIG.bokeh = int(v);
-  });
-  addSlider("grain", "grain", 0, 100, CONFIG.grainAmount, 1, (v) => {
-    CONFIG.grainAmount = int(v);
-  });
+  // ── Artistic variables ────────────────────────────────────────────────────────
+  addSection("Artistic variables");
+  addSlider("bokeh",   "bokeh",   0, 30,  CONFIG.bokeh,       1, (v) => { CONFIG.bokeh       = int(v); });
+  addSlider("grain",   "grain",   0, 100, CONFIG.grainAmount, 1, (v) => { CONFIG.grainAmount = int(v); });
+  addSlider("reality", "reality", 0, 100, CONFIG.reality,     1, (v) => { CONFIG.reality     = int(v); });
 
   createDiv(
     "SPACE · new colors<br>S · save png<br>scroll · zoom  /  drag · pan  /  dbl-click · reset",
@@ -344,23 +242,12 @@ function createPanel() {
 
 function updateValues() {
   valSpans.bw.html(CONFIG.bw + "px");
-  valSpans.oh.html(CONFIG.oh + "px");
-  valSpans.lgap.html(CONFIG.lgap + "px");
   valSpans.dgap.html(CONFIG.dgap + "px");
-  valSpans.decExt.html(CONFIG.decExt + "%");
-  valSpans.obw.html(CONFIG.obw + "px");
-  valSpans.circleScale.html(nf(CONFIG.circleScale * 100, 1, 0) + "%");
-  valSpans.bandMargin.html(CONFIG.bandMargin + "px");
-  valSpans.pad.html(CONFIG.pad + "px");
-  valSpans.ringArea.html(nf(CONFIG.ringAreaRatio * 100, 1, 0) + "%");
-  valSpans.ringGrowth.html(nf(CONFIG.ringGrowth * 100, 1, 0));
-  valSpans.negSW.html(nf(CONFIG.negStrokeRatio * 100, 1, 1));
-  valSpans.tickLen.html(nf(CONFIG.tickLengthRatio * 100, 1, 0) + "%");
-  valSpans.decMargin.html(nf(CONFIG.decimalMarginRatio * 100, 1, 1));
-  valSpans.decDash.html(nf(CONFIG.decimalDashRatio * 100, 1, 0) + "%");
-  valSpans.decSW.html(nf(CONFIG.decimalStrokeRatio * 100, 1, 1));
+  valSpans.lgap.html(CONFIG.lgap + "px");
+  valSpans.oh.html(CONFIG.oh + "px");
   valSpans.bokeh.html(CONFIG.bokeh + "px");
   valSpans.grain.html(CONFIG.grainAmount);
+  valSpans.reality.html(CONFIG.reality);
 }
 
 // ─── p5 lifecycle ─────────────────────────────────────────────────────────────
@@ -386,8 +273,13 @@ function setup() {
 
 function draw() {
   blendMode(BLEND);
-  background(0, 0, 100); // HSB white
+  drawingContext.fillStyle = canvasBgHex;
+  drawingContext.fillRect(0, 0, width, height);
 
+  const shapeAlpha = 1 - CONFIG.reality / 100;
+  const textAlpha  = CONFIG.reality / 100;
+
+  drawingContext.globalAlpha = shapeAlpha;
   push();
   translate(_panX, _panY);
   scale(_zoom);
@@ -407,8 +299,9 @@ function draw() {
     }
   }
   pop();
+  drawingContext.globalAlpha = 1;
 
-  // Result label (fixed position — outside pan/zoom block)
+  // Result label (fixed position — always visible)
   if (parsedSteps && parsedSteps.length) {
     push();
     fill(0, 0, 55);
@@ -423,9 +316,22 @@ function draw() {
     pop();
   }
 
+  // Reality overlay: plain numerals fade in
+  if (textAlpha > 0 && parsedSteps && parsedSteps.length) {
+    const label = currentExpr + "  =  " + parsedSteps[parsedSteps.length - 1].result;
+    drawingContext.globalAlpha = textAlpha;
+    drawingContext.font = "900 normal 72px KMRWaldenburg, sans-serif";
+    drawingContext.textAlign = "center";
+    drawingContext.textBaseline = "middle";
+    drawingContext.fillStyle = "#111111";
+    drawingContext.fillText(label, width / 2, height / 2);
+    drawingContext.globalAlpha = 1;
+  }
+
   if (CONFIG.bokeh > 0) {
     const snap = get();
-    background(0, 0, 100);
+    drawingContext.fillStyle = canvasBgHex;
+    drawingContext.fillRect(0, 0, width, height);
     drawingContext.filter = `blur(${CONFIG.bokeh}px)`;
     blendMode(BLEND);
     image(snap, 0, 0);

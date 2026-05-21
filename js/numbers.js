@@ -50,6 +50,7 @@ const CONFIG = {
 let compositionData = [];
 let composition     = [];
 let customNums      = []; // empty = random mode; filled = use these exact numbers
+let canvasBgHex     = '#ffffff'; // canvas background — driven by colour picker
 
 function generateCompositionData() {
   const nums  = customNums.length > 0 ? customNums : null;
@@ -136,14 +137,14 @@ function createPanel() {
 
   panel = createDiv("").class("side-panel");
 
+  addSection("Technical variables");
+
   // ── number input ────────────────────────────────────────────────────────────
   const customSection = createDiv("").class("custom-section");
   customSection.parent(panel);
-  createSpan("numbers").class("custom-label").parent(customSection);
-
   const numInput = createElement("input").class("custom-input");
   numInput.attribute("type", "text");
-  numInput.attribute("placeholder", "7  42  3.14  −5  …");
+  numInput.attribute("placeholder", "write your own numbers: 3, 5, 6…");
   numInput.attribute("spellcheck", "false");
   numInput.parent(customSection);
 
@@ -164,6 +165,24 @@ function createPanel() {
     e.stopPropagation();
   });
 
+  function addSection(title) {
+    const sec = createDiv("").class("panel-section");
+    sec.parent(panel);
+    createSpan(title).class("panel-section-title").parent(sec);
+  }
+
+  function addColorRow(label, defaultHex, onChange) {
+    const row = createDiv("").class("color-row");
+    row.parent(panel);
+    createSpan(label).class("slider-label").parent(row);
+    const swatch = createElement("input");
+    swatch.attribute("type", "color");
+    swatch.attribute("value", defaultHex);
+    swatch.class("color-swatch");
+    swatch.parent(row);
+    swatch.input(() => onChange(swatch.value()));
+  }
+
   function addRow(key, label, min, max, val, step) {
     const row    = createDiv("").class("slider-row");
     row.parent(panel);
@@ -175,6 +194,11 @@ function createPanel() {
     valSpans[key] = vs;
     const sl = createSlider(min, max, val, step);
     sl.parent(row);
+    // ruler: tick count capped at 25 so marks stay visible
+    const numTicks = Math.min(Math.round((max - min) / step), 25);
+    const ruler = createDiv("").class("slider-ruler");
+    ruler.parent(row);
+    ruler.elt.style.backgroundSize = (100 / numTicks).toFixed(2) + '% 5px';
     return sl;
   }
 
@@ -182,6 +206,9 @@ function createPanel() {
   sliderCount   = addRow("count",   "count",   1,   30,  CONFIG.numCircles,           1);
   sliderScale   = addRow("size",    "size",    1,   40,  CONFIG.compScale      * 100, 1);
   sliderSpread  = addRow("spread",  "spread",  0,   95,  CONFIG.sizeVariation  * 100, 1);
+
+  addSection("Artistic variables");
+  addColorRow("background", canvasBgHex, (hex) => { canvasBgHex = hex; });
   sliderBokeh   = addRow("bokeh",   "bokeh",   0,   30,  CONFIG.bokeh,                1);
   sliderGrain   = addRow("grain",   "grain",   0,   100, CONFIG.grainAmount,          1);
   const sliderReality = addRow("reality", "reality", 0, 100, CONFIG.reality,          1);
@@ -221,7 +248,8 @@ function setup() {
 
 function draw() {
   blendMode(BLEND);
-  background(0, 0, 100); // HSB white
+  drawingContext.fillStyle = canvasBgHex;
+  drawingContext.fillRect(0, 0, width, height); // HSB white
 
   for (let i = 0; i < composition.length; i++) {
     const item = composition[i];
@@ -258,7 +286,8 @@ function draw() {
 
   if (CONFIG.bokeh > 0) {
     const snap = get();
-    background(0, 0, 100);
+    drawingContext.fillStyle = canvasBgHex;
+  drawingContext.fillRect(0, 0, width, height);
     drawingContext.filter = `blur(${CONFIG.bokeh}px)`;
     blendMode(BLEND);
     image(snap, 0, 0);
