@@ -35,7 +35,19 @@ function addProjectionLines(plane, pct_x, pct_y) {
 function createLightbox() {
   const lb = document.createElement('div');
   lb.id = 'cp-lightbox';
-  lb.innerHTML = `<div class="cp-lb-backdrop"></div><img class="cp-lb-img" src="" alt="">`;
+  lb.innerHTML = `
+    <div class="cp-lb-backdrop"></div>
+    <div class="cp-lb-inner">
+      <div class="cp-lb-text">
+        <span class="cp-lb-num"></span>
+        <p class="cp-lb-title">Title goes here</p>
+        <p class="cp-lb-desc">Description goes here. Replace this with whatever you want to say about this piece.</p>
+      </div>
+      <div class="cp-lb-media">
+        <img class="cp-lb-img" src="" alt="">
+      </div>
+    </div>
+  `;
   document.body.appendChild(lb);
 
   const close = () => lb.classList.remove('cp-lb-open');
@@ -45,11 +57,19 @@ function createLightbox() {
   return lb;
 }
 
-function openLightbox(lb, src) {
+function openLightbox(lb, src, num) {
   lb.querySelector('.cp-lb-img').src = src;
+  lb.querySelector('.cp-lb-num').textContent = num;
   lb.classList.add('cp-lb-open');
 }
 // ─────────────────────────────────────────────────────────────────────────────
+
+function preloadImages() {
+  POINTS.forEach(({ src }) => {
+    const img = new Image();
+    img.src = src;
+  });
+}
 
 function placeCPPoints() {
   const plane = document.querySelector('.home-cartesian');
@@ -79,7 +99,7 @@ function placeCPPoints() {
     wrap.style.top  = pct_y + '%';
 
     const num = ((Math.abs(x * 73 + y * 37) % 900) + 100);
-    wrap.innerHTML = `<span class="cp-dot"></span><div class="cp-header"><span class="cp-label">${num}</span></div>`;
+    wrap.innerHTML = `<div class="cp-tag"><span class="cp-dot"></span><span class="cp-label">${num}</span></div>`;
 
     // Hover → bg image fades in at the centre
     if (BG_HOVER && overlay) {
@@ -94,7 +114,7 @@ function placeCPPoints() {
 
     // Click → lightbox
     wrap.style.cursor = 'pointer';
-    wrap.addEventListener('click', () => openLightbox(lightbox, src));
+    wrap.addEventListener('click', () => openLightbox(lightbox, src, num));
 
     plane.appendChild(wrap);
   });
