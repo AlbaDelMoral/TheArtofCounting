@@ -1,0 +1,7 @@
+/* gallery.css — overrides for the gallery page only
+   Loaded in addition to home.css on gallery.html     */
+
+/* Images are always visible — no hover needed */
+.cp-img {
+  opacity: 1;
+}

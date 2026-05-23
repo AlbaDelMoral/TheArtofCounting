@@ -4,7 +4,18 @@
   z-index: 10;
   margin-top: var(--nav-height); /* sits flush below the fixed nav */
   background: #efefef00;
-  border-top: 0px solid #444444; /* dividing line between nav and logo */
+  border-top: 0px solid #444444;
+  min-height: calc(100vh - var(--nav-height));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+/* force the logo row to stretch full width inside the centered flex banner */
+.home-banner > .row {
+  width: 100%;
 }
 
 /* logo: full width, flush edges */
@@ -12,7 +23,6 @@
   display: block;
   width: 100%;
   height: auto;
-  margin-top: 10px;
   line-height: 0;
   padding-left: var(--home-margin);
   padding-right: var(--home-margin);
@@ -108,6 +118,176 @@
 /* ── tilt entire hero group ───────────────── */
 .home-tilt {
   /*transform: rotate(-15deg) translateY(180px) translateX(-50px);*/
+}
+
+/* ── cartesian plane ─────────────────────────────────────────────────────── */
+.home-cartesian {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* world: the zoomable layer — everything inside scales together */
+.cp-world {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+
+/* default cursor — no drag interaction */
+.home-logo {
+  cursor: default;
+}
+
+.cartesian-axis {
+  position: absolute;
+  background: #c8c8c8;
+}
+
+/* horizontal — x axis */
+.cartesian-x {
+  top: 50%;
+  left: -400%;
+  width: 900%; /* extends far beyond world bounds so it zooms naturally */
+  height: 1px;
+  transform: translateY(-50%) scaleY(var(--inv-zoom, 1));
+  transform-origin: center center;
+}
+
+/* vertical — y axis */
+.cartesian-y {
+  left: 50%;
+  top: -400%;
+  height: 900%;
+  width: 1px;
+  transform: translateX(-50%) scaleX(var(--inv-zoom, 1));
+  transform-origin: center center;
+}
+
+.cartesian-label {
+  position: absolute;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  color: #dcdcdc;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.cartesian-label-x {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-150%);
+}
+
+.cartesian-label-y {
+  left: 50%;
+  top: 8px;
+  transform: translateX(6px);
+}
+
+/* ── cartesian background overlay (hover effect) ─────────────────────────── */
+.cp-bg-overlay {
+  position: absolute;
+  width: 33.33%; /* ~4 of 12 columns */
+  height: 40%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: -1; /* behind logo, axes, points — everything */
+  pointer-events: none;
+}
+
+.cp-bg-overlay.cp-bg-visible {
+  opacity: 1;
+}
+
+/* ── cartesian image points ──────────────────────────────────────────────── */
+.cp-point {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  pointer-events: auto; /* override plane's pointer-events: none */
+}
+
+/* x >= 0: top-left corner sits on the coordinate */
+.cp-pos {
+  transform: translate(0, 0);
+  align-items: flex-start;
+}
+
+/* x < 0: top-right corner sits on the coordinate */
+.cp-neg {
+  transform: translate(-100%, 0);
+  align-items: flex-end;
+}
+
+/* ── Label size — controlled by LABEL_SIZE_FAR / LABEL_SIZE_NEAR in home-cartesian.js */
+:root {
+  --cp-label-size: 12px;
+} /* fallback only */
+
+/* dot + label row */
+.cp-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+.cp-dot {
+  width: calc(var(--cp-label-size) * 0.6);
+  height: calc(var(--cp-label-size) * 0.6);
+  border-radius: 50%;
+  background: #c0c0c0;
+  flex-shrink: 0;
+}
+
+.cp-label {
+  font-family: "KMRWaldenburg", sans-serif;
+  font-weight: 900;
+  font-size: var(--cp-label-size);
+  color: #b0b0b0;
+  letter-spacing: 0em;
+  user-select: none;
+}
+
+/* ── point thumbnail image ───────────────────────────────────────────────── */
+.cp-img {
+  width: 50px;
+  height: 20px;
+  display: block;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cp-img.cp-img-visible {
+  opacity: 1;
+}
+
+/* ── projection lines ────────────────────────────────────────────────────── */
+.cp-proj {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cp-proj-h {
+  height: 1px;
+  border-top: 1px dashed #c0c0c0;
+}
+
+.cp-proj-v {
+  width: 1px;
+  border-left: 1px dashed #c0c0c0;
 }
 
 /* ── hero image container ────────────────────────────────────────────────── */

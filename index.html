@@ -15,8 +15,16 @@
     <script src="js/nav.js" defer></script>
   </head>
   <body>
-    <!-- ── banner: fine line + logo ─────────────────────────────────────────── -->
+    <!-- ── banner: cartesian plane + logo ───────────────────────────────────── -->
     <div class="home-banner container-fluid px-0">
+      <!-- ── cartesian plane ──────────────────────────────────────────────────── -->
+      <div class="home-cartesian">
+        <div class="cartesian-axis cartesian-x"></div>
+        <div class="cartesian-axis cartesian-y"></div>
+        <span class="cartesian-label cartesian-label-x">x</span>
+        <span class="cartesian-label cartesian-label-y">y</span>
+      </div>
+
       <div class="row mx-0">
         <div class="col-12 px-0 home-logo">
           <svg
@@ -28,7 +36,7 @@
             <defs>
               <style>
                 .cls-1 {
-                  fill: #d7d7d7;
+                  fill: #dbdbdb;
                   font-family: AeonikTRIAL-SemiBold, "Aeonik TRIAL";
                   font-size: 28.01px;
                   font-weight: 600;
@@ -107,20 +115,6 @@
               <tspan class="cls-5" x="198.92" y="0">g</tspan>
             </text>
           </svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── hero image ────────────────────────────────────────────────────────── -->
-    <div class="home-image-wrap container-fluid px-0">
-      <div class="row mx-0 justify-content-center">
-        <div class="col-8">
-          <div class="home-image">
-            <img
-              src="assets/images/piezascloseup_foto1_0166.png"
-              alt="Visual number system"
-            />
-          </div>
         </div>
       </div>
     </div>
@@ -479,5 +473,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     <script src="js/number-system.js"></script>
     <script src="js/home.js"></script>
+    <script src="js/home-cartesian.js"></script>
   </body>
 </html>
