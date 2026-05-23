@@ -32,23 +32,39 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "KMRWaldenburg";
+  src: url("../assets/fonts/KMRWaldenburg-Black.otf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
 /* Aeonik — used for the inline SVG logo */
 @font-face {
   font-family: "AeonikTRIAL-SemiBold";
   src: url("../assets/fonts/Aeonik-Bold.ttf") format("truetype");
+  font-weight: 500;
   font-display: swap;
 }
 @font-face {
   font-family: "Aeonik TRIAL";
   src: url("../assets/fonts/Aeonik-Bold.ttf") format("truetype");
+  font-weight: 700;
   font-display: swap;
 }
 @font-face {
   font-family: "Aeonik TRIAL";
   src: url("../assets/fonts/Aeonik-Light.ttf") format("truetype");
+  font-weight: 200;
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/Aeonik-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
 /* ── reset & box model ───────────────────────────────────────────────────── */
 *,
 *::before,
@@ -61,7 +77,7 @@
 /* ── CSS variables ───────────────────────────────────────────────────────── */
 :root {
   /* colors */
-  --color-bg: #f1f1f0; /* page background */
+  --color-bg: #f6f6f6; /* page background */
   --color-main: #5f5f5f; /* primary text & ui */
   --color-second: #555555; /* secondary text, labels */
   --color-muted: #aaaaaa; /* placeholders, disabled, hints */
