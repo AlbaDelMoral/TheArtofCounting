@@ -235,18 +235,40 @@
 
 /* dot + label row */
 .cp-header {
+  position: absolute;
+  top: 0;
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-bottom: 4px;
+  transform: translateY(-50%); /* vertically centre on the dot */
+  white-space: nowrap;
+}
+
+/* positive x: label sits to the RIGHT of the dot */
+.cp-pos .cp-header {
+  left: calc(var(--cp-label-size) * 0.3 + 4px);
+}
+
+/* negative x: label sits to the LEFT of the dot */
+.cp-neg .cp-header {
+  right: calc(var(--cp-label-size) * 0.3 + 4px);
 }
 
 .cp-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
   width: calc(var(--cp-label-size) * 0.6);
   height: calc(var(--cp-label-size) * 0.6);
   border-radius: 50%;
   background: #c0c0c0;
-  flex-shrink: 0;
+}
+
+/* negative-x points: anchor corner is top-right */
+.cp-neg .cp-dot {
+  left: auto;
+  right: 0;
+  transform: translate(50%, -50%);
 }
 
 .cp-label {
@@ -288,6 +310,51 @@
 .cp-proj-v {
   width: 1px;
   border-left: 1px dashed #c0c0c0;
+}
+
+/* ── lightbox ────────────────────────────────────────────────────────────── */
+#cp-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+#cp-lightbox.cp-lb-open {
+  display: flex;
+}
+
+.cp-lb-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: cp-lb-fade-in 0.25s ease;
+}
+
+.cp-lb-img {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 2px;
+  animation: cp-lb-fade-in 0.25s ease;
+}
+
+@keyframes cp-lb-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ── hero image container ────────────────────────────────────────────────── */
