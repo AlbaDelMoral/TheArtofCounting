@@ -195,7 +195,7 @@ body {
   font-family: "KMRWaldenburg", sans-serif;
   font-weight: 500;
   font-size: 11px;
-  color: #dcdcdc;
+  color: #717171;
   letter-spacing: 0.02em;
   user-select: none;
 }
@@ -523,7 +523,7 @@ body {
 .cp-car-item img {
   display: block;
   width: 100%;
-  height: 100%;      /* fill the fixed aspect-ratio box */
+  height: 100%; /* fill the fixed aspect-ratio box */
   object-fit: cover; /* crop to fill — preserves composition without distortion */
   pointer-events: none;
   user-select: none;
@@ -633,17 +633,21 @@ body {
    MOBILE — homepage
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-
   /* Hide cartesian coordinate points — too small to tap on touch screens */
   .home-cartesian {
     display: none;
   }
 
-  /* Logo — tighter horizontal padding */
+  /* Logo — smaller on mobile so it doesn't scale up and look thick */
   .home-logo,
   .home-logo svg {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .home-logo svg {
+    width: 60%;
+    margin: 0 auto;
   }
 
   /* MATHEMATICS — smaller letters, less top margin */
@@ -710,6 +714,10 @@ body {
     height: 32px;
   }
 
-  .cp-lb-prev { left: 4px; }
-  .cp-lb-next { right: 4px; }
+  .cp-lb-prev {
+    left: 4px;
+  }
+  .cp-lb-next {
+    right: 4px;
+  }
 }

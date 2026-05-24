@@ -129,7 +129,7 @@ const CAR = {
   offsetX: 0, // vw  — shift whole carousel left(-) / right(+) from centre
   offsetY: 0, // vh  — shift whole carousel up(-) / down(+) from centre
   spacing: 10, // vh  — distance between item centres
-  radius: 4, // px  — border radius on each item
+  radius: 0, // px  — border radius on each item
 
   // ── scale per distance from active ────────────────────────────────────────
   scale0: 1.0, // active item
@@ -188,14 +188,14 @@ function _carKick() {
 }
 
 function _renderCarousel(pos) {
-  const N      = POINTS.length;
-  const mobile   = window.innerWidth <= 768;
-  const rWidth   = mobile ? 58 : CAR.width;
+  const N = POINTS.length;
+  const mobile = window.innerWidth <= 768;
+  const rWidth = mobile ? 58 : CAR.width;
   const rSpacing = mobile ? 36 : CAR.spacing;
 
   document.querySelectorAll(".cp-car-item").forEach((item, i) => {
     // Circular offset — each item takes the shortest path around the loop
-    let offset = ((i - pos) % N + N) % N;
+    let offset = (((i - pos) % N) + N) % N;
     if (offset > N / 2) offset -= N;
     const abs = Math.abs(offset);
     const lo = Math.floor(abs); // lower bracket
@@ -283,9 +283,8 @@ function createCarousel(lightbox) {
         _wheelLock = false;
       }, CAR.cooldown);
       const N = POINTS.length;
-      const next = e.deltaY > 0
-        ? (carActiveIndex + 1) % N
-        : (carActiveIndex - 1 + N) % N;
+      const next =
+        e.deltaY > 0 ? (carActiveIndex + 1) % N : (carActiveIndex - 1 + N) % N;
       carGoTo(next);
     },
     { passive: false },
@@ -293,20 +292,29 @@ function createCarousel(lightbox) {
 
   // Touch swipe — vertical swipe navigates the carousel on mobile
   let _touchY = null;
-  window.addEventListener("touchstart", (e) => {
-    _touchY = e.touches[0].clientY;
-  }, { passive: true });
-  window.addEventListener("touchend", (e) => {
-    if (_touchY === null) return;
-    const dy = e.changedTouches[0].clientY - _touchY;
-    _touchY = null;
-    if (Math.abs(dy) < 40) return; // ignore taps
-    if (document.getElementById("cp-lightbox")?.classList.contains("cp-lb-open")) return;
-    const N = POINTS.length;
-    carGoTo(dy < 0
-      ? (carActiveIndex + 1) % N
-      : (carActiveIndex - 1 + N) % N);
-  }, { passive: true });
+  window.addEventListener(
+    "touchstart",
+    (e) => {
+      _touchY = e.touches[0].clientY;
+    },
+    { passive: true },
+  );
+  window.addEventListener(
+    "touchend",
+    (e) => {
+      if (_touchY === null) return;
+      const dy = e.changedTouches[0].clientY - _touchY;
+      _touchY = null;
+      if (Math.abs(dy) < 40) return; // ignore taps
+      if (
+        document.getElementById("cp-lightbox")?.classList.contains("cp-lb-open")
+      )
+        return;
+      const N = POINTS.length;
+      carGoTo(dy < 0 ? (carActiveIndex + 1) % N : (carActiveIndex - 1 + N) % N);
+    },
+    { passive: true },
+  );
 
   _renderCarousel(0);
   // highlight the first point on load
@@ -316,10 +324,10 @@ function createCarousel(lightbox) {
 function carGoTo(targetIdx) {
   const N = POINTS.length;
   // Find the shortest circular path from current integer position to targetIdx
-  const base  = Math.round(_carTarget);
-  let   delta = ((targetIdx - base) % N + N) % N;
+  const base = Math.round(_carTarget);
+  let delta = (((targetIdx - base) % N) + N) % N;
   if (delta > N / 2) delta -= N;
-  _carTarget     = base + delta;
+  _carTarget = base + delta;
   carActiveIndex = ((_carTarget % N) + N) % N;
   document.querySelectorAll(".cp-point").forEach((pt, i) => {
     pt.classList.toggle("cp-point-active", i === carActiveIndex);
