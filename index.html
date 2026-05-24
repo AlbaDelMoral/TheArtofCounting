@@ -32,9 +32,18 @@
             data-name="Capa 1"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 214.41 25.94"
+            overflow="visible"
           >
             <defs>
               <style>
+                /* Embed font directly so iOS Safari applies it to SVG text
+                   (external CSS @font-face is not reliably picked up by inline SVG) */
+                @font-face {
+                  font-family: "AeonikTRIAL-SemiBold";
+                  src: url("assets/fonts/Aeonik-Bold.ttf") format("truetype");
+                  font-weight: 600;
+                  font-display: block;
+                }
                 .cls-1 {
                   fill: #dbdbdb;
                   font-family: AeonikTRIAL-SemiBold, "Aeonik TRIAL";
