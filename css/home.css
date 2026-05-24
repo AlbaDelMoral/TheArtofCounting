@@ -504,11 +504,6 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-family: "KMRWaldenburg", sans-serif;
-  font-weight: 700;
-  font-size: 16px;
-  color: #1a1a1a;
-  opacity: 1;
   transition: box-shadow 0.15s ease, background 0.15s ease;
   user-select: none;
 }

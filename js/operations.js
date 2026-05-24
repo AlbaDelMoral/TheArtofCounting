@@ -455,15 +455,11 @@ function saveHQ() {
 
 // ─── interaction ──────────────────────────────────────────────────────────────
 function reshuffleAllColors() {
-  chainData.forEach((chain, ci) => {
+  chainData.forEach((chain) => {
     chain.colorSeeds     = chain.colorSeeds.map(() => Math.floor(Math.random() * 999983));
     chain.beltColorSeeds = chain.beltColorSeeds.map(() => Math.floor(Math.random() * 999983));
-    // sync into the live composition array
-    if (composition[ci]) {
-      composition[ci].circles.forEach((c, i) => { c.colorSeed = chain.colorSeeds[i]; });
-      if (composition[ci].belts) composition[ci].belts.forEach((b, i) => { b.colorSeed = chain.beltColorSeeds[i]; });
-    }
   });
+  computePositions();
 }
 
 function keyPressed() {

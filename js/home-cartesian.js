@@ -134,7 +134,11 @@ function createLightbox() {
   lb.id = "cp-lightbox";
   lb.innerHTML = `
     <div class="cp-lb-backdrop"></div>
-    <button class="cp-lb-nav cp-lb-prev">&lt;</button>
+    <button class="cp-lb-nav cp-lb-prev">
+      <svg width="10" height="16" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="8,1 2,8 8,15" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
     <div class="cp-lb-inner">
       <div class="cp-lb-top">
         <div class="cp-lb-top-l">
@@ -158,7 +162,11 @@ function createLightbox() {
         </div>
       </div>
     </div>
-    <button class="cp-lb-nav cp-lb-next">&gt;</button>
+    <button class="cp-lb-nav cp-lb-next">
+      <svg width="10" height="16" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,1 8,8 2,15" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   `;
   document.body.appendChild(lb);
 
