@@ -126,7 +126,7 @@
 .nav-dropdown-menu a {
   font-family: var(--font-display);
   font-weight: 500;
-  font-style: italic;
+  font-style: normal;
   font-size: var(--text-xs);
   color: #838383;
   letter-spacing: 0.02em;
@@ -138,6 +138,7 @@
 
 .nav-dropdown-menu a:hover {
   color: var(--color-main);
+  font-style: italic;
 }
 
 .nav-dropdown-menu a.active {

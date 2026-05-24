@@ -1,3 +1,10 @@
+/* ── homepage: no scroll, fits exactly in the viewport ──────────────────── */
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+}
+
 /* ── nav and banner stay above the canvas (z-index: 5) ──────────────────── */
 .home-banner {
   position: relative;
@@ -479,6 +486,43 @@
   color: #282828;
   line-height: 1.2;
   margin: 0;
+}
+
+/* ── lightbox nav arrows ─────────────────────────────────────────────────── */
+.cp-lb-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #1a1a1a;
+  opacity: 1;
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+  user-select: none;
+}
+
+.cp-lb-nav:hover {
+  background: #f0f0f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.cp-lb-prev {
+  left: 2vw;
+}
+.cp-lb-next {
+  right: 2vw;
 }
 
 .cp-lb-backdrop {

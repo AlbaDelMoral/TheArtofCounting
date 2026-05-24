@@ -127,11 +127,14 @@ function addProjectionLines(plane, pct_x, pct_y) {
 }
 
 // ── Lightbox ──────────────────────────────────────────────────────────────────
+let lbCurrentIndex = -1;
+
 function createLightbox() {
   const lb = document.createElement("div");
   lb.id = "cp-lightbox";
   lb.innerHTML = `
     <div class="cp-lb-backdrop"></div>
+    <button class="cp-lb-nav cp-lb-prev">&lt;</button>
     <div class="cp-lb-inner">
       <div class="cp-lb-top">
         <div class="cp-lb-top-l">
@@ -155,28 +158,46 @@ function createLightbox() {
         </div>
       </div>
     </div>
+    <button class="cp-lb-nav cp-lb-next">&gt;</button>
   `;
   document.body.appendChild(lb);
 
   const close = () => lb.classList.remove("cp-lb-open");
   lb.querySelector(".cp-lb-backdrop").addEventListener("click", close);
+  lb.querySelector(".cp-lb-prev").addEventListener("click", () => navigateLightbox(lb, -1));
+  lb.querySelector(".cp-lb-next").addEventListener("click", () => navigateLightbox(lb, 1));
+
   document.addEventListener("keydown", (e) => {
+    if (!lb.classList.contains("cp-lb-open")) return;
     if (e.key === "Escape") close();
+    if (e.key === "ArrowLeft")  navigateLightbox(lb, -1);
+    if (e.key === "ArrowRight") navigateLightbox(lb, 1);
   });
 
   return lb;
 }
 
-function openLightbox(lb, src, num, title, date, author, params, desc) {
-  lb.querySelector(".cp-lb-img").src = src;
+function _fillLightbox(lb, p) {
+  const num = (Math.abs(p.x * 73 + p.y * 37) % 900) + 100;
+  lb.querySelector(".cp-lb-img").src = p.src;
   lb.querySelector(".cp-lb-num").textContent = num;
-  lb.querySelector(".cp-lb-title").textContent = title;
-  lb.querySelector(".cp-lb-date").textContent = date;
-  lb.querySelector(".cp-lb-author").textContent = "Created by " + author;
-  lb.querySelector(".cp-lb-params").innerHTML = params
+  lb.querySelector(".cp-lb-title").textContent = p.title;
+  lb.querySelector(".cp-lb-date").textContent = p.date;
+  lb.querySelector(".cp-lb-author").textContent = "Created by " + p.author;
+  lb.querySelector(".cp-lb-params").innerHTML = p.params
     .map(({ key, val }) => `<tr><td class="cp-lb-pk">${key}</td><td class="cp-lb-pv">${val}</td></tr>`)
     .join("");
-  lb.querySelector(".cp-lb-desc").textContent = desc;
+  lb.querySelector(".cp-lb-desc").textContent = p.desc;
+}
+
+function navigateLightbox(lb, delta) {
+  lbCurrentIndex = (lbCurrentIndex + delta + POINTS.length) % POINTS.length;
+  _fillLightbox(lb, POINTS[lbCurrentIndex]);
+}
+
+function openLightbox(lb, index) {
+  lbCurrentIndex = index;
+  _fillLightbox(lb, POINTS[index]);
   lb.classList.add("cp-lb-open");
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -203,7 +224,7 @@ function placeCPPoints() {
 
   const lightbox = createLightbox();
 
-  POINTS.forEach(({ x, y, src, title, date, author, params, desc, color }) => {
+  POINTS.forEach(({ x, y, src, color }, index) => {
     const pct_x = 50 + (x / RANGE) * 50;
     const pct_y = 50 - (y / RANGE) * 50;
     const isPos = x >= 0;
@@ -232,9 +253,7 @@ function placeCPPoints() {
 
     // Click → lightbox
     wrap.style.cursor = "pointer";
-    wrap.addEventListener("click", () =>
-      openLightbox(lightbox, src, num, title, date, author, params, desc),
-    );
+    wrap.addEventListener("click", () => openLightbox(lightbox, index));
 
     plane.appendChild(wrap);
   });
