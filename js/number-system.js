@@ -204,8 +204,9 @@ function drawNumber(numStr, cx, cy, outerR) {
     if (digit === 0) continue;
     const r1  = i === 0 ? 0 : bdry[i - 1];
     const r2  = bdry[i];
-    // Fixed colour per digit — mid tier gives the clearest hue for each number
-    const t   = NUMBER_COLORS[digit].mid;
+    // Tier depends on positional weight: units=light(unidades), tens=mid(decenas), hundreds+=dark(centenas)
+    const tier = i === 0 ? 'light' : i === 1 ? 'mid' : 'dark';
+    const t   = NUMBER_COLORS[digit][tier];
     const col = color(t.H, t.S, t.B);
     if (isNegative) {
       // One single outlined arc spanning the full digit angle

@@ -163,9 +163,13 @@ const CAR = {
 };
 
 // ── RAF-lerp state ────────────────────────────────────────────────────────────
-let _carPos = 0; // current rendered position (float, drives all visuals)
-let _carTarget = 0; // integer target index
+let _carPos = 0;      // current rendered position (float, drives all visuals)
+let _carTarget = 0;   // integer target index
 let _carRafId = null;
+
+// ── cached references — avoids querySelectorAll / innerWidth on every frame ──
+let _carItems  = [];  // DOM nodes, populated once in createCarousel
+let _isMobile  = false; // breakpoint flag, updated on resize
 
 function _lerp(a, b, t) {
   return a + (b - a) * t;
@@ -192,58 +196,52 @@ function _carKick() {
 }
 
 function _renderCarousel(pos) {
-  const N = POINTS.length;
-  const mobile = window.innerWidth <= 768;
-  const rWidth = mobile ? 58 : CAR.width;
-  const rSpacing = mobile ? 36 : CAR.spacing;
+  const N        = POINTS.length;
+  const rSpacing = _isMobile ? 36 : CAR.spacing;
 
-  document.querySelectorAll(".cp-car-item").forEach((item, i) => {
-    // Circular offset — each item takes the shortest path around the loop
+  // Hoist lookup tables outside the per-item loop
+  const S = [CAR.scale0, CAR.scale1, CAR.scale2, 0];
+  const O = [CAR.opacity0, CAR.opacity1, CAR.opacity2, 0];
+  // Blur is disabled on mobile — CSS filter is the heaviest GPU op on phones
+  const B = _isMobile ? [0, 0, 0, 0] : [CAR.blur0, CAR.blur1, CAR.blur2, CAR.blur2];
+  const L = [CAR.brightness0, CAR.brightness1, CAR.brightness2, CAR.brightness2];
+
+  _carItems.forEach((item, i) => {
+    // Circular offset — shortest path around the loop
     let offset = (((i - pos) % N) + N) % N;
     if (offset > N / 2) offset -= N;
     const abs = Math.abs(offset);
-    const lo = Math.floor(abs); // lower bracket
-    const hi = lo + 1; // upper bracket
-    const t = abs - lo; // fractional blend
-
-    // Fixed layout — idempotent, cheap
-    item.style.width = `${rWidth}vw`;
-    item.style.borderRadius = `${CAR.radius}px`;
-    item.style.transition = "none"; // RAF drives everything — no CSS transitions
+    const lo  = Math.floor(abs);
+    const hi  = lo + 1;
+    const t   = abs - lo;
 
     if (abs > CAR.visible + 0.5) {
-      item.style.opacity = "0";
-      item.style.visibility = "hidden";
+      item.style.opacity       = "0";
+      item.style.visibility    = "hidden";
       item.style.pointerEvents = "none";
       return;
     }
 
-    const S = [CAR.scale0, CAR.scale1, CAR.scale2, 0];
-    const O = [CAR.opacity0, CAR.opacity1, CAR.opacity2, 0];
-    const B = [CAR.blur0, CAR.blur1, CAR.blur2, CAR.blur2];
-    const L = [
-      CAR.brightness0,
-      CAR.brightness1,
-      CAR.brightness2,
-      CAR.brightness2,
-    ];
-
-    const scale = _lerp(S[lo] ?? 0, S[hi] ?? 0, t);
-    const opac = _lerp(O[lo] ?? 0, O[hi] ?? 0, t);
-    const blur = _lerp(B[lo] ?? 0, B[hi] ?? 0, t);
+    const scale  = _lerp(S[lo] ?? 0, S[hi] ?? 0, t);
+    const opac   = _lerp(O[lo] ?? 0, O[hi] ?? 0, t);
+    const blur   = _lerp(B[lo] ?? 0, B[hi] ?? 0, t);
     const bright = _lerp(L[lo] ?? 1, L[hi] ?? 1, t);
+    const ty     = offset * rSpacing + CAR.offsetY;
+    const tx     = CAR.offsetX;
 
-    const ty = offset * rSpacing + CAR.offsetY;
-    const tx = CAR.offsetX;
-
-    item.style.visibility = "visible";
-    item.style.opacity = opac;
-    item.style.zIndex = Math.round(10 - abs);
+    item.style.visibility    = "visible";
+    item.style.opacity       = opac;
+    item.style.zIndex        = Math.round(10 - abs);
     item.style.pointerEvents = "auto";
-    item.style.cursor = abs < 0.5 ? "pointer" : "default";
-    item.style.filter = `blur(${blur}px) brightness(${bright})`;
-    // -50% centres the item on left:50% — offsetX shifts it further if needed
-    item.style.transform = `translateX(calc(-50% + ${tx}vw)) translateY(calc(-50% + ${ty}vh)) scale(${scale})`;
+    item.style.cursor        = abs < 0.5 ? "pointer" : "default";
+
+    // Skip filter write when not needed — filter is expensive on mobile
+    item.style.filter = (blur > 0 || bright !== 1)
+      ? `blur(${blur}px) brightness(${bright})`
+      : "none";
+
+    // translate3d (not translateX/Y) — hints GPU compositing on mobile
+    item.style.transform = `translate3d(calc(-50% + ${tx}vw), calc(-50% + ${ty}vh), 0) scale(${scale})`;
   });
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -269,6 +267,25 @@ function createCarousel(lightbox) {
     });
 
     car.appendChild(item);
+  });
+
+  // Cache items once — avoids querySelectorAll on every RAF frame
+  _isMobile  = window.innerWidth <= 768;
+  _carItems  = Array.from(car.querySelectorAll(".cp-car-item"));
+
+  // Set constant styles once (not on every frame)
+  _carItems.forEach(item => {
+    item.style.width        = `${_isMobile ? 58 : CAR.width}vw`;
+    item.style.borderRadius = `${CAR.radius}px`;
+    item.style.transition   = "none";
+  });
+
+  // Keep breakpoint + item widths in sync with window resizes
+  window.addEventListener("resize", () => {
+    _isMobile = window.innerWidth <= 768;
+    _carItems.forEach(item => {
+      item.style.width = `${_isMobile ? 58 : CAR.width}vw`;
+    });
   });
 
   // Wheel — short cooldown so rapid scrolling steps cleanly, lerp handles smoothness
