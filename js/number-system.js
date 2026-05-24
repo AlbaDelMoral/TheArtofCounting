@@ -86,6 +86,40 @@ function reshuffleColors() {
   PAL.rings   = [PAL.ring_0, PAL.ring_1, PAL.ring_2, PAL.ring_3, PAL.ring_4, PAL.ring_5];
 }
 
+// ─── usable canvas area ───────────────────────────────────────────────────────
+// Returns the drawing area, automatically excluding whichever side the panel is on.
+// Desktop: panel is on the left  → exclude left strip.
+// Mobile:  panel is at the bottom → exclude bottom strip.
+function getPanelArea() {
+  const pad     = 24;
+  const panelEl = document.querySelector('.side-panel');
+  const navEl   = document.querySelector('.site-nav');
+  const navH    = navEl ? navEl.offsetHeight : 0;
+
+  if (!panelEl) {
+    return { areaX: pad, areaY: navH + pad, areaW: width - 2 * pad, areaH: height - navH - 2 * pad };
+  }
+
+  const rect     = panelEl.getBoundingClientRect();
+  const isBottom = rect.top > height * 0.5; // panel sits below mid-screen → bottom sheet
+
+  if (isBottom) {
+    return {
+      areaX: pad,
+      areaY: navH + pad,
+      areaW: width - 2 * pad,
+      areaH: rect.top - navH - 2 * pad,
+    };
+  }
+
+  return {
+    areaX: panelEl.offsetWidth + pad,
+    areaY: navH + pad,
+    areaW: width - panelEl.offsetWidth - 2 * pad,
+    areaH: height - navH - 2 * pad,
+  };
+}
+
 // ─── digit extraction ─────────────────────────────────────────────────────────
 function getDigits(numStr) {
   const isNegative   = numStr.startsWith("-");

@@ -76,16 +76,8 @@ function computePositions(allowOverflow = false) {
   const n = compositionData.length;
   if (n === 0) return;
 
-  // ── Usable area ─────────────────────────────────────────────────────────────
-  const pad    = 24;
-  const panelW = (typeof panel !== 'undefined' && panel && panel.elt)
-                   ? panel.elt.offsetWidth : 0;
-  const navEl  = document.querySelector('.site-nav');
-  const navH   = navEl ? navEl.offsetHeight : 0;
-  const areaX  = panelW + pad;
-  const areaY  = navH   + pad;
-  const areaW  = width  - areaX - pad;
-  const areaH  = height - areaY - pad;
+  // ── Usable area (auto-detects left panel vs bottom panel on mobile) ─────────
+  const { areaX, areaY, areaW, areaH } = getPanelArea();
 
   // ── Base radii from config (sized against usable area) ──────────────────────
   const m     = min(areaW, areaH);

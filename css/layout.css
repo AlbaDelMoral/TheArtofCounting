@@ -145,20 +145,100 @@
   color: var(--color-main);
 }
 
+/* ── hamburger — hidden on desktop ──────────────────────────────────────────── */
+.nav-hamburger {
+  display: none;
+}
+
+.nav-mobile-menu {
+  display: none;
+}
+
 /* ── mobile nav ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  /* Give links more room — full right half */
-  .nav-links {
-    width: 70%;
+  /* Logo fills the nav minus the hamburger button width */
+  .nav-logo-link {
+    width: calc(100% - 52px);
   }
 
-  /* Hide the "1 |", "2 |", "3 |" number badges — save space */
-  .nav-num {
+  /* Hide desktop link bar entirely */
+  .nav-links {
     display: none;
   }
 
-  /* Hide the Play dropdown sub-items on touch — tap goes to numbers.html */
-  .nav-dropdown-menu {
-    display: none !important;
+  /* ── hamburger button ─────────────────────────────────────────────────── */
+  .nav-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 52px;
+    flex-shrink: 0;
+    padding: 0 16px;
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    align-self: stretch;
+  }
+
+  .nav-hamburger span {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: #4e4e4e;
+    transform-origin: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  /* × state when open */
+  .nav-hamburger--open span:nth-child(1) {
+    transform: rotate(45deg) translate(4.5px, 4.5px);
+  }
+  .nav-hamburger--open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .nav-hamburger--open span:nth-child(3) {
+    transform: rotate(-45deg) translate(4.5px, -4.5px);
+  }
+
+  /* ── mobile dropdown menu ─────────────────────────────────────────────── */
+  .nav-mobile-menu {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-bottom: 0.5px solid #e0e0e0;
+    flex-direction: column;
+    padding: 6px 0 14px;
+    z-index: 99;
+    animation: nav-menu-in 0.18s ease;
+  }
+
+  .nav-mobile-menu--open {
+    display: flex;
+  }
+
+  .nav-mobile-menu a {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: var(--text-xs);
+    color: var(--color-main);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    padding: 11px 20px;
+    display: block;
+    transition: color var(--duration-fast) var(--ease);
+  }
+
+  .nav-mobile-menu a.active {
+    color: #121212;
+  }
+
+  @keyframes nav-menu-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 }

@@ -329,3 +329,45 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — panel moves from left sidebar to bottom sheet
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .side-panel {
+    /* Unset left-sidebar positioning */
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    /* Full width bottom sheet */
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 40vh;
+    min-height: 180px;
+    max-height: 300px;
+
+    /* Remove right border, add top border */
+    border-right: none;
+    border-top: 0.5px solid #e0e0e0;
+
+    /* Override the nav-height top padding — panel is no longer at the top */
+    padding: 10px var(--panel-padding-h) 16px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Tighter section headers — save vertical space */
+  .panel-section {
+    --panel-section-pad-bottom: 12px;
+    --panel-section-margin-top: 8px;
+  }
+
+  /* Compact hint text */
+  .panel-hint {
+    display: none; /* keyboard shortcuts irrelevant on touch */
+  }
+}

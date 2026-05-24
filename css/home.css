@@ -633,8 +633,9 @@ body {
    MOBILE — homepage
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* Hide cartesian coordinate points — too small to tap on touch screens */
-  .home-cartesian {
+  /* Keep axes visible on mobile — hide only coordinate points and projection lines */
+  .cp-point,
+  .cp-proj {
     display: none;
   }
 

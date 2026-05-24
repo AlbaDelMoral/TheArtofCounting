@@ -52,6 +52,7 @@ const CONFIG = {
 };
 
 let canvasBgHex = '#ffffff'; // canvas background — driven by colour picker
+let _exportTransparent = false; // when true, saveHQ skips background fill → transparent PNG
 
 // ─── state ────────────────────────────────────────────────────────────────────
 let parsedSteps = null; // array of {sideA, sideB, result} — one per × step
@@ -246,7 +247,7 @@ function createPanel() {
   addSlider("reality", "reality", 0, 100, CONFIG.reality,     1, (v) => { CONFIG.reality     = int(v); });
 
   createDiv(
-    "SPACE · new colors<br>S · save png<br>scroll · zoom  /  drag · pan  /  dbl-click · reset",
+    "SPACE · new colors<br>S · save png  ·  T · save transparent<br>scroll · zoom  /  drag · pan  /  dbl-click · reset",
   )
     .class("panel-hint")
     .parent(panel);
@@ -287,8 +288,12 @@ function setup() {
 
 function draw() {
   blendMode(BLEND);
-  drawingContext.fillStyle = canvasBgHex;
-  drawingContext.fillRect(0, 0, width, height);
+  if (_exportTransparent) {
+    drawingContext.clearRect(0, 0, width, height); // transparent background
+  } else {
+    drawingContext.fillStyle = canvasBgHex;
+    drawingContext.fillRect(0, 0, width, height);
+  }
 
   const shapeAlpha = 1 - CONFIG.reality / 100;
   const textAlpha  = CONFIG.reality / 100;
@@ -344,8 +349,12 @@ function draw() {
 
   if (CONFIG.bokeh > 0) {
     const snap = get();
-    drawingContext.fillStyle = canvasBgHex;
-    drawingContext.fillRect(0, 0, width, height);
+    if (_exportTransparent) {
+      drawingContext.clearRect(0, 0, width, height);
+    } else {
+      drawingContext.fillStyle = canvasBgHex;
+      drawingContext.fillRect(0, 0, width, height);
+    }
     drawingContext.filter = `blur(${CONFIG.bokeh}px)`;
     blendMode(BLEND);
     image(snap, 0, 0);
@@ -357,7 +366,8 @@ function draw() {
 }
 
 // ─── save high-quality PNG (4× resolution) ────────────────────────────────────
-function saveHQ() {
+function saveHQ(transparent = false) {
+  _exportTransparent = transparent;
   const origPD = pixelDensity();
   pixelDensity(4);
   resizeCanvas(windowWidth, windowHeight);
@@ -370,9 +380,12 @@ function saveHQ() {
     nf(hour(), 2) +
     nf(minute(), 2) +
     nf(second(), 2);
-  saveCanvas("visual-multiplication-" + ts, "png");
+  const prefix = transparent ? "visual-multiplication-transparent-" : "visual-multiplication-";
+  saveCanvas(prefix + ts, "png");
+  _exportTransparent = false;
   pixelDensity(origPD);
   resizeCanvas(windowWidth, windowHeight);
+  draw(); // redraw on screen with background restored
 }
 
 // ─── interaction ──────────────────────────────────────────────────────────────
@@ -383,7 +396,8 @@ function keyPressed() {
     _computeOffsets(parsedSteps ? parsedSteps.length : 1);
     redraw();
   }
-  if (key === "s" || key === "S") saveHQ();
+  if (key === "s" || key === "S") saveHQ(false);
+  if (key === "t" || key === "T") saveHQ(true); // transparent PNG
 }
 
 // ─── pan / zoom handlers ──────────────────────────────────────────────────────

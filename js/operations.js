@@ -98,16 +98,8 @@ function computePositions() {
   const nChains = chainData.length;
   if (nChains === 0) return;
 
-  // ── Usable area: exclude panel on left and nav on top ───────────────────────
-  const pad     = 24;
-  const panelEl = document.querySelector('.side-panel');
-  const navEl   = document.querySelector('.site-nav');
-  const panelW  = panelEl ? panelEl.offsetWidth : 0;
-  const navH    = navEl   ? navEl.offsetHeight  : 0;
-  const areaX   = panelW + pad;
-  const areaY   = navH   + pad;
-  const areaW   = width  - areaX - pad;
-  const areaH   = height - areaY - pad;
+  // ── Usable area (auto-detects left panel vs bottom panel on mobile) ─────────
+  const { areaX, areaY, areaW, areaH } = getPanelArea();
 
   const m    = min(areaW, areaH);
   const lo   = Math.max(0.01, CONFIG.compScale * (1 - CONFIG.sizeVariation));

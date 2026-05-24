@@ -19,7 +19,7 @@ const DEBUG_GRID = false;
     nav.className = "site-nav";
     nav.innerHTML = `
       <a href="index.html" class="nav-logo-link${isHome ? " nav-logo-link--hidden" : ""}" aria-label="Home">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 214.41 25.94" class="nav-logo-img" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 214.41 25.94" overflow="visible" class="nav-logo-img" aria-hidden="true">
           <text style="fill:#d7d7d7;font-family:AeonikTRIAL-SemiBold,'Aeonik TRIAL';font-size:28.01px;font-weight:600"
                 transform="translate(-.14 20.17)">
             <tspan style="letter-spacing:-.04em" x="0"      y="0">t</tspan>
@@ -43,6 +43,8 @@ const DEBUG_GRID = false;
           </text>
         </svg>
       </a>
+
+      <!-- desktop links -->
       <div class="nav-links">
         <a href="learn.html"${active("learn.html")}><span class="nav-num">1</span>Learn</a>
         <div class="nav-dropdown">
@@ -57,9 +59,51 @@ const DEBUG_GRID = false;
         </div>
         <a href="gallery.html"${active("gallery.html")}><span class="nav-num">3</span>About</a>
       </div>
+
+      <!-- mobile hamburger button -->
+      <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- mobile dropdown menu -->
+      <div class="nav-mobile-menu">
+        <a href="learn.html"${active("learn.html")}>Learn</a>
+        <a href="numbers.html"${active("numbers.html")}>Numbers</a>
+        <a href="operations.html"${active("operations.html")}>Operations</a>
+        <a href="multiplication.html"${active("multiplication.html")}>Multiplication</a>
+        <a href="gallery.html"${active("gallery.html")}>About</a>
+      </div>
     `;
 
     document.body.prepend(nav);
+
+    // ── hamburger toggle ────────────────────────────────────────────────────────
+    const hamburger = nav.querySelector('.nav-hamburger');
+    const mobileMenu = nav.querySelector('.nav-mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('nav-mobile-menu--open');
+      hamburger.classList.toggle('nav-hamburger--open', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+    });
+
+    // close when a link is tapped
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('nav-mobile-menu--open');
+        hamburger.classList.remove('nav-hamburger--open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // close on outside tap
+    document.addEventListener('click', (e) => {
+      if (!nav.contains(e.target)) {
+        mobileMenu.classList.remove('nav-mobile-menu--open');
+        hamburger.classList.remove('nav-hamburger--open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      }
+    });
 
     if (DEBUG_GRID) {
       const overlay = document.createElement("div");
