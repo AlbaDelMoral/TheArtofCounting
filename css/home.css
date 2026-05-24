@@ -19,6 +19,7 @@ body {
   align-items: center;
   user-select: none;
   overflow: hidden;
+  pointer-events: none; /* lets carousel items (z-index 6) receive clicks through the banner */
 }
 
 /* logo row: absolutely centered on the axis intersection */
@@ -230,7 +231,7 @@ body {
   display: flex;
   flex-direction: column;
   z-index: 2;
-  pointer-events: auto; /* override plane's pointer-events: none */
+  pointer-events: auto; /* restored — banner is pointer-events:none so this is needed */
 }
 
 /* x >= 0: top-left corner sits on the coordinate */
@@ -488,6 +489,49 @@ body {
   margin: 0;
 }
 
+/* ── vertical carousel ───────────────────────────────────────────────────── */
+#cp-carousel {
+  position: fixed;
+  top: var(
+    --nav-height
+  ); /* start below the nav so 50% = centre of content area */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6; /* banner has pointer-events:none so items receive clicks through it */
+  pointer-events: none; /* container is pass-through — only items capture events */
+}
+
+.cp-car-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  overflow: hidden;
+  /* width, margin-left, border-radius, transition — all set by CAR config in JS */
+  will-change: transform, opacity;
+  pointer-events: none; /* JS flips this per item */
+}
+
+.cp-car-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* active point — mirrors the hover state so the current artwork's point is highlighted */
+.cp-point-active .cp-tag {
+  background-color: var(--point-color);
+}
+.cp-point-active .cp-dot {
+  background: #ffffff;
+}
+.cp-point-active .cp-label {
+  color: #ffffff;
+}
+
 /* ── lightbox nav arrows ─────────────────────────────────────────────────── */
 .cp-lb-nav {
   position: absolute;
@@ -504,7 +548,9 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: box-shadow 0.15s ease, background 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    background 0.15s ease;
   user-select: none;
 }
 
@@ -572,4 +618,47 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — homepage
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Hide cartesian coordinate points — too small to tap on touch screens */
+  .home-cartesian {
+    display: none;
+  }
+
+  /* Logo — tighter horizontal padding */
+  .home-logo,
+  .home-logo svg {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* MATHEMATICS — smaller letters, less top margin */
+  .home-mathematics {
+    font-size: 13px;
+    margin-top: 100px;
+    margin-bottom: 10px;
+  }
+
+  /* Hide green band, dashed line and blue texts — only keep MATHEMATICS */
+  .home-band,
+  .home-band-text,
+  .home-band-text2 {
+    display: none;
+  }
+
+  /* Carousel items — portrait 3:4, image fills and crops */
+  .cp-car-item {
+    aspect-ratio: 3 / 4;
+  }
+
+  .cp-car-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }

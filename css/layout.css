@@ -144,3 +144,21 @@
 .nav-dropdown-menu a.active {
   color: var(--color-main);
 }
+
+/* ── mobile nav ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Give links more room — full right half */
+  .nav-links {
+    width: 70%;
+  }
+
+  /* Hide the "1 |", "2 |", "3 |" number badges — save space */
+  .nav-num {
+    display: none;
+  }
+
+  /* Hide the Play dropdown sub-items on touch — tap goes to numbers.html */
+  .nav-dropdown-menu {
+    display: none !important;
+  }
+}
