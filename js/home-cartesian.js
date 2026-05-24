@@ -7,6 +7,7 @@ const BG_HOVER = true;
 const POINTS = [
   {
     x: 3, y: 7, src: "assets/images/1.png",
+    color: "hsl(275, 77%, 43%)",
     title:  "Piece title one",
     date:   "May 13th 2026",
     author: "Username765456",
@@ -20,6 +21,7 @@ const POINTS = [
   },
   {
     x: -5, y: 5, src: "assets/images/2.png",
+    color: "hsl(175, 100%, 36%)",
     title:  "Piece title two",
     date:   "May 13th 2026",
     author: "Username765456",
@@ -33,6 +35,7 @@ const POINTS = [
   },
   {
     x: 6, y: 2, src: "assets/images/3.png",
+    color: "hsl(17, 100%, 50%)",
     title:  "Piece title three",
     date:   "May 13th 2026",
     author: "Username765456",
@@ -46,6 +49,7 @@ const POINTS = [
   },
   {
     x: -7, y: -2, src: "assets/images/4.png",
+    color: "hsl(215, 100%, 48%)",
     title:  "Piece title four",
     date:   "May 13th 2026",
     author: "Username765456",
@@ -59,6 +63,7 @@ const POINTS = [
   },
   {
     x: 2, y: -6, src: "assets/images/5.png",
+    color: "hsl(134, 78%, 40%)",
     title:  "Piece title five",
     date:   "May 13th 2026",
     author: "Username765456",
@@ -71,17 +76,35 @@ const POINTS = [
     desc: "Prime numbers have no pattern, no predictability, no formula that generates them cleanly. This piece places them on the plane and lets them sit in their irregularity. The circles do not align. The spacing is not even. That is the point — beauty emerging not from order but from the stubborn refusal of it.",
   },
   {
-    x: -3, y: -5, src: "assets/images/6.png",
-    title:  "Piece title six",
-    date:   "May 13th 2026",
+    x: 5, y: -4, src: "assets/images/7.png",
+    color: "hsl(265, 100%, 46%)",
+    title:  "π",
+    date:   "May 24th 2026",
     author: "Username765456",
     params: [
-      { key: "LENGTH",    val: "6"    },
-      { key: "OVERLAY",   val: "0.55" },
-      { key: "THICKNESS", val: "5"    },
-      { key: "STEPS",     val: "34"   },
+      { key: "COUNT",   val: "10"   },
+      { key: "SIZE",    val: "0.59" },
+      { key: "OVERLAP", val: "0.00" },
+      { key: "SPREAD",  val: "0.50" },
+      { key: "BOKEH",   val: "5px"  },
+      { key: "GRAIN",   val: "45"   },
+      { key: "REALITY", val: "0"    },
     ],
-    desc: "A sequence unfolds across the canvas — each term the sum of the two before it. The Fibonacci spiral rendered not as a curve but as a chain of number-circles, each one inheriting the weight of what came before it. Growth, encoded. Proportion, made visible. An old pattern seen for the first time.",
+    desc: "3.14159265358979323846264338327... Ten digits of π, each encoded as a ring. No number has been studied more obsessively, approximated more desperately, or proven more impossible to pin down. Here it is held still for a moment — not as a decimal, not as a formula, but as colour and arc and proportion. Irrational, yes. But never without form.",
+  },
+  {
+    x: -3, y: -5, src: "assets/images/8.png",
+    color: "hsl(134, 78%, 40%)",
+    title:  "Piece title eight",
+    date:   "May 24th 2026",
+    author: "Username765456",
+    params: [
+      { key: "COUNT",   val: "9"    },
+      { key: "SIZE",    val: "1.80" },
+      { key: "REALITY", val: "100"  },
+      { key: "GRAIN",   val: "30"   },
+    ],
+    desc: "When the reality slider reaches its limit, the system drops its own grammar entirely. No rings, no arcs, no encoded values — just the numbers themselves, large and unapologetic against a field of green. It is the clearest the system ever gets, and somehow, at this scale and angle, the most disorienting.",
   },
 ];
 
@@ -180,7 +203,7 @@ function placeCPPoints() {
 
   const lightbox = createLightbox();
 
-  POINTS.forEach(({ x, y, src, title, date, author, params, desc }) => {
+  POINTS.forEach(({ x, y, src, title, date, author, params, desc, color }) => {
     const pct_x = 50 + (x / RANGE) * 50;
     const pct_y = 50 - (y / RANGE) * 50;
     const isPos = x >= 0;
@@ -191,6 +214,7 @@ function placeCPPoints() {
     wrap.className = "cp-point " + (isPos ? "cp-pos" : "cp-neg");
     wrap.style.left = pct_x + "%";
     wrap.style.top = pct_y + "%";
+    wrap.style.setProperty("--point-color", color);
 
     const num = (Math.abs(x * 73 + y * 37) % 900) + 100;
     wrap.innerHTML = `<div class="cp-tag"><span class="cp-dot"></span><span class="cp-label">${num}</span></div>`;

@@ -160,8 +160,8 @@
 
 /* ── § 6 footer ──────────────────────────────────────────────────────────── */
 .site-footer {
-  border-top: 0.5px solid #d0d0d0;
-  padding: 16px 0;
+  background: #1a1a1a;
+  padding: 40px 0;
 }
 
 .footer-inner {
@@ -173,26 +173,26 @@
 }
 
 .footer-brand {
-  font-family: "ABCROM", var(--font-sans);
-  font-weight: bold;
+  font-family: "KMRWaldenburg", var(--font-sans);
+  font-weight: 700;
   font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #111111;
+  color: #ffffff;
 }
 
 .footer-credit {
-  font-family: var(--font-sans);
+  font-family: "KMRWaldenburg", var(--font-sans);
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: rgba(255,255,255,0.4);
   letter-spacing: 0.04em;
 }
 
 .footer-tagline {
-  font-family: "ABCROMCompressed", var(--font-sans);
+  font-family: "KMRWaldenburg", var(--font-sans);
   font-weight: 300;
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: rgba(255,255,255,0.4);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }

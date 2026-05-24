@@ -187,6 +187,19 @@ function createPanel() {
     e.stopPropagation();
   });
 
+  // ── color row builder ────────────────────────────────────────────────────────
+  function addColorRow(label, defaultHex, onChange) {
+    const row = createDiv("").class("color-row");
+    row.parent(panel);
+    createSpan(label).class("slider-label").parent(row);
+    const swatch = createElement("input");
+    swatch.attribute("type", "color");
+    swatch.attribute("value", defaultHex);
+    swatch.class("color-swatch");
+    swatch.parent(row);
+    swatch.input(() => onChange(swatch.value()));
+  }
+
   // ── slider builder ───────────────────────────────────────────────────────────
   // Returns the p5 slider element; wires the input handler automatically.
   function addSlider(key, label, mn, mx, val, step, setter) {
@@ -227,6 +240,7 @@ function createPanel() {
 
   // ── Artistic variables ────────────────────────────────────────────────────────
   addSection("Artistic variables");
+  addColorRow("background", canvasBgHex, (hex) => { canvasBgHex = hex; });
   addSlider("bokeh",   "bokeh",   0, 30,  CONFIG.bokeh,       1, (v) => { CONFIG.bokeh       = int(v); });
   addSlider("grain",   "grain",   0, 100, CONFIG.grainAmount, 1, (v) => { CONFIG.grainAmount = int(v); });
   addSlider("reality", "reality", 0, 100, CONFIG.reality,     1, (v) => { CONFIG.reality     = int(v); });

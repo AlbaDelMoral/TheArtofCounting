@@ -235,12 +235,12 @@ function drawNumber(numStr, cx, cy, outerR) {
   if (decimalCount > 0)
     drawDecimalRing(cx, cy, bdry[decimalCount - 1] + outerR * CONFIG.decimalMarginRatio, outerR);
 
-  push();
-  fill(0, 0, 0);
-  noStroke();
-  const dotR = outerR * CONFIG.centerDotRatio;
-  ellipse(cx, cy, dotR * 2, dotR * 2);
-  pop();
+  // push();
+  // fill(0, 0, 0);
+  // noStroke();
+  // const dotR = outerR * CONFIG.centerDotRatio;
+  // ellipse(cx, cy, dotR * 2, dotR * 2);
+  // pop();
 }
 
 // ─── random number pool ───────────────────────────────────────────────────────

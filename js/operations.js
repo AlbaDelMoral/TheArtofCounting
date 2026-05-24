@@ -262,10 +262,14 @@ function createPanel() {
   }
 
   sliderLength = addRow("length", "length", 2, 6, CONFIG.numChainNums, 1);
-  sliderScale = addRow("size", "size", 1, 40, CONFIG.compScale * 100, 1);
+  sliderScale = addRow("size", "size", 1, 200, CONFIG.compScale * 100, 1);
   sliderSpread = addRow("spread", "spread", 0, 95, CONFIG.sizeVariation * 100, 1);
   sliderSpacing = addRow("spacing", "spacing", -150, 95, CONFIG.chainSpacing * 100, 1);
   sliderMargin = addRow("margin", "margin", 0, 50, CONFIG.beltMarginRatio * 100, 1);
+
+  const randomBtn = createElement("button", "random").class("panel-btn");
+  randomBtn.parent(panel);
+  randomBtn.mousePressed(() => generateChainData());
 
   addSection("Artistic variables");
   addColorRow("background", canvasBgHex, (hex) => { canvasBgHex = hex; });
@@ -273,7 +277,7 @@ function createPanel() {
   sliderGrain = addRow("grain", "grain", 0, 100, CONFIG.grainAmount, 1);
   sliderReality = addRow("reality", "reality", 0, 100, CONFIG.reality, 1);
 
-  createDiv("SPACE · new<br>S · save png").class("panel-hint").parent(panel);
+  createDiv("SPACE · colors  ·  S · save").class("panel-hint").parent(panel);
 
   updateValues();
 
@@ -450,9 +454,21 @@ function saveHQ() {
 }
 
 // ─── interaction ──────────────────────────────────────────────────────────────
+function reshuffleAllColors() {
+  chainData.forEach((chain, ci) => {
+    chain.colorSeeds     = chain.colorSeeds.map(() => Math.floor(Math.random() * 999983));
+    chain.beltColorSeeds = chain.beltColorSeeds.map(() => Math.floor(Math.random() * 999983));
+    // sync into the live composition array
+    if (composition[ci]) {
+      composition[ci].circles.forEach((c, i) => { c.colorSeed = chain.colorSeeds[i]; });
+      if (composition[ci].belts) composition[ci].belts.forEach((b, i) => { b.colorSeed = chain.beltColorSeeds[i]; });
+    }
+  });
+}
+
 function keyPressed() {
   if (document.activeElement.tagName === "INPUT") return;
-  if (key === " ") generateChainData();
+  if (key === " ") reshuffleAllColors();
   if (key === "s" || key === "S") saveHQ();
 }
 

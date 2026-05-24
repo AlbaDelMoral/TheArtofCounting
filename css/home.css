@@ -5,17 +5,22 @@
   margin-top: var(--nav-height); /* sits flush below the fixed nav */
   background: #efefef00;
   border-top: 0px solid #444444;
-  min-height: calc(100vh - var(--nav-height));
+  height: calc(100vh - var(--nav-height));
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   user-select: none;
+  overflow: hidden;
 }
 
-/* force the logo row to stretch full width inside the centered flex banner */
+/* logo row: absolutely centered on the axis intersection */
 .home-banner > .row {
+  position: absolute;
+  top: 50%;
+  left: 0;
   width: 100%;
+  transform: translateY(-50%);
 }
 
 /* logo: full width, flush edges */
@@ -44,6 +49,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  margin-top: 200px;
   margin-bottom: 18px; /* letters overlap the band top edge slightly */
   font-family: "KMRWaldenburg", sans-serif;
   font-weight: 900;
@@ -118,6 +124,10 @@
 /* ── tilt entire hero group ───────────────── */
 .home-tilt {
   /*transform: rotate(-15deg) translateY(180px) translateX(-50px);*/
+  position: absolute;
+  top: 68%;
+  left: 0;
+  width: 100%;
 }
 
 /* ── cartesian plane ─────────────────────────────────────────────────────── */
@@ -256,15 +266,15 @@
 }
 
 .cp-point:hover .cp-tag {
-  background-color: #262626;
+  background-color: var(--point-color);
 }
 
 .cp-point:hover .cp-label {
-  color: #d3d3d3;
+  color: #ffffff;
 }
 
 .cp-point:hover .cp-dot {
-  background: #d3d3d3;
+  background: #ffffff;
 }
 
 .cp-dot {
@@ -368,13 +378,13 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
-  margin-bottom: 75px;
+  margin-bottom: 64px;
 }
 
 .cp-lb-num {
   font-family: "KMRWaldenburg", sans-serif;
   font-weight: 700;
-  font-size: 20px;
+  font-size: 15px;
   color: #1a1a1a;
   line-height: 1;
   -webkit-font-smoothing: subpixel-antialiased;
@@ -384,7 +394,7 @@
   font-family: "KMRWaldenburg", sans-serif;
   font-weight: 700;
 
-  font-size: 20px;
+  font-size: 15px;
   color: #1b1b1b;
   margin: 0;
   -webkit-font-smoothing: subpixel-antialiased;

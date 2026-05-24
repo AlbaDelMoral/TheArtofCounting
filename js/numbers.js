@@ -71,7 +71,7 @@ function generateCompositionData() {
 
 // Rebuilds composition[] from compositionData[] + current CONFIG values.
 // Auto-scales to always fit within the usable area (excluding panel + nav).
-function computePositions() {
+function computePositions(allowOverflow = false) {
   composition = [];
   const n = compositionData.length;
   if (n === 0) return;
@@ -102,10 +102,10 @@ function computePositions() {
   const totalW0 = xs0[n - 1] + radii[n - 1];
   const maxR0   = Math.max(...radii);
 
-  // ── Scale down if circles overflow width or height ───────────────────────────
-  const scaleW = totalW0    > areaW       ? areaW       / totalW0    : 1;
-  const scaleH = maxR0 * 2  > areaH       ? areaH       / (maxR0*2)  : 1;
-  const scale  = Math.min(scaleW, scaleH, 1);
+  // ── Scale down to fit unless size slider is being used ───────────────────────
+  const scaleW = totalW0   > areaW ? areaW       / totalW0    : 1;
+  const scaleH = maxR0 * 2 > areaH ? areaH       / (maxR0*2)  : 1;
+  const scale  = allowOverflow ? 1 : Math.min(scaleW, scaleH, 1);
 
   const scaledR = radii.map((r) => r * scale);
   const xs      = [scaledR[0]];
@@ -204,8 +204,12 @@ function createPanel() {
 
   sliderOverlap = addRow("overlap", "overlap", 0,   95,  CONFIG.overlapFactor  * 100, 1);
   sliderCount   = addRow("count",   "count",   1,   30,  CONFIG.numCircles,           1);
-  sliderScale   = addRow("size",    "size",    1,   40,  CONFIG.compScale      * 100, 1);
+  sliderScale   = addRow("size",    "size",    1,   200, CONFIG.compScale      * 100, 1);
   sliderSpread  = addRow("spread",  "spread",  0,   95,  CONFIG.sizeVariation  * 100, 1);
+
+  const randomBtn = createElement("button", "random").class("panel-btn");
+  randomBtn.parent(panel);
+  randomBtn.mousePressed(() => generateCompositionData());
 
   addSection("Artistic variables");
   addColorRow("background", canvasBgHex, (hex) => { canvasBgHex = hex; });
@@ -213,13 +217,13 @@ function createPanel() {
   sliderGrain   = addRow("grain",   "grain",   0,   100, CONFIG.grainAmount,          1);
   const sliderReality = addRow("reality", "reality", 0, 100, CONFIG.reality,          1);
 
-  createDiv("SPACE · new<br>S · save png").class("panel-hint").parent(panel);
+  createDiv("SPACE · colors  ·  S · save").class("panel-hint").parent(panel);
 
   updateValues();
 
   sliderOverlap.input(() => { CONFIG.overlapFactor  = sliderOverlap.value() / 100; computePositions();         updateValues(); });
   sliderCount.input(()   => { CONFIG.numCircles      = int(sliderCount.value());    generateCompositionData(); updateValues(); });
-  sliderScale.input(()   => { CONFIG.compScale        = sliderScale.value()  / 100; computePositions();         updateValues(); });
+  sliderScale.input(()   => { CONFIG.compScale        = sliderScale.value()  / 100; computePositions(true);     updateValues(); });
   sliderSpread.input(()  => { CONFIG.sizeVariation    = sliderSpread.value() / 100; computePositions();         updateValues(); });
   sliderBokeh.input(()   => { CONFIG.bokeh            = int(sliderBokeh.value());                               updateValues(); });
   sliderGrain.input(()   => { CONFIG.grainAmount      = int(sliderGrain.value());                               updateValues(); });
@@ -266,12 +270,13 @@ function draw() {
     translate(item.x, item.y);
     rotate(data.angle);
 
-    drawingContext.globalAlpha = 1 - CONFIG.reality / 100;
+    const _r = CONFIG.reality;
+    drawingContext.globalAlpha = _r < 50 ? 1 : 1 - (_r - 50) / 50;
     drawNumber(item.numStr, 0, 0, item.r);
 
     if (CONFIG.reality > 0) {
       const fontSize = Math.round(item.r * 0.65);
-      drawingContext.globalAlpha    = CONFIG.reality / 100;
+      drawingContext.globalAlpha    = _r > 50 ? 1 : _r / 50;
       drawingContext.font           = `${f.style} ${f.weight} ${fontSize}px ${f.family}, sans-serif`;
       drawingContext.textAlign      = "center";
       drawingContext.textBaseline   = "middle";
@@ -311,9 +316,26 @@ function saveHQ() {
 }
 
 // ─── interaction ──────────────────────────────────────────────────────────────
+function reshuffleAllColors() {
+  // reshuffle ring/decimal colors (colorSeed drives reshuffleColors() in number-system.js)
+  compositionData.forEach((d, i) => {
+    d.colorSeed = Math.floor(Math.random() * 999983);
+    if (composition[i]) composition[i].colorSeed = d.colorSeed;
+  });
+
+  // reshuffle background circle colors — reassign palette3 colors to random digits
+  const keys = Object.keys(NUMBER_BG_COLORS);
+  const vals = keys.map(k => NUMBER_BG_COLORS[k]);
+  for (let i = vals.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [vals[i], vals[j]] = [vals[j], vals[i]];
+  }
+  keys.forEach((k, i) => { NUMBER_BG_COLORS[k] = vals[i]; });
+}
+
 function keyPressed() {
   if (document.activeElement.tagName === "INPUT") return;
-  if (key === " ") generateCompositionData();
+  if (key === " ") reshuffleAllColors();
   if (key === "s" || key === "S") saveHQ();
 }
 

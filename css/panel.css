@@ -40,7 +40,7 @@
   --panel-width: 25vw;
   --panel-min-width: 160px;
   --panel-max-width: 260px;
-  --panel-bg: rgba(255, 255, 255, 0.82);
+  --panel-bg: rgba(255, 255, 255, 1);
   --panel-padding-h: 18px; /* left / right inner padding              */
 }
 
@@ -56,8 +56,8 @@
   max-width: var(--panel-max-width);
   height: 100vh;
   background: var(--panel-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
   border-right: 0.5px solid #e0e0e0;
   padding: calc(var(--nav-height) + 20px) var(--panel-padding-h) 24px
     var(--panel-padding-h);
@@ -97,7 +97,7 @@
   border-bottom: 0.5px solid #606369;
   background: transparent;
   font-family: "KMRWaldenburg", sans-serif;
-  font-size: var(--panel-font-size);
+  font-size: 12px;
   font-weight: 500;
   padding: 4px 0;
   outline: none;
@@ -296,11 +296,30 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    BOTTOM HINT  (keyboard shortcuts)
    ═══════════════════════════════════════════════════════════════════════════ */
+.panel-random-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 7px 0;
+  background: #1a1a1a;
+  color: #ffffff;
+  border: none;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.panel-random-btn:hover {
+  background: #333;
+}
+
 .panel-hint {
-  margin-top: auto;
+  margin-top: 8px;
   color: #bbb;
   line-height: 2;
-  padding-top: 16px;
+  padding-top: 8px;
   font-size: 9px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
