@@ -514,7 +514,7 @@ body {
   top: 50%;
   left: 50%;
   overflow: hidden;
-  aspect-ratio: 4 / 3; /* consistent crop for all items — true proportion shown in lightbox */
+  aspect-ratio: 7 / 4; /* consistent crop for all items — true proportion shown in lightbox */
   /* width, border-radius, transition — all set by CAR config in JS */
   will-change: transform, opacity;
   pointer-events: none; /* JS flips this per item */
@@ -638,16 +638,19 @@ body {
     display: none;
   }
 
-  /* Logo — smaller on mobile so it doesn't scale up and look thick */
-  .home-logo,
-  .home-logo svg {
-    padding-left: 0;
-    padding-right: 0;
+  /* Logo — full width with a small margin.
+     SVG padding is zeroed here because CSS padding on <svg> is unreliable
+     on iOS Safari — it can distort the viewBox scale and make text look wrong.
+     All spacing is handled by the parent div instead. */
+  .home-logo {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 
   .home-logo svg {
-    width: 60%;
-    margin: 0 auto;
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   /* MATHEMATICS — smaller letters, less top margin */

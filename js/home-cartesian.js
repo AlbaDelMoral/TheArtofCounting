@@ -133,13 +133,13 @@ const CAR = {
 
   // ── scale per distance from active ────────────────────────────────────────
   scale0: 1.0, // active item
-  scale1: 0.5, // ±1 items
-  scale2: 0.2, // ±2 items
+  scale1: 0.6, // ±1 items
+  scale2: 0.3, // ±2 items
 
   // ── opacity per distance ──────────────────────────────────────────────────
   opacity0: 1.0,
-  opacity1: 0.3,
-  opacity2: 0.3,
+  opacity1: 0.2,
+  opacity2: 0,
 
   // ── blur per distance (px, 0 = off) ──────────────────────────────────────
   blur0: 0,
@@ -156,6 +156,7 @@ const CAR = {
 
   // ── animation ─────────────────────────────────────────────────────────────
   lerpSpeed: 0.09, // 0 = frozen, 1 = instant snap — controls scroll smoothness
+  maxStep: 0.1,    // max positions moved per frame — caps speed for long jumps
 
   // ── interaction ───────────────────────────────────────────────────────────
   cooldown: 900, // ms — minimum time between wheel steps
@@ -171,7 +172,10 @@ function _lerp(a, b, t) {
 }
 
 function _carStep() {
-  _carPos += (_carTarget - _carPos) * CAR.lerpSpeed;
+  const delta = _carTarget - _carPos;
+  const raw = delta * CAR.lerpSpeed;
+  // Cap per-frame movement so long jumps (hover on far points) stay smooth
+  _carPos += Math.max(-CAR.maxStep, Math.min(CAR.maxStep, raw));
   _renderCarousel(_carPos);
 
   if (Math.abs(_carTarget - _carPos) > 0.0003) {
