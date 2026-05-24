@@ -5,6 +5,13 @@ body {
   height: 100%;
 }
 
+/* ── remove band, dashed line and blue texts on all screens ─────────────── */
+.home-band,
+.home-band-text,
+.home-band-text2 {
+  display: none;
+}
+
 /* ── nav and banner stay above the canvas (z-index: 5) ──────────────────── */
 .home-banner {
   position: relative;
@@ -507,7 +514,8 @@ body {
   top: 50%;
   left: 50%;
   overflow: hidden;
-  /* width, margin-left, border-radius, transition — all set by CAR config in JS */
+  aspect-ratio: 4 / 3; /* consistent crop for all items — true proportion shown in lightbox */
+  /* width, border-radius, transition — all set by CAR config in JS */
   will-change: transform, opacity;
   pointer-events: none; /* JS flips this per item */
 }
@@ -515,7 +523,8 @@ body {
 .cp-car-item img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;      /* fill the fixed aspect-ratio box */
+  object-fit: cover; /* crop to fill — preserves composition without distortion */
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
@@ -644,21 +653,63 @@ body {
     margin-bottom: 10px;
   }
 
-  /* Hide green band, dashed line and blue texts — only keep MATHEMATICS */
-  .home-band,
-  .home-band-text,
-  .home-band-text2 {
-    display: none;
-  }
-
-  /* Carousel items — portrait 3:4, image fills and crops */
+  /* Carousel items — portrait 3:4 on mobile */
   .cp-car-item {
     aspect-ratio: 3 / 4;
   }
 
-  .cp-car-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  /* ── Lightbox: single-column layout ─────────────────────────────── */
+  #cp-lightbox {
+    padding-top: 16px;
+    padding-bottom: 40px;
   }
+
+  .cp-lb-inner {
+    width: 88vw;
+  }
+
+  /* Top: stack number/title and date/author vertically */
+  .cp-lb-top {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .cp-lb-top-l {
+    grid-column: 1;
+    margin-bottom: 8px;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .cp-lb-top-r {
+    grid-column: 1;
+    margin-bottom: 16px;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  /* Bottom: params and description stack vertically */
+  .cp-lb-bottom {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .cp-lb-bot-l {
+    grid-column: 1;
+  }
+
+  .cp-lb-bot-r {
+    grid-column: 1;
+  }
+
+  /* Nav arrows: smaller, pulled to edges so they don't crowd the content */
+  .cp-lb-nav {
+    width: 32px;
+    height: 32px;
+  }
+
+  .cp-lb-prev { left: 4px; }
+  .cp-lb-next { right: 4px; }
 }
