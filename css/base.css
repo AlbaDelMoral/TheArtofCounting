@@ -35,10 +35,19 @@
 @font-face {
   font-family: "KMRWaldenburg";
   src: url("../assets/fonts/KMRWaldenburg-Black.otf") format("truetype");
+  font-weight: 1100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KMRWaldenburg";
+  src: url("../assets/fonts/KMRWaldenburg-Heavy.ttf") format("truetype");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
+
 /* Aeonik — used for the inline SVG logo */
 @font-face {
   font-family: "AeonikTRIAL-SemiBold";

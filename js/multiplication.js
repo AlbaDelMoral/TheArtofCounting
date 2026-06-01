@@ -247,7 +247,7 @@ function createPanel() {
   addSlider("reality", "reality", 0, 100, CONFIG.reality,     1, (v) => { CONFIG.reality     = int(v); });
 
   createDiv(
-    "SPACE · new colors<br>S · save png  ·  T · save transparent<br>scroll · zoom  /  drag · pan  /  dbl-click · reset",
+    "SPACE · new colors<br>S · save png<br>scroll · zoom  /  drag · pan  /  dbl-click · reset",
   )
     .class("panel-hint")
     .parent(panel);
@@ -397,7 +397,7 @@ function keyPressed() {
     redraw();
   }
   if (key === "s" || key === "S") saveHQ(false);
-  if (key === "t" || key === "T") saveHQ(true); // transparent PNG
+  if (key === "t" || key === "T") saveHQ(true);
 }
 
 // ─── pan / zoom handlers ──────────────────────────────────────────────────────

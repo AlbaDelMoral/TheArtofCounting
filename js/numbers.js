@@ -50,7 +50,8 @@ const CONFIG = {
 let compositionData = [];
 let composition     = [];
 let customNums      = []; // empty = random mode; filled = use these exact numbers
-let canvasBgHex     = '#ffffff'; // canvas background — driven by colour picker
+let canvasBgHex        = '#ffffff'; // canvas background — driven by colour picker
+let _exportTransparent = false;    // when true, saveHQ skips background fill → transparent PNG
 
 function generateCompositionData() {
   const nums  = customNums.length > 0 ? customNums : null;
@@ -142,6 +143,10 @@ function createPanel() {
 
   createDiv("↵ apply  ·  clear → random").class("custom-input-hint").parent(customSection);
 
+  const randomBtn = createElement("button", "random").class("panel-btn");
+  randomBtn.parent(customSection);
+  randomBtn.mousePressed(() => generateCompositionData());
+
   numInput.elt.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       const tokens = numInput.value().trim().split(/[\s,]+/)
@@ -199,10 +204,6 @@ function createPanel() {
   sliderScale   = addRow("size",    "size",    1,   200, CONFIG.compScale      * 100, 1);
   sliderSpread  = addRow("spread",  "spread",  0,   95,  CONFIG.sizeVariation  * 100, 1);
 
-  const randomBtn = createElement("button", "random").class("panel-btn");
-  randomBtn.parent(panel);
-  randomBtn.mousePressed(() => generateCompositionData());
-
   addSection("Artistic variables");
   addColorRow("background", canvasBgHex, (hex) => { canvasBgHex = hex; });
   sliderBokeh   = addRow("bokeh",   "bokeh",   0,   30,  CONFIG.bokeh,                1);
@@ -244,8 +245,12 @@ function setup() {
 
 function draw() {
   blendMode(BLEND);
-  drawingContext.fillStyle = canvasBgHex;
-  drawingContext.fillRect(0, 0, width, height); // HSB white
+  if (_exportTransparent) {
+    drawingContext.clearRect(0, 0, width, height);
+  } else {
+    drawingContext.fillStyle = canvasBgHex;
+    drawingContext.fillRect(0, 0, width, height);
+  }
 
   for (let i = 0; i < composition.length; i++) {
     const item = composition[i];
@@ -283,8 +288,12 @@ function draw() {
 
   if (CONFIG.bokeh > 0) {
     const snap = get();
-    drawingContext.fillStyle = canvasBgHex;
-  drawingContext.fillRect(0, 0, width, height);
+    if (_exportTransparent) {
+      drawingContext.clearRect(0, 0, width, height);
+    } else {
+      drawingContext.fillStyle = canvasBgHex;
+      drawingContext.fillRect(0, 0, width, height);
+    }
     drawingContext.filter = `blur(${CONFIG.bokeh}px)`;
     blendMode(BLEND);
     image(snap, 0, 0);
@@ -296,13 +305,15 @@ function draw() {
 }
 
 // ─── save high-quality PNG (3× resolution) ────────────────────────────────────
-function saveHQ() {
+function saveHQ(transparent = false) {
+  _exportTransparent = transparent;
   const origPD = pixelDensity();
   pixelDensity(3);
   resizeCanvas(windowWidth, windowHeight);
   draw();
   const ts = year() + nf(month(), 2) + nf(day(), 2) + "-" + nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2);
   saveCanvas("visual-numbers-" + ts, "png");
+  _exportTransparent = false;
   pixelDensity(origPD);
   resizeCanvas(windowWidth, windowHeight);
 }
@@ -328,7 +339,8 @@ function reshuffleAllColors() {
 function keyPressed() {
   if (document.activeElement.tagName === "INPUT") return;
   if (key === " ") reshuffleAllColors();
-  if (key === "s" || key === "S") saveHQ();
+  if (key === "s" || key === "S") saveHQ(false);
+  if (key === "t" || key === "T") saveHQ(true);
 }
 
 function windowResized() {

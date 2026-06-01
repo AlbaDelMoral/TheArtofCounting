@@ -82,14 +82,14 @@
 .nav-links > a:hover,
 .nav-dropdown > a:hover,
 .nav-dropdown-inner > a:hover {
-  font-weight: var(--weight-bold);
+  font-weight: 1100;
   color: #121212;
 }
 
 .nav-links > a.active,
 .nav-dropdown > a.active,
 .nav-dropdown-inner > a.active {
-  font-weight: var(--weight-bold);
+  font-weight: 1100;
 }
 
 /* ── play dropdown ───────────────────────────────────────────────────────── */
@@ -233,7 +233,9 @@
     transition: color var(--duration-fast) var(--ease);
   }
 
+  .nav-mobile-menu a:hover,
   .nav-mobile-menu a.active {
+    font-weight: 1100;
     color: #121212;
   }
 

@@ -54,7 +54,8 @@ const CONFIG = {
 let chainData = [];
 let chains = [];
 let customOps   = []; // [] = random; filled = array of [numStr, …] per chain
-let canvasBgHex = '#ffffff'; // canvas background — driven by colour picker
+let canvasBgHex        = '#ffffff'; // canvas background — driven by colour picker
+let _exportTransparent = false;    // when true, saveHQ skips background fill → transparent PNG
 
 function generateChainData() {
   const parsed = customOps.length > 0 ? customOps : null;
@@ -199,6 +200,10 @@ function createPanel() {
     .class("custom-input-hint")
     .parent(customSection);
 
+  const randomBtn = createElement("button", "random").class("panel-btn");
+  randomBtn.parent(customSection);
+  randomBtn.mousePressed(() => generateChainData());
+
   opInput.elt.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       const parsed = parseChains(opInput.value());
@@ -258,10 +263,6 @@ function createPanel() {
   sliderSpread = addRow("spread", "spread", 0, 95, CONFIG.sizeVariation * 100, 1);
   sliderSpacing = addRow("spacing", "spacing", -150, 95, CONFIG.chainSpacing * 100, 1);
   sliderMargin = addRow("margin", "margin", 0, 50, CONFIG.beltMarginRatio * 100, 1);
-
-  const randomBtn = createElement("button", "random").class("panel-btn");
-  randomBtn.parent(panel);
-  randomBtn.mousePressed(() => generateChainData());
 
   addSection("Artistic variables");
   addColorRow("background", canvasBgHex, (hex) => { canvasBgHex = hex; });
@@ -334,8 +335,12 @@ function setup() {
 
 function draw() {
   blendMode(BLEND);
-  drawingContext.fillStyle = canvasBgHex;
-  drawingContext.fillRect(0, 0, width, height);
+  if (_exportTransparent) {
+    drawingContext.clearRect(0, 0, width, height);
+  } else {
+    drawingContext.fillStyle = canvasBgHex;
+    drawingContext.fillRect(0, 0, width, height);
+  }
 
   for (let c = 0; c < chains.length; c++) {
     const chain = chains[c];
@@ -414,8 +419,12 @@ function draw() {
 
   if (CONFIG.bokeh > 0) {
     const snap = get();
-    drawingContext.fillStyle = canvasBgHex;
-    drawingContext.fillRect(0, 0, width, height);
+    if (_exportTransparent) {
+      drawingContext.clearRect(0, 0, width, height);
+    } else {
+      drawingContext.fillStyle = canvasBgHex;
+      drawingContext.fillRect(0, 0, width, height);
+    }
     drawingContext.filter = `blur(${CONFIG.bokeh}px)`;
     blendMode(BLEND);
     image(snap, 0, 0);
@@ -426,8 +435,9 @@ function draw() {
   blendMode(BLEND);
 }
 
-// ─── save high-quality PNG (3× resolution) ────────────────────────────────────
-function saveHQ() {
+// ─── save high-quality PNG (4× resolution) ────────────────────────────────────
+function saveHQ(transparent = false) {
+  _exportTransparent = transparent;
   const origPD = pixelDensity();
   pixelDensity(4);
   resizeCanvas(windowWidth, windowHeight);
@@ -441,6 +451,7 @@ function saveHQ() {
     nf(minute(), 2) +
     nf(second(), 2);
   saveCanvas("visual-operations-" + ts, "png");
+  _exportTransparent = false;
   pixelDensity(origPD);
   resizeCanvas(windowWidth, windowHeight);
 }
@@ -457,7 +468,8 @@ function reshuffleAllColors() {
 function keyPressed() {
   if (document.activeElement.tagName === "INPUT") return;
   if (key === " ") reshuffleAllColors();
-  if (key === "s" || key === "S") saveHQ();
+  if (key === "s" || key === "S") saveHQ(false);
+  if (key === "t" || key === "T") saveHQ(true);
 }
 
 function windowResized() {
