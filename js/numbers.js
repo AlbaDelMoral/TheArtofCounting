@@ -348,3 +348,14 @@ function windowResized() {
   generateGrain();
   computePositions();
 }
+
+// ─── touch (mobile) ───────────────────────────────────────────────────────────
+// Let panel touches pass through; block browser pinch-zoom on the canvas.
+function touchStarted(e) {
+  if (e && e.target && e.target.closest('.side-panel')) return;
+  return false;
+}
+function touchMoved(e) {
+  if (e && e.target && e.target.closest('.side-panel')) return;
+  return false;
+}

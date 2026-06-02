@@ -156,6 +156,11 @@
 
 /* ── mobile nav ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  /* Solid white so the open menu forms one seamless white block from top */
+  .site-nav {
+    background: #ffffff;
+  }
+
   /* Logo fills the nav minus the hamburger button width */
   .nav-logo-link {
     width: calc(100% - 52px);

@@ -445,3 +445,56 @@ function windowResized() {
   generateGrain();
   redraw();
 }
+
+// ─── touch pan / pinch-zoom (mobile) ─────────────────────────────────────────
+let _lastTouchDist = null;
+
+// Returns true if the touch event originated inside the side panel.
+function _touchOnPanel(e) {
+  return !!(e && e.target && e.target.closest && e.target.closest('.side-panel'));
+}
+
+function touchStarted(e) {
+  if (_touchOnPanel(e)) return; // let panel handle its own scrolling
+  if (touches.length === 1) {
+    _dragging = true;
+    _lastMX = touches[0].x;
+    _lastMY = touches[0].y;
+  } else if (touches.length === 2) {
+    _dragging = false;
+    const dx = touches[1].x - touches[0].x;
+    const dy = touches[1].y - touches[0].y;
+    _lastTouchDist = Math.sqrt(dx * dx + dy * dy);
+  }
+  return false; // prevent browser default (page zoom / scroll)
+}
+
+function touchMoved(e) {
+  if (_touchOnPanel(e)) return; // let panel scroll
+  if (touches.length === 1 && _dragging) {
+    _panX += touches[0].x - _lastMX;
+    _panY += touches[0].y - _lastMY;
+    _lastMX = touches[0].x;
+    _lastMY = touches[0].y;
+    redraw();
+  } else if (touches.length === 2 && _lastTouchDist !== null) {
+    const dx = touches[1].x - touches[0].x;
+    const dy = touches[1].y - touches[0].y;
+    const dist  = Math.sqrt(dx * dx + dy * dy);
+    const midX  = (touches[0].x + touches[1].x) / 2;
+    const midY  = (touches[0].y + touches[1].y) / 2;
+    const factor = dist / _lastTouchDist;
+    _panX = midX - (midX - _panX) * factor;
+    _panY = midY - (midY - _panY) * factor;
+    _zoom = constrain(_zoom * factor, 0.1, 10);
+    _lastTouchDist = dist;
+    redraw();
+  }
+  return false;
+}
+
+function touchEnded(e) {
+  if (_touchOnPanel(e)) return;
+  _dragging = false;
+  _lastTouchDist = null;
+}

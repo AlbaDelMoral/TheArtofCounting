@@ -3,6 +3,12 @@ body {
   overflow: hidden;
 }
 
+/* ── p5.js canvas: hand all touch events to JavaScript ───────────────────── */
+canvas {
+  touch-action: none;
+  display: block;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    PANEL DESIGN TOKENS — tweak everything here
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -359,6 +365,7 @@ body {
 
     overflow-y: auto;
     overflow-x: hidden;
+    touch-action: pan-y; /* allow panel scroll, block pinch-zoom inside panel */
   }
 
   /* Tighter section headers — save vertical space */
@@ -370,5 +377,10 @@ body {
   /* Compact hint text */
   .panel-hint {
     display: none; /* keyboard shortcuts irrelevant on touch */
+  }
+
+  /* Prevent iOS auto-zoom when tapping the text input (requires font-size ≥ 16px) */
+  .custom-input {
+    font-size: 16px;
   }
 }
