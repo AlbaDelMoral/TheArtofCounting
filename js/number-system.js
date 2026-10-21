@@ -168,8 +168,13 @@ function annularWedge(cx, cy, r1, r2, a1, a2, col, outlined, outerR) {
 
 // ─── tick marks ───────────────────────────────────────────────────────────────
 function drawTicks(cx, cy, r, localW) {
+  if (CONFIG.showTicks === false) return;
   push();
-  stroke(hue(PAL.ticks), saturation(PAL.ticks), brightness(PAL.ticks), CONFIG.tickOpacity);
+  if (CONFIG.tickColor) {
+    stroke(CONFIG.tickColor[0], CONFIG.tickColor[1], CONFIG.tickColor[2], CONFIG.tickOpacity);
+  } else {
+    stroke(hue(PAL.ticks), saturation(PAL.ticks), brightness(PAL.ticks), CONFIG.tickOpacity);
+  }
   strokeWeight(CONFIG.tickStrokeWeight);
   strokeCap(SQUARE);
   noFill();
@@ -218,13 +223,19 @@ function computeRingBoundaries(numRings, innerR) {
 function drawNumber(numStr, cx, cy, outerR) {
   const { digits, decimalCount, isNegative } = getDigits(numStr);
   const numRings = digits.length;
-  const innerR   = outerR * CONFIG.ringAreaRatio;
+  // ringMargin (fixed px) keeps the gap to the bg circle constant across all
+  // numbers/sizes; falls back to the old ratio-based gap if not set.
+  const innerR = CONFIG.ringMargin != null
+    ? Math.max(0, outerR - CONFIG.ringMargin)
+    : outerR * CONFIG.ringAreaRatio;
   const bdry     = computeRingBoundaries(numRings, innerR);
 
   blendMode(window[CONFIG.blendModeName] || BLEND);
-  // Background circle: colour keyed to the most significant digit (palette3.csv)
+  // Background circle: fixed color if set, else keyed to most significant digit (palette3.csv)
   const mostSigDigit = digits[numRings - 1];
-  const bgCol = NUMBER_BG_COLORS[mostSigDigit] || color(0, 0, 90);
+  const bgCol = CONFIG.bgColor
+    ? color(CONFIG.bgColor[0], CONFIG.bgColor[1], CONFIG.bgColor[2])
+    : (NUMBER_BG_COLORS[mostSigDigit] || color(0, 0, 90));
   push();
   fill(bgCol);
   noStroke();
@@ -233,7 +244,9 @@ function drawNumber(numStr, cx, cy, outerR) {
   blendMode(BLEND);
 
   const portionAngle = TWO_PI / 10;
-  for (let i = 0; i < numRings; i++) {
+  // Draw from the biggest digit down to the smallest (units last), so smaller
+  // rings' outlines sit on top and stay readable when outlined (negative numbers).
+  for (let i = numRings - 1; i >= 0; i--) {
     const digit = digits[i];
     if (digit === 0) continue;
     const r1  = i === 0 ? 0 : bdry[i - 1];
