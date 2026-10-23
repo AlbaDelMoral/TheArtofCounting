@@ -9,38 +9,9 @@ const CONFIG = {
   sizeVariation: 0.5, // 0 = all same size, 1 = large spread
   overlapFactor: 0, // 0 = touching edges, 1 = fully stacked
 
-  // ── blend mode ───────────────────────────────────────────────────────────────
-  // try: BLEND  ADD  MULTIPLY  SCREEN  OVERLAY  DIFFERENCE  EXCLUSION  DARKEST  LIGHTEST
-  blendModeName: "NONE",
-
-  // ── ring geometry ─────────────────────────────────────────────────────────────
-  ringMargin: 6, // fixed px gap between outermost digit ring and bg circle edge
-  // (constant across all numbers/sizes — not a ratio of outerR)
-  ringGrowth: 1.4,
-
-  // ── outer circle ─────────────────────────────────────────────────────────────
-  outerStrokeRatio: 0.04,
-  bgColor: COLORS.bgCircle, // see js/colors.js
-
-  // ── cake portions ─────────────────────────────────────────────────────────────
-  portionArcSteps: 94, // higher = smoother arcs, less wavy on outlined (negative) wedges
-  negStrokeRatio: 0.015, // thinner outline (was 0.035)
-
-  // ── tick marks ────────────────────────────────────────────────────────────────
-  showTicks: true, // set to false to hide tick marks entirely
-  tickLengthRatio: 0.08, // shorter than before (was 0.15)
-  tickStrokeWeight: 1,
-  tickOpacity: 255,
-  tickColor: COLORS.tickMarks, // see js/colors.js
-
-  // ── decimal ring ──────────────────────────────────────────────────────────────
-  decimalStrokeRatio: 0.05,
-  decimalDashCount: 10,
-  decimalDashRatio: 0.9,
-  decimalMarginRatio: 0.09,
-
-  // ── center dot ────────────────────────────────────────────────────────────────
-  centerDotRatio: 0.025,
+  // ── shared number representation (edit in js/number-representation.js —
+  //    applies to numbers, operations and multiplication pages alike) ──────────
+  ...NUMBER_REPRESENTATION,
 
   // ── effects ───────────────────────────────────────────────────────────────────
   bokeh: 0, // Gaussian blur in px (0 = off)
@@ -130,71 +101,104 @@ function computePositions(allowOverflow = false) {
 }
 
 // ─── side panel ───────────────────────────────────────────────────────────────
-let sliderOverlap,
-  sliderCount,
-  sliderScale,
-  sliderSpread,
-  sliderBokeh,
-  sliderGrain;
+let sliderCount, sliderScale, sliderSpread, sliderBokeh, sliderGrain;
 let panel;
 const valSpans = {};
 
 function createPanel() {
   panel = createDiv("").class("side-panel");
 
-  addSection("Technical variables");
-
-  // ── number input ────────────────────────────────────────────────────────────
-  const customSection = createDiv("").class("custom-section");
+  // ── calculator section ───────────────────────────────────────────────────────
+  const customSection = createDiv("").class("custom-section calculator");
   customSection.parent(panel);
-  const numInput = createElement("input").class("custom-input");
+
+  const numInput = createElement("input").class("calc-display");
   numInput.attribute("type", "text");
   numInput.attribute("placeholder", "write your own numbers: 3, 5, 6…");
   numInput.attribute("spellcheck", "false");
   numInput.parent(customSection);
 
-  createDiv("↵ apply  ·  clear → random")
-    .class("custom-input-hint")
-    .parent(customSection);
+  function applyInput() {
+    const tokens = numInput
+      .value()
+      .trim()
+      .split(/[\s,]+/)
+      .filter((t) => /^-?\d+(\.\d+)?$/.test(t));
+    customNums = tokens;
+    generateCompositionData();
+  }
 
-  const randomBtn = createElement("button", "random").class("panel-btn");
-  randomBtn.parent(customSection);
-  randomBtn.mousePressed(() => generateCompositionData());
+  function clearInput() {
+    numInput.value("");
+    customNums = [];
+    generateCompositionData();
+  }
+
+  function backspaceInput() {
+    numInput.value(numInput.value().slice(0, -1));
+  }
 
   numInput.elt.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      const tokens = numInput
-        .value()
-        .trim()
-        .split(/[\s,]+/)
-        .filter((t) => /^-?\d+(\.\d+)?$/.test(t));
-      customNums = tokens;
-      generateCompositionData();
-    }
-    if (e.key === "Escape") {
-      numInput.value("");
-      customNums = [];
-      generateCompositionData();
-    }
+    if (e.key === "Enter") applyInput();
+    if (e.key === "Escape") clearInput();
     e.stopPropagation();
   });
+
+  // digit row — colored to match each digit's palette2.csv ring color
+  const digitRow = createDiv("").class("calc-digit-row");
+  digitRow.parent(customSection);
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].forEach((d) => {
+    const btn = createElement("button", String(d)).class("calc-digit-btn");
+    btn.parent(digitRow);
+    const tier = NUMBER_COLORS[d] && NUMBER_COLORS[d].mid;
+    const hex = tier ? color(tier.H, tier.S, tier.B).toString("#rrggbb") : "#606369";
+    btn.elt.style.setProperty("--calc-digit-color", hex);
+    btn.mousePressed(() => numInput.value(numInput.value() + d));
+  });
+
+  // operator grid + clear/equals
+  const opGrid = createDiv("").class("calc-op-grid");
+  opGrid.parent(customSection);
+  // grouped like a normal calculator: brackets+delete, multiply/divide+comma,
+  // add/subtract+decimal — clear/equals/random live below as full-width keys
+  const opButtons = [
+    { label: "(", insert: "(" },
+    { label: ")", insert: ")" },
+    { label: "⌫", action: backspaceInput },
+    { label: "×", insert: " × " },
+    { label: "/", insert: " / " },
+    { label: ",", insert: ", " },
+    { label: "+", insert: " + " },
+    { label: "−", insert: " - " },
+    { label: ".", insert: "." },
+  ];
+  opButtons.forEach(({ label, insert, action }) => {
+    const btn = createElement("button", label).class("calc-btn");
+    btn.parent(opGrid);
+    btn.mousePressed(() => (action ? action() : numInput.value(numInput.value() + insert)));
+  });
+
+  const clearEqualsRow = createDiv("").class("calc-row");
+  clearEqualsRow.parent(customSection);
+
+  const clearBtn = createElement("button", "clear").class("calc-btn calc-clear-btn");
+  clearBtn.parent(clearEqualsRow);
+  clearBtn.mousePressed(() => clearInput());
+
+  const equalsBtn = createElement("button", "=").class("calc-btn calc-equals-btn");
+  equalsBtn.parent(clearEqualsRow);
+  equalsBtn.mousePressed(() => applyInput());
+
+  const randomBtn = createElement("button", "random equation").class(
+    "calc-btn calc-random-btn",
+  );
+  randomBtn.parent(customSection);
+  randomBtn.mousePressed(() => generateCompositionData());
 
   function addSection(title) {
     const sec = createDiv("").class("panel-section");
     sec.parent(panel);
     createSpan(title).class("panel-section-title").parent(sec);
-  }
-
-  function addColorRow(label, defaultHex, onChange) {
-    const row = createDiv("").class("color-row");
-    row.parent(panel);
-    createSpan(label).class("slider-label").parent(row);
-    const swatch = createElement("input");
-    swatch.attribute("type", "color");
-    swatch.attribute("value", defaultHex);
-    swatch.class("color-swatch");
-    swatch.parent(row);
-    swatch.input(() => onChange(swatch.value()));
   }
 
   function addRow(key, label, min, max, val, step) {
@@ -208,23 +212,24 @@ function createPanel() {
     valSpans[key] = vs;
     const sl = createSlider(min, max, val, step);
     sl.parent(row);
-    // ruler: tick count capped at 25 so marks stay visible
-    const numTicks = Math.min(Math.round((max - min) / step), 25);
+    // ruler: always exactly 10 ticks, purely a visual reference —
+    // independent of the slider's own range/step. Positioned to match the
+    // native thumb's actual travel (inset by half the thumb size on each
+    // side), so a tick lines up exactly under the thumb's center.
+    const numTicks = 10;
     const ruler = createDiv("").class("slider-ruler");
     ruler.parent(row);
-    ruler.elt.style.backgroundSize = (100 / numTicks).toFixed(2) + "% 5px";
+    for (let i = 0; i < numTicks; i++) {
+      const tick = createDiv("").class("slider-tick");
+      tick.parent(ruler);
+      tick.elt.style.left = `calc(var(--panel-thumb-size) / 2 + (100% - var(--panel-thumb-size)) * ${i} / ${numTicks - 1})`;
+    }
     return sl;
   }
 
-  sliderOverlap = addRow(
-    "overlap",
-    "overlap",
-    0,
-    95,
-    CONFIG.overlapFactor * 100,
-    1,
-  );
-  sliderCount = addRow("count", "count", 1, 30, CONFIG.numCircles, 1);
+  addSection("Technical variables");
+
+  sliderCount = addRow("count", "count", 1, 10, CONFIG.numCircles, 1);
   sliderScale = addRow("size", "size", 1, 200, CONFIG.compScale * 100, 1);
   sliderSpread = addRow(
     "spread",
@@ -236,9 +241,6 @@ function createPanel() {
   );
 
   addSection("Artistic variables");
-  addColorRow("background", canvasBgHex, (hex) => {
-    canvasBgHex = hex;
-  });
   sliderBokeh = addRow("bokeh", "bokeh", 0, 30, CONFIG.bokeh, 1);
   sliderGrain = addRow("grain", "grain", 0, 100, CONFIG.grainAmount, 1);
   const sliderReality = addRow("reality", "reality", 0, 100, CONFIG.reality, 1);
@@ -247,11 +249,6 @@ function createPanel() {
 
   updateValues();
 
-  sliderOverlap.input(() => {
-    CONFIG.overlapFactor = sliderOverlap.value() / 100;
-    computePositions();
-    updateValues();
-  });
   sliderCount.input(() => {
     CONFIG.numCircles = int(sliderCount.value());
     generateCompositionData();
@@ -282,7 +279,6 @@ function createPanel() {
 }
 
 function updateValues() {
-  valSpans.overlap.html(nf(CONFIG.overlapFactor, 1, 2));
   valSpans.count.html(CONFIG.numCircles);
   valSpans.size.html(nf(CONFIG.compScale, 1, 2));
   valSpans.spread.html(nf(CONFIG.sizeVariation, 1, 2));

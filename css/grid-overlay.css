@@ -1,0 +1,39 @@
+/* grid-overlay.css — visual guide for the page grid. Purely cosmetic/dev aid;
+   nothing else on the page is laid out against it yet. */
+
+:root {
+  --grid-columns: 9;
+  --grid-gap: 1.25rem; /* 20px */
+  --grid-margin-top: 0.9375rem; /* 15px */
+  --grid-margin-x: 1.5625rem; /* 25px */
+  --grid-line-color: rgba(0, 0, 0, 0);
+
+  /* width of ONE grid column — reusable by any element that needs to span
+     a given number of columns, e.g. calc(2 * var(--grid-col-width) + var(--grid-gap)) */
+  --grid-col-width: calc(
+    (
+        100vw - (2 * var(--grid-margin-x)) -
+          ((var(--grid-columns) - 1) * var(--grid-gap))
+      ) /
+      var(--grid-columns)
+  );
+}
+
+.grid-overlay {
+  position: fixed;
+  top: var(--grid-margin-top);
+  left: var(--grid-margin-x);
+  right: var(--grid-margin-x);
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), 1fr);
+  column-gap: var(--grid-gap);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.grid-overlay > div {
+  height: 100%;
+  border-left: 1px solid var(--grid-line-color);
+  border-right: 1px solid var(--grid-line-color);
+}

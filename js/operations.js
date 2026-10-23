@@ -17,30 +17,9 @@ const CONFIG = {
   beltMarginRatio: 0.12, // belt offset = r × this
   beltStrokeRatio: 0.04, // outline stroke weight / larger circle radius (negative result only)
 
-  // ── ring geometry ─────────────────────────────────────────────────────────────
-  ringAreaRatio: 0.9,
-  ringGrowth: 1.4,
-
-  // ── outer circle ─────────────────────────────────────────────────────────────
-  outerStrokeRatio: 0.04,
-
-  // ── cake portions ─────────────────────────────────────────────────────────────
-  portionArcSteps: 38,
-  negStrokeRatio: 0.035,
-
-  // ── tick marks ────────────────────────────────────────────────────────────────
-  tickLengthRatio: 0.15,
-  tickStrokeWeight: 1,
-  tickOpacity: 255,
-
-  // ── decimal ring ──────────────────────────────────────────────────────────────
-  decimalStrokeRatio: 0.05,
-  decimalDashCount: 10,
-  decimalDashRatio: 0.9,
-  decimalMarginRatio: 0.09,
-
-  // ── center dot ────────────────────────────────────────────────────────────────
-  centerDotRatio: 0.025,
+  // ── shared number representation (edit in js/number-representation.js —
+  //    applies to numbers, operations and multiplication pages alike) ──────────
+  ...NUMBER_REPRESENTATION,
 
   // ── effects ───────────────────────────────────────────────────────────────────
   bokeh: 0,
@@ -250,11 +229,18 @@ function createPanel() {
     valSpans[key] = vs;
     const sl = createSlider(mn, mx, val, step);
     sl.parent(row);
-    // ruler: tick count capped at 25 so marks stay visible
-    const numTicks = Math.min(Math.round((mx - mn) / step), 25);
+    // ruler: always exactly 10 ticks, purely a visual reference —
+    // independent of the slider's own range/step. Positioned to match the
+    // native thumb's actual travel (inset by half the thumb size on each
+    // side), so a tick lines up exactly under the thumb's center.
+    const numTicks = 10;
     const ruler = createDiv("").class("slider-ruler");
     ruler.parent(row);
-    ruler.elt.style.backgroundSize = (100 / numTicks).toFixed(2) + '% 5px';
+    for (let i = 0; i < numTicks; i++) {
+      const tick = createDiv("").class("slider-tick");
+      tick.parent(ruler);
+      tick.elt.style.left = `calc(var(--panel-thumb-size) / 2 + (100% - var(--panel-thumb-size)) * ${i} / ${numTicks - 1})`;
+    }
     return sl;
   }
 

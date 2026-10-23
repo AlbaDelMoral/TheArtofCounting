@@ -35,7 +35,7 @@
 @font-face {
   font-family: "KMRWaldenburg";
   src: url("../assets/fonts/KMRWaldenburg-Black.otf") format("truetype");
-  font-weight: 1100;
+  font-weight: 1000; /* CSS clamps font-weight to 1–1000; 1100 was invalid and silently dropped */
   font-style: normal;
   font-display: swap;
 }
@@ -86,7 +86,7 @@
 /* ── CSS variables ───────────────────────────────────────────────────────── */
 :root {
   /* colors */
-  --color-bg: #f6f6f6; /* page background */
+  --color-bg: #ffffff; /* page background */
   --color-main: #5f5f5f; /* primary text & ui */
   --color-second: #555555; /* secondary text, labels */
   --color-muted: #aaaaaa; /* placeholders, disabled, hints */

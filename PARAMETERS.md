@@ -16,7 +16,7 @@ The simplest page: a row of number circles, fully compositional.
 ### Sliders
 | Slider | Range | Default | What it controls |
 |--------|-------|---------|------------------|
-| **count** | 1–30 | 10 | How many circles appear |
+| **count** | 1–10 | 10 | How many circles appear |
 | **size** | 1–40 | 12 | Base radius as % of canvas short edge |
 | **spread** | 0–95 | 50 | Size variation — 0 = all same size, 95 = big spread |
 | **overlap** | 0–95 | 0 | How much circles overlap — 0 = touching edges |

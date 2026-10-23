@@ -15,42 +15,52 @@ canvas {
 .side-panel {
   /* ── typography ──────────────────────────────────────────────────────────── */
   --panel-font-size: 8px; /* label + value size (both always equal)  */
-  --panel-font-weight: 700; /* KMRWaldenburg Bold                       */
+  --panel-font-weight: 500; /* KMRWaldenburg Medium (lighter than Bold) */
   --panel-label-opacity: 1; /* opacity of the parameter name           */
   --panel-value-opacity: 0.38; /* opacity of the number on the right      */
-  --panel-letter-spacing: 0em; /* tracking for labels                   */
+  --panel-letter-spacing: 0.045em; /* tracking for labels — matches section titles */
 
   /* ── row spacing ─────────────────────────────────────────────────────────── */
   --panel-row-pad-top: 8px; /* space above label in each row           */
   --panel-row-pad-bottom: 4px; /* space below ruler in each row           */
-  --panel-label-gap: 5px; /* gap between label row and slider track  */
+  --panel-label-gap: 2px; /* gap between label row and slider track  */
 
   /* ── ruler ───────────────────────────────────────────────────────────────── */
-  --panel-ruler-height: 5px; /* height of the tick-mark strip           */
-  --panel-ruler-gap: 2.5px; /* gap between slider track and ruler      */
-  --panel-ruler-opacity: 0.18; /* darkness of each tick mark              */
+  --panel-ruler-height: 4px; /* height of the tick-mark strip           */
+  --panel-ruler-gap: 0px; /* gap between slider track and ruler      */
+  --panel-ruler-opacity: 0.28; /* darkness of each tick mark              */
   --panel-ruler-width: 0.5px; /* width of each individual tick mark      */
 
   /* ── slider track ────────────────────────────────────────────────────────── */
-  --panel-track-height: 2.5px; /* thickness of the horizontal line        */
-  --panel-track-color: #d8d8d8;
+  /* track height always matches the thumb diameter, so the circle sits
+     flush inside the rectangle instead of overflowing it */
+  --panel-track-height: var(--panel-thumb-size);
+  --panel-track-color: rgb(234, 234, 234);
 
   /* ── slider thumb ────────────────────────────────────────────────────────── */
-  --panel-thumb-size: 8px; /* diameter of the circle                  */
+  --panel-thumb-size: 4px; /* diameter of the circle                  */
   --panel-thumb-color: #606369;
 
   /* ── section headers (Technical / Artistic) ─────────────────────────────── */
-  --panel-section-bg: #efefe8; /* rectangle fill colour            */
-  --panel-section-pad-bottom: 30px; /* empty space below title text     */
-  --panel-section-margin-top: 15px; /* gap above the rectangle          */
-  --panel-section-font-size: 8px;
-  --panel-section-font-weight: 700;
-  --panel-section-letter-spacing: 0em;
+  --panel-section-line-color: #1e1e1c; /* the two divider lines            */
+  --panel-section-pad-y: 1px; /* space between the lines and the title   */
+  --panel-section-margin-top: 25px; /* gap above the section            */
+  --panel-section-font-size: 9px;
+  --panel-section-font-weight: 900;
+  --panel-section-letter-spacing: 0.045em; /* Illustrator tracking 45 = 45/1000 em */
 
   /* ── panel shell ─────────────────────────────────────────────────────────── */
-  --panel-width: 25vw;
+  --panel-columns: 2; /* how many grid columns the panel spans */
+  /* content width: N columns + the gaps between them */
+  --panel-content-width: calc(
+    var(--panel-columns) * var(--grid-col-width) + (var(--panel-columns) - 1) *
+      var(--grid-gap)
+  );
+  /* box width: content width + one trailing gap, so the box (and its background)
+     reaches the divider line instead of stopping at the content's own edge */
+  --panel-width: calc(var(--panel-content-width) + var(--grid-gap));
   --panel-min-width: 160px;
-  --panel-max-width: 260px;
+  --panel-max-width: none; /* no cap — keeps tracking the grid at any viewport width */
   --panel-bg: rgba(255, 255, 255, 1);
   --panel-padding-h: 18px; /* left / right inner padding              */
 }
@@ -61,7 +71,7 @@ canvas {
 .side-panel {
   position: fixed;
   top: 0;
-  left: 0;
+  left: var(--grid-margin-x, 1.875rem);
   width: var(--panel-width);
   min-width: var(--panel-min-width);
   max-width: var(--panel-max-width);
@@ -69,9 +79,10 @@ canvas {
   background: var(--panel-bg);
   backdrop-filter: blur(0px);
   -webkit-backdrop-filter: blur(0px);
-  border-right: 0.5px solid #e0e0e0;
-  padding: calc(var(--nav-height) + 20px) var(--panel-padding-h) 24px
-    var(--panel-padding-h);
+  /* right padding reserves the trailing gap so slider content stops at the
+     content edge (column 2's end) while the box/background behind it
+     still reaches the divider */
+  padding: calc(var(--nav-height) + 20px) var(--grid-gap) 24px 0;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -81,7 +92,22 @@ canvas {
   font-size: var(--panel-font-size);
   letter-spacing: 0;
   box-sizing: border-box;
+  overflow-x: hidden;
   overflow-y: auto;
+}
+
+/* divider between the slider panel and the rest of the page — sits past the
+   grid gap that follows the panel's 2nd column, not flush against it */
+.side-panel::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: calc(var(--grid-margin-x) + var(--panel-width));
+  width: 0.5px;
+  height: 100vh;
+  background: #e0e0e0;
+  pointer-events: none;
+  z-index: 50;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -92,6 +118,12 @@ canvas {
   margin-bottom: 2px;
   margin-top: 10px;
   border-bottom: 1px dashed #e0e0e0;
+}
+
+/* calculator section (numbers page) — no dashed divider underneath */
+.custom-section.calculator {
+  border-bottom: none;
+  margin-top: 28px; /* more breathing room below the "Calculator" title */
 }
 
 .custom-label {
@@ -128,14 +160,128 @@ canvas {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   CALCULATOR  (numbers page — write-your-own-numbers section)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.calc-display {
+  width: 100%;
+  text-align: right;
+  border: none;
+  border-bottom: 0.5px solid #606369;
+  background: transparent;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 0 2px;
+  outline: none;
+  color: #1e1e1c;
+}
+
+.calc-display::placeholder {
+  color: #ccc;
+}
+
+.calc-digit-row {
+  display: flex;
+  align-items: center;
+  /* no wrap: all 10 circles always share one row, shrinking to fit */
+  gap: 3px;
+  margin-top: 6px;
+  /* lets the digits inside scale with the row's own rendered width (cqw),
+     not just the viewport, so they shrink/grow together with the circles */
+  container-type: inline-size;
+}
+
+.calc-digit-btn {
+  --calc-digit-color: #606369;
+  /* equal share of the row's width, width always == height (aspect-ratio),
+     so it scales up/down with the viewport without ever deforming into an
+     oval — no max-width cap, so "0" always reaches the row's own right edge */
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0; /* without this, the digit's own intrinsic line height can
+    force the box taller than its (shrunk) width, deforming the circle into
+    an oval right before the mobile breakpoint, where circles get smallest */
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--calc-digit-color);
+  background: transparent;
+  color: var(--calc-digit-color);
+  font-family: "KMRWaldenburg", sans-serif;
+  font-size: 3.5cqw; /* scales with the row's width, same as the circles themselves */
+  font-weight: 800;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.calc-digit-btn:hover {
+  background: var(--calc-digit-color);
+  color: #fff;
+}
+
+.calc-op-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 16px;
+}
+
+.calc-btn {
+  background: var(--panel-track-color);
+  border: none;
+  border-radius: 0;
+  padding: 2px 4px;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  cursor: pointer;
+}
+
+.calc-btn:hover {
+  background: #e2e2da;
+}
+
+.calc-row {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.calc-clear-btn,
+.calc-equals-btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.calc-random-btn {
+  width: 100%;
+  margin-top: 2px;
+}
+
+.calc-random-btn {
+  background: transparent;
+  border: 0.5px solid #606369;
+  color: #606369;
+}
+
+.calc-random-btn:hover {
+  background: #606369;
+  color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    SECTION HEADERS  (Technical / Artistic)
    ═══════════════════════════════════════════════════════════════════════════ */
 .panel-section {
-  /* top: flush — text sits right at the rectangle edge
-     right: extends to panel border — no gap on that side */
-  margin: var(--panel-section-margin-top) calc(-1 * var(--panel-padding-h)) 0 0;
-  padding: 0 var(--panel-padding-h) var(--panel-section-pad-bottom) 0;
-  background: var(--panel-section-bg);
+  margin: var(--panel-section-margin-top) 0 10px 0;
+  padding: var(--panel-section-pad-y) 0;
+  border-top: 0.5px solid var(--panel-section-line-color);
+  border-bottom: 0.5px solid var(--panel-section-line-color);
 }
 
 .panel-section-title {
@@ -144,8 +290,7 @@ canvas {
   font-size: var(--panel-section-font-size);
   font-weight: var(--panel-section-font-weight);
   letter-spacing: var(--panel-section-letter-spacing);
-  text-transform: uppercase;
-  color: #606369;
+  color: var(--panel-section-line-color);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -164,7 +309,7 @@ canvas {
 }
 
 .slider-label {
-  color: #606369;
+  color: #323232;
   font-family: "KMRWaldenburg", sans-serif;
   font-size: var(--panel-font-size);
   font-weight: var(--panel-font-weight);
@@ -173,7 +318,7 @@ canvas {
 }
 
 .slider-value {
-  color: #111;
+  color: #323232;
   font-family: "KMRWaldenburg", sans-serif;
   font-size: var(--panel-font-size); /* same as label — always in sync */
   font-weight: var(--panel-font-weight);
@@ -212,19 +357,24 @@ canvas {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   RULER TICK MARKS  (JS sets background-size per slider based on step count)
+   RULER TICK MARKS  (JS creates one .slider-tick per mark, positioned to
+   match the native thumb's actual travel — inset by half the thumb size on
+   each side, not flush with the track's 0%/100%)
    ═══════════════════════════════════════════════════════════════════════════ */
 .slider-ruler {
+  position: relative;
   width: 100%;
   height: var(--panel-ruler-height);
   margin-top: var(--panel-ruler-gap);
-  background-image: linear-gradient(
-    to right,
-    rgba(0, 0, 0, var(--panel-ruler-opacity)) var(--panel-ruler-width),
-    transparent var(--panel-ruler-width)
-  );
-  background-size: 5% var(--panel-ruler-height); /* JS overrides the width % per slider */
-  background-repeat: repeat-x;
+}
+
+.slider-tick {
+  position: absolute;
+  top: 0;
+  width: var(--panel-ruler-width);
+  height: 100%;
+  background: rgba(0, 0, 0, var(--panel-ruler-opacity));
+  transform: translateX(-50%); /* center the mark on its computed position */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -356,8 +506,7 @@ canvas {
     min-height: 180px;
     max-height: 300px;
 
-    /* Remove right border, add top border */
-    border-right: none;
+    /* Add top border (bottom-sheet layout — no side divider needed) */
     border-top: 0.5px solid #e0e0e0;
 
     /* Override the nav-height top padding — panel is no longer at the top */
@@ -368,10 +517,14 @@ canvas {
     touch-action: pan-y; /* allow panel scroll, block pinch-zoom inside panel */
   }
 
+  .side-panel::after {
+    display: none; /* vertical divider only makes sense in the desktop sidebar layout */
+  }
+
   /* Tighter section headers — save vertical space */
   .panel-section {
-    --panel-section-pad-bottom: 12px;
-    --panel-section-margin-top: 8px;
+    --panel-section-pad-y: 8px;
+    --panel-section-margin-top: 10px;
   }
 
   /* Compact hint text */

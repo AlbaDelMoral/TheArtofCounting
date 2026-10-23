@@ -188,6 +188,21 @@ function drawTicks(cx, cy, r, localW) {
   pop();
 }
 
+// ─── ring outline (trial alt. to tick marks) ──────────────────────────────────
+function drawRingOutline(cx, cy, r, outerR) {
+  if (CONFIG.showTicks === false) return;
+  push();
+  if (CONFIG.tickColor) {
+    stroke(CONFIG.tickColor[0], CONFIG.tickColor[1], CONFIG.tickColor[2], CONFIG.tickOpacity);
+  } else {
+    stroke(hue(PAL.ticks), saturation(PAL.ticks), brightness(PAL.ticks), CONFIG.tickOpacity);
+  }
+  strokeWeight(outerR * (CONFIG.ringOutlineWeightRatio ?? 0.01));
+  noFill();
+  ellipse(cx, cy, r * 2, r * 2);
+  pop();
+}
+
 // ─── decimal ring ─────────────────────────────────────────────────────────────
 function drawDecimalRing(cx, cy, r, outerR) {
   push();
@@ -223,11 +238,9 @@ function computeRingBoundaries(numRings, innerR) {
 function drawNumber(numStr, cx, cy, outerR) {
   const { digits, decimalCount, isNegative } = getDigits(numStr);
   const numRings = digits.length;
-  // ringMargin (fixed px) keeps the gap to the bg circle constant across all
-  // numbers/sizes; falls back to the old ratio-based gap if not set.
-  const innerR = CONFIG.ringMargin != null
-    ? Math.max(0, outerR - CONFIG.ringMargin)
-    : outerR * CONFIG.ringAreaRatio;
+  // ringMarginRatio: gap to the bg circle scales with outerR (proportional as
+  // circles get bigger/smaller), but stays the same regardless of digit count.
+  const innerR = outerR * (1 - CONFIG.ringMarginRatio);
   const bdry     = computeRingBoundaries(numRings, innerR);
 
   blendMode(window[CONFIG.blendModeName] || BLEND);
@@ -238,10 +251,21 @@ function drawNumber(numStr, cx, cy, outerR) {
     : (NUMBER_BG_COLORS[mostSigDigit] || color(0, 0, 90));
   push();
   fill(bgCol);
-  noStroke();
+  if (CONFIG.bgStrokeColor) {
+    stroke(CONFIG.bgStrokeColor[0], CONFIG.bgStrokeColor[1], CONFIG.bgStrokeColor[2]);
+    strokeWeight(outerR * CONFIG.outerStrokeRatio);
+  } else {
+    noStroke();
+  }
   ellipse(cx, cy, outerR * 2, outerR * 2);
   pop();
   blendMode(BLEND);
+
+  for (let i = 0; i < numRings; i++) {
+    const r1 = i === 0 ? 0 : bdry[i - 1];
+    if (CONFIG.ringStyle === "outline") drawRingOutline(cx, cy, bdry[i], outerR);
+    else drawTicks(cx, cy, bdry[i], bdry[i] - r1);
+  }
 
   const portionAngle = TWO_PI / 10;
   // Draw from the biggest digit down to the smallest (units last), so smaller
@@ -273,11 +297,6 @@ function drawNumber(numStr, cx, cy, outerR) {
         );
       }
     }
-  }
-
-  for (let i = 0; i < numRings; i++) {
-    const r1 = i === 0 ? 0 : bdry[i - 1];
-    drawTicks(cx, cy, bdry[i], bdry[i] - r1);
   }
 
   if (decimalCount > 0)

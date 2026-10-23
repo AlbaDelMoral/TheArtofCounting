@@ -12,29 +12,24 @@
   overflow: visible;
 }
 
-/* small logo on the left — home button */
+/* logo — fixed to the page's top-left corner, aligned to the grid margins */
 .nav-logo-link {
-  width: 25%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  padding-left: 14px;
-  padding-right: 14px;
+  position: fixed;
+  top: var(--grid-margin-top, 1.25rem);
+  left: var(--grid-margin-x, 1.875rem);
+  z-index: 101;
+  display: block;
   text-decoration: none;
-  overflow: hidden;
 }
 
 .nav-logo-img {
-  height: 28px;
+  height: 20px;
   width: auto;
-  max-width: 100%;
   display: block;
-  opacity: 0.75;
-  transition: opacity var(--duration-fast) var(--ease);
 }
 
-.nav-logo-link:hover .nav-logo-img {
-  opacity: 1;
+.nav-logo-mark {
+  fill: #1e1e1c;
 }
 
 .nav-logo-link--hidden {
@@ -42,80 +37,75 @@
   pointer-events: none;
 }
 
-/* three links — columns 9, 10, 11 out of 12; column 12 = right margin */
+/* three links — Learn/Play/About. Each item's box spans from the PRECEDING
+   column's right edge through the gap to its OWN column (Learn: col 7,
+   Play: col 8, About: col 9): number sits INSIDE the previous column, flush
+   at its right edge (not in the gap); dash centered in the gap; label at the
+   box's own column (left edge = previous-column-right-edge + one gap).
+   Vertically, everything is bottom-aligned with the logo's own bottom edge
+   (logo height: 20px, see .nav-logo-img). */
 .nav-links {
-  width: calc(100% / 2); /* 3/12 = one quarter */
-  margin-left: auto;
   color: var(--color-main);
-  flex-shrink: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  align-items: center;
 }
 
-.nav-links > a,
-.nav-dropdown > a,
-.nav-dropdown-inner > a {
+.nav-link-item {
+  position: fixed;
+  top: calc(var(--grid-margin-top, 1.25rem) + 20px);
+  width: calc(var(--grid-gap) + var(--grid-col-width));
+  z-index: 101;
   font-family: var(--font-display);
-  font-weight: 900;
+  font-weight: 400;
   font-size: var(--text-xs);
   color: var(--color-main);
   letter-spacing: 0.02em;
   text-decoration: none;
-  padding-left: 10px;
-  display: block;
-  line-height: var(--nav-height);
+  line-height: 1;
   transition: color var(--duration-fast) var(--ease);
 }
 
+.nav-link-learn {
+  left: calc(var(--grid-margin-x) + 6 * var(--grid-col-width) + 5 * var(--grid-gap));
+}
+.nav-link-play {
+  left: calc(var(--grid-margin-x) + 7 * var(--grid-col-width) + 6 * var(--grid-gap));
+}
+.nav-link-about {
+  left: calc(var(--grid-margin-x) + 8 * var(--grid-col-width) + 7 * var(--grid-gap));
+}
+
 .nav-num {
-  display: inline-flex;
-  align-items: center;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transform: translateX(-100%); /* right edge flush with the box's left = previous column's right edge */
+}
+
+.nav-label {
+  position: absolute;
+  left: var(--grid-gap);
+  bottom: 0;
+  white-space: nowrap;
+}
+
+.nav-link-item:hover {
+  font-weight: 1000; /* Black — CSS font-weight maxes out at 1000 */
   color: var(--color-main);
-  margin-right: 15px;
-  padding-right: 15px;
-  border-right: 2px solid currentColor;
-  opacity: 1px;
-  height: 10px; /* ← controls the line length */
 }
 
-.nav-links > a:hover,
-.nav-dropdown > a:hover,
-.nav-dropdown-inner > a:hover {
-  font-weight: 1100;
-  color: #121212;
-}
-
-.nav-links > a.active,
-.nav-dropdown > a.active,
-.nav-dropdown-inner > a.active {
-  font-weight: 1100;
+.nav-link-item.active {
+  font-weight: 1000; /* Black */
 }
 
 /* ── play dropdown ───────────────────────────────────────────────────────── */
-.nav-dropdown {
-  display: flex;
-  align-items: center;
-}
-
-/* inner wrapper is only as wide as the "2 | Play" text —
-   the menu is positioned relative to this, not the full grid cell */
-.nav-dropdown-inner {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: var(--nav-height);
-}
-
 .nav-dropdown-menu {
   display: none;
-  position: absolute;
-  left: 100%;
-  top: 50%;
-  transform: translateY(-9px);
+  position: fixed;
+  /* just below the nav row (which sits at grid-margin-top + logo height) */
+  top: calc(var(--grid-margin-top, 1.25rem) + 20px + 10px);
+  /* left-aligned with "Play" itself (column 8's left edge) */
+  left: calc(var(--grid-margin-x) + 7 * (var(--grid-col-width) + var(--grid-gap)));
   flex-direction: column;
   gap: 5px;
-  padding-left: 20px;
   white-space: nowrap;
 }
 
@@ -240,7 +230,7 @@
 
   .nav-mobile-menu a:hover,
   .nav-mobile-menu a.active {
-    font-weight: 1100;
+    font-weight: 1000;
     color: #121212;
   }
 
