@@ -263,6 +263,10 @@ canvas {
   margin-top: 2px;
 }
 
+.panel-export-btn {
+  margin-top: 12px;
+}
+
 .calc-random-btn {
   background: transparent;
   border: 0.5px solid #606369;

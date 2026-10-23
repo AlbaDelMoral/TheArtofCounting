@@ -306,7 +306,11 @@ function createPanel() {
   sliderGrain = addRow("grain", "grain", 0, 100, CONFIG.grainAmount, 1);
   sliderReality = addRow("reality", "reality", 0, 100, CONFIG.reality, 1);
 
-  createDiv("SPACE · colors  ·  S · save").class("panel-hint").parent(panel);
+  const exportBtn = createElement("button", "export").class(
+    "calc-btn calc-random-btn panel-export-btn",
+  );
+  exportBtn.parent(panel);
+  exportBtn.mousePressed(() => saveHQ(false));
 
   updateValues();
 

@@ -19,6 +19,10 @@ const CONFIG = {
   // ── belt (read by drawBelt in addition-system.js) ─────────────────────────────
   beltStrokeRatio: 0.04,
 
+  // ── debug outlines (imaginary squares) ────────────────────────────────────────
+  showSquareOutline: false, // thin outline around each step's own square
+  showChainOutline: false, // outline around the whole chain's bounding square
+
   // ── shared number representation (edit in js/number-representation.js —
   //    applies to numbers, operations and multiplication pages alike) ──────────
   ...NUMBER_REPRESENTATION,
@@ -302,11 +306,11 @@ function createPanel() {
   addSlider("grain",   "grain",   0, 100, CONFIG.grainAmount, 1, (v) => { CONFIG.grainAmount = int(v); });
   addSlider("reality", "reality", 0, 100, CONFIG.reality,     1, (v) => { CONFIG.reality     = int(v); });
 
-  createDiv(
-    "SPACE · new colors<br>S · save png<br>scroll · zoom  /  drag · pan  /  dbl-click · reset",
-  )
-    .class("panel-hint")
-    .parent(panel);
+  const exportBtn = createElement("button", "export").class(
+    "calc-btn calc-random-btn panel-export-btn",
+  );
+  exportBtn.parent(panel);
+  exportBtn.mousePressed(() => saveHQ(false));
 
   updateValues();
 }
