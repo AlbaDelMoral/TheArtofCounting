@@ -188,50 +188,45 @@ For operation bands:
 
 ## Part 7: Decimal Numbers in Multiplication
 
-When either operand has decimal digits (e.g. `14.2` or `3.6`), the decimal sections extend **outside** the imaginary square.
+When either operand has decimal digits (e.g. `14.2` or `3.6`), the decimal sections are drawn **inside** the imaginary square, right alongside the integer sections — they are treated as just more digit-groups, not a special zone past the square's edge.
 
-### 7.1 Integer sections (inside square)
+### 7.1 Integer and decimal sections (both inside square)
 
-The integer digit groups always live inside the square following the normal N-section layout.
-
-```
-14.2:  integer digits [1, 4] → 2 sections inside square (top, bottom for horizontal)
-3.6:   integer digits [3]    → padded to [0, 3] → 2 sections (left empty, right for vertical)
-```
-
-### 7.2 Decimal sections (outside square)
-
-Decimal digit groups are appended after the integer sections and placed **outside the square**:
+A side's digit-groups are built as one ordered list — integer digits first, then decimal digits — and **all of them together** determine the square's size and are stacked/centered as one unit:
 
 ```
-14.2:  decimal digit [2] → 1 section below sqB (outside, horizontal)
-3.6:   decimal digit [6] → 1 section right of sqR (outside, vertical)
+14.2:  sections = [1, 4, 2]  (int: 1, 4 — dec: 2)  → 3 sections inside the square, stacked top→bottom
+3.6:   sections = [0, 3, 6]  (int: 0, 3 padded — dec: 6)  → 3 sections inside the square, stacked left→right
 ```
 
-The decimal section size auto-sizes to fit its content (same formula as integer sections), plus the `decExt%` slider adds breathing room.
+Because the square's size (`sqSize = max(totalSecH, totalSecV, …)`) now accounts for every section — integer and decimal alike — a number with decimals simply makes the square bigger, the same way an extra integer digit would, instead of poking content out past the square's border.
+
+### 7.2 Decimal section sizing
+
+Decimal sections use the exact same section-size formula as integer sections (`count × bandThickness + (count−1) × lineGap + bandThickness × 0.5`), with the `decExt%` slider applied as an extra multiplier **only** to decimal sections — giving them a bit more breathing room than a same-value integer section would get, without moving them outside the square.
 
 ### 7.3 Decimal separator dashed line
 
-A **dashed line** marks the boundary between integer and decimal sections:
+A **dashed line** still marks the boundary between a side's integer sections and its decimal sections — it just now falls **inside** the square instead of on the square's own edge:
 
-- For horizontal decimals: a **horizontal dashed line** at `y = sqB` (bottom edge of square), spanning the full horizontal band length
-- For vertical decimals: a **vertical dashed line** at `x = sqR` (right edge of square), spanning the full vertical band length
+- For horizontal decimals (operand A): a **horizontal dashed line** at the y-coordinate where A's first decimal section starts, spanning the full horizontal band length (including overhang)
+- For vertical decimals (operand B): a **vertical dashed line** at the x-coordinate where B's first decimal section starts, spanning the full vertical band length (including overhang)
 
-Properties:
+Properties (unchanged):
 
 - Same thickness as basic bands
-- Square caps
+- Square caps (`lineCap: 'butt'` while drawing, so segments don't blur together)
 - Dash/gap ratio controlled by `decDash%` slider
 - Color matches the band color of that operand
-- Drawn BEHIND the bands of the same axis (vertical dash → under horizontal bands)
+- Drawn AFTER the crossing bands of the other axis, so they visually "break" the dash
 
-### 7.4 Bands extend through decimal zones
+### 7.4 Overhang is now the only thing extending past the square
 
-When A has decimal sections (horizontal extending downward), vertical bands must also extend down to cover the full height. When B has decimal sections (vertical extending rightward), horizontal bands extend right to cover full width. All bands always span the entire grid extent including decimal extensions.
+With decimals living inside the square, the **only** thing that extends a band past the square's own edge is the `overhang` slider (`oh`) — applied evenly to both ends of every band, integer or decimal section alike. At `overhang = 0`, every band — including decimal-section bands — starts and ends exactly on the square's edge.
 
 ### 7.5 Decimals inside parentheses
 
-When decimal numbers appear inside parentheses as part of a chain operation (e.g. `(1.5+2)×6`), the decimals are represented on the **number circles** using the decimal ring spec (dashed ring between decimal and integer rings inside the circle). The outer multiplication grid does NOT get decimal section extensions in this case — the decimal extension only applies to operands that directly multiply.
+When decimal numbers appear inside parentheses as part of a chain operation (e.g. `(1.5+2)×6`), the decimals are represented on the **number circles** using the decimal ring spec (dashed ring between decimal and integer rings inside the circle). This is unrelated to the outer multiplication grid's own decimal sections — that still only applies to operands that directly multiply, not to numbers inside a parenthesized chain.
 
 ---
 
@@ -305,10 +300,10 @@ Parser rules:
 
 ## Part 10: Color System
 
-Colors are randomly assigned from a curated palette of 24 HSB color swatches on every shuffle (press **Space** or click **shuffle colors**):
+**Basic bands (simple numbers) are colored by digit value, not randomly.** Each digit-group's bands use that digit's own color (1–9) from the same palette the number circles use (`data/palette2.csv`, `mid` tier) — digit `4` is always the same color everywhere on the page, digit `7` is always another fixed color, and so on. This applies per digit-group independently: a 3-digit operand like `456` draws its `4`-section, `5`-section, and `6`-section each in their own digit color, not one uniform color for the whole operand. A digit of `0` draws no bands, so it needs no color. Pressing **Space** (shuffle) no longer changes these band colors, since they're now deterministic — it still reshuffles everything else below.
 
-- `colH` — color of horizontal bands (A operand)
-- `colV` — color of vertical bands (B operand)
+Everything else is still randomly assigned from a curated palette of 24 HSB color swatches on every shuffle:
+
 - `colCircle` — background fill color of number circles in operation chains
 - `colChain0..3` — belt colors for operation chains (one per adjacent pair, cycling)
 - `RING_COLORS[0..5]` — ring fill colors inside number circles (all randomized on shuffle)
@@ -372,16 +367,17 @@ Circle for -15 (sign=-1): negative → outlined
 
 ```
 A = 14.2:
-  intDigits=[1,4]  →  2 sections inside square (top=1 band, bottom=4 bands)
-  decDigits=[2]    →  1 section BELOW square (2 bands)
-  Horizontal dashed line at y=sqB, full width
+  sections = [1, 4, 2]  →  3 sections, all INSIDE the square (top→bottom: 1, 4, 2 bands)
+  Horizontal dashed line at the y where the 3rd (decimal) section starts,
+  spanning the full horizontal band length (incl. overhang) — not at sqB
 
 B = 3.6:
-  intDigits=[0,3]  →  2 sections inside square (left=0 empty, right=3 bands)
-  decDigits=[6]    →  1 section RIGHT of square (6 bands)
-  Vertical dashed line at x=sqR, full height
+  sections = [0, 3, 6]  →  3 sections, all INSIDE the square (left→right: 0 empty, 3, 6 bands)
+  Vertical dashed line at the x where the 3rd (decimal) section starts,
+  spanning the full vertical band length (incl. overhang) — not at sqR
 
-All bands extend through each other's decimal zones.
+Square size grows to fit all 3 sections per axis, same as a 3-digit integer would.
+Only the `overhang` slider extends bands past the square's own edge now.
 ```
 
 ### Example 4: `163 × 456` (3-digit × 3-digit)
@@ -429,3 +425,47 @@ Result = 5×9 = 45 > 0 → all filled
 - Band rectangles use `p.rectMode(p.CORNERS)` for precise positioning
 - The square is never drawn — it is computed only
 - `p.noLoop()` — drawing is static, only redraws when inputs change
+
+---
+
+## Part 14: Multi-Operand Chains (e.g. `4x3x6x5`)
+
+An expression with more than one `×` is split into a sequence of pairwise **steps** by `parseMultChain`:
+
+```
+4x3x6x5  →  step 0: 4×3=12
+            step 1: 12×6=72    (sideA = step 0's result, 12)
+            step 2: 72×5=360   (sideA = step 1's result, 72)
+```
+
+From step 1 onward, **sideA is just the previous step's result treated as a plain number** — its digit decomposition becomes the new horizontal bands, crossing the next operand's digits (sideB) vertically. Each step is otherwise drawn exactly like any ordinary `A × B` square from Parts 1–3: its own auto-sized square, its own digit sections, its own color-by-digit bands.
+
+### 14.1 Why this reads as one connected chain
+
+Because the "sideA" of every step after the first is literally the running result's digits, consecutive squares share a value, not just a position — the digit-bands you see entering a square are the same digits that formed the previous square's result. This is what makes the chain look like one object instead of several unrelated multiplications, without needing any extra "connector" drawing on top.
+
+### 14.2 Diagonal placement — the staircase rule
+
+Steps are **not** drawn independently at random positions. Each step's square is placed so its **top-left corner exactly touches the previous step's bottom-right corner** — a staircase growing down-and-to-the-right. If step *i* has half-size `half_i`, its center moves by `prevHalf + half_i` on **both** the x and y axis relative to the previous step's center. The whole staircase is then re-centered so it sits in the middle of the canvas.
+
+```
+step[i].ox = step[i-1].ox + half[i-1] + half[i]
+step[i].oy = step[i-1].oy + half[i-1] + half[i]   (same increment — pure diagonal)
+```
+
+This positioning is recomputed (`_computeOffsets`) every time the chain changes AND every time any panel slider changes (thickness, digit gap, line gap, etc.) — since those sliders change each step's square size, the staircase must be re-synced or the corners drift apart.
+
+### 14.3 The whole chain always bounds to a perfect square
+
+Because every step moves by an equal amount on both axes, the bounding box around the *entire* chain — from step 0's top-left corner to the last step's bottom-right corner — always comes out to `(sum of all step sizes) × (sum of all step sizes)`. This holds regardless of how differently sized the individual steps are (a tiny `2×3` square and a huge `6×798` square still complete one bigger square together when placed this way).
+
+### 14.4 Debug outlines
+
+Two optional outlines help verify the above visually, both on by default:
+
+- **Per-step outline** — a thin (1px) black stroke around each step's own square, drawn inside `drawMultiplication`. Toggle: `CONFIG.showSquareOutline = false`.
+- **Whole-chain outline** — a red stroke around the entire staircase's bounding box, drawn once per frame in the main draw loop after all steps. Toggle: `CONFIG.showChainOutline = false`.
+
+### 14.5 Open question: band-width inheritance
+
+Not yet implemented: whether a step's "carried-over" horizontal bands (the ones representing the previous result's digits) should keep the band thickness they were first drawn at in step 0, rather than each step recalculating thickness independently. Currently all bands — carried-over or freshly introduced — use the same global `thickness` (`CONFIG.bw`) slider value. This is intentionally left open pending further direction.

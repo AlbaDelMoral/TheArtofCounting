@@ -69,6 +69,31 @@ const DEBUG_GRID = false;
 
     document.body.prepend(nav);
 
+    // ── play dropdown ───────────────────────────────────────────────────────────
+    // The trigger link and the menu are both position:fixed (grid-aligned),
+    // so they sit in physically separate spots on the page — pure CSS :hover
+    // drops the instant the pointer crosses the gap between them. Track both
+    // with a short close delay instead, so there's time to reach the menu.
+    const dropdown = nav.querySelector('.nav-dropdown');
+    const dropdownMenu = nav.querySelector('.nav-dropdown-menu');
+    let dropdownHideTimer = null;
+
+    function openDropdown() {
+      clearTimeout(dropdownHideTimer);
+      dropdownMenu.classList.add('nav-dropdown-menu--open');
+    }
+    function scheduleCloseDropdown() {
+      clearTimeout(dropdownHideTimer);
+      dropdownHideTimer = setTimeout(() => {
+        dropdownMenu.classList.remove('nav-dropdown-menu--open');
+      }, 300);
+    }
+
+    dropdown.addEventListener('mouseenter', openDropdown);
+    dropdown.addEventListener('mouseleave', scheduleCloseDropdown);
+    dropdownMenu.addEventListener('mouseenter', openDropdown);
+    dropdownMenu.addEventListener('mouseleave', scheduleCloseDropdown);
+
     // ── hamburger toggle ────────────────────────────────────────────────────────
     const hamburger = nav.querySelector('.nav-hamburger');
     const mobileMenu = nav.querySelector('.nav-mobile-menu');

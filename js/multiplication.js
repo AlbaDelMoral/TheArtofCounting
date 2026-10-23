@@ -84,17 +84,34 @@ function _randomMultExpr() {
   return parts.join("x");
 }
 
-// Computes random placement offsets for n steps (step 0 is always at canvas center).
-function _computeOffsets(n) {
-  _stepOffsets = [{ ox: 0, oy: 0 }];
-  let cx = 0,
-    cy = 0;
-  for (let i = 1; i < n; i++) {
-    const angle = random(-PI / 3, PI / 3);
-    const dist = random(420, 580);
-    cx += cos(angle) * dist;
-    cy += sin(angle) * dist;
-    _stepOffsets.push({ ox: cx, oy: cy });
+// Computes placement offsets for each step so a multi-operand chain reads as
+// ONE fused object growing diagonally down-right, like a staircase: each
+// step's square has its TOP-LEFT corner touching the previous step's
+// BOTTOM-RIGHT corner. The whole staircase is then re-centered around (0,0)
+// so it's still centered on the canvas.
+function _computeOffsets(steps) {
+  _stepOffsets = [];
+  if (!steps || !steps.length) return;
+
+  let cx = 0, cy = 0;
+  let prevHalf = 0;
+  for (let i = 0; i < steps.length; i++) {
+    const half = _multSquareSize(steps[i]) / 2;
+    if (i > 0) {
+      cx += prevHalf + half;
+      cy += prevHalf + half;
+    }
+    _stepOffsets.push({ ox: cx, oy: cy, half });
+    prevHalf = half;
+  }
+
+  const first = _stepOffsets[0];
+  const last = _stepOffsets[_stepOffsets.length - 1];
+  const midX = (first.ox - first.half + last.ox + last.half) / 2;
+  const midY = (first.oy - first.half + last.oy + last.half) / 2;
+  for (const o of _stepOffsets) {
+    o.ox -= midX;
+    o.oy -= midY;
   }
 }
 
@@ -116,23 +133,93 @@ function _overUI() {
 function createPanel() {
   const panel = createDiv("").class("side-panel");
 
-  addSection("Technical variables");
-
-  // ── expression input ────────────────────────────────────────────────────────
-  const inputSection = createDiv("").class("custom-section");
+  // ── calculator section ───────────────────────────────────────────────────────
+  const inputSection = createDiv("").class("custom-section calculator");
   inputSection.parent(panel);
-  const exprInput = createElement("input").class("custom-input");
+
+  const exprInput = createElement("input").class("calc-display");
   exprInput.attribute("type", "text");
   exprInput.attribute("placeholder", "write your own multiplication: 2 × 4…");
   exprInput.attribute("spellcheck", "false");
   exprInput.value(currentExpr);
   exprInput.parent(inputSection);
 
-  createDiv("↵ apply")
-    .class("custom-input-hint")
-    .parent(inputSection);
+  function applyInput() {
+    const res = parseMultChain(exprInput.value());
+    if (res) {
+      parsedSteps = res;
+      currentExpr = exprInput.value().trim();
+      _shuffleAllSteps(parsedSteps);
+      _computeOffsets(parsedSteps);
+      redraw();
+    }
+  }
 
-  const randBtn = createElement("button", "random").class("panel-btn");
+  function clearInput() {
+    exprInput.value("14x15");
+    currentExpr = "14x15";
+    parsedSteps = parseMultChain("14x15");
+    _shuffleAllSteps(parsedSteps);
+    _computeOffsets(parsedSteps);
+    redraw();
+  }
+
+  function backspaceInput() {
+    exprInput.value(exprInput.value().slice(0, -1));
+  }
+
+  exprInput.elt.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") applyInput();
+    if (e.key === "Escape") clearInput();
+    e.stopPropagation();
+  });
+
+  // digit row — colored to match each digit's palette2.csv ring color
+  const digitRow = createDiv("").class("calc-digit-row");
+  digitRow.parent(inputSection);
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].forEach((d) => {
+    const btn = createElement("button", String(d)).class("calc-digit-btn");
+    btn.parent(digitRow);
+    const tier = NUMBER_COLORS[d] && NUMBER_COLORS[d].mid;
+    const hex = tier ? color(tier.H, tier.S, tier.B).toString("#rrggbb") : "#606369";
+    btn.elt.style.setProperty("--calc-digit-color", hex);
+    btn.mousePressed(() => exprInput.value(exprInput.value() + d));
+  });
+
+  // operator grid — grouped like a normal calculator
+  const opGrid = createDiv("").class("calc-op-grid");
+  opGrid.parent(inputSection);
+  const opButtons = [
+    { label: "(", insert: "(" },
+    { label: ")", insert: ")" },
+    { label: "⌫", action: backspaceInput },
+    { label: "×", insert: "x" },
+    { label: "/", insert: " / " },
+    { label: ",", insert: ", " },
+    { label: "+", insert: "+" },
+    { label: "−", insert: "-" },
+    { label: ".", insert: "." },
+  ];
+  opButtons.forEach(({ label, insert, action }) => {
+    const btn = createElement("button", label).class("calc-btn");
+    btn.parent(opGrid);
+    btn.mousePressed(() => (action ? action() : exprInput.value(exprInput.value() + insert)));
+  });
+
+  const clearEqualsRow = createDiv("").class("calc-row");
+  clearEqualsRow.parent(inputSection);
+
+  const clearBtn = createElement("button", "clear").class("calc-btn calc-clear-btn");
+  clearBtn.parent(clearEqualsRow);
+  clearBtn.mousePressed(() => clearInput());
+
+  const equalsBtn = createElement("button", "=").class("calc-btn calc-equals-btn");
+  equalsBtn.parent(clearEqualsRow);
+  equalsBtn.mousePressed(() => applyInput());
+
+  const randBtn = createElement("button", "random equation").class(
+    "calc-btn calc-random-btn",
+  );
   randBtn.parent(inputSection);
   randBtn.mousePressed(() => {
     const expr = _randomMultExpr();
@@ -140,31 +227,11 @@ function createPanel() {
     currentExpr = expr;
     parsedSteps = parseMultChain(expr);
     _shuffleAllSteps(parsedSteps);
-    _computeOffsets(parsedSteps.length);
+    _computeOffsets(parsedSteps);
     redraw();
   });
 
-  exprInput.elt.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      const res = parseMultChain(exprInput.value());
-      if (res) {
-        parsedSteps = res;
-        currentExpr = exprInput.value().trim();
-        _shuffleAllSteps(parsedSteps);
-        _computeOffsets(parsedSteps.length);
-        redraw();
-      }
-    }
-    if (e.key === "Escape") {
-      exprInput.value("14x15");
-      currentExpr = "14x15";
-      parsedSteps = parseMultChain("14x15");
-      _shuffleAllSteps(parsedSteps);
-      _computeOffsets(parsedSteps.length);
-      redraw();
-    }
-    e.stopPropagation();
-  });
+  addSection("Technical variables");
 
   // ── color row builder ────────────────────────────────────────────────────────
   function addColorRow(label, defaultHex, onChange) {
@@ -207,6 +274,10 @@ function createPanel() {
     sl.input(() => {
       setter(parseFloat(sl.value()));
       updateValues();
+      // Square sizes depend on CONFIG (thickness, gaps, etc.), so any slider
+      // can change how big each step's square is — recompute positions
+      // every time, or the diagonal corner-touching rule drifts out of sync.
+      _computeOffsets(parsedSteps);
       redraw();
     });
     return sl;
@@ -266,7 +337,7 @@ function setup() {
   generateGrain();
   parsedSteps = parseMultChain(currentExpr);
   _shuffleAllSteps(parsedSteps);
-  _computeOffsets(parsedSteps.length);
+  _computeOffsets(parsedSteps);
   createPanel();
   noLoop();
 }
@@ -299,6 +370,25 @@ function draw() {
       push();
       translate(off.ox, off.oy);
       drawMultiplication(parsedSteps[i]);
+      pop();
+    }
+
+    // Debug: red outline around the WHOLE chain's bounding square — proves
+    // the diagonal corner-touching always completes a perfect square, no
+    // matter how differently sized each step is.
+    if (CONFIG.showChainOutline !== false && _stepOffsets.length) {
+      const first = _stepOffsets[0];
+      const last = _stepOffsets[_stepOffsets.length - 1];
+      const left = width / 2 + first.ox - first.half;
+      const top = height / 2 + first.oy - first.half;
+      const right = width / 2 + last.ox + last.half;
+      const bottom = height / 2 + last.oy + last.half;
+      push();
+      noFill();
+      stroke(0, 100, 90);
+      strokeWeight(1.5);
+      rectMode(CORNERS);
+      rect(left, top, right, bottom);
       pop();
     }
   }
@@ -378,7 +468,7 @@ function keyPressed() {
   if (document.activeElement.tagName === "INPUT") return;
   if (key === " ") {
     _shuffleAllSteps(parsedSteps);
-    _computeOffsets(parsedSteps ? parsedSteps.length : 1);
+    _computeOffsets(parsedSteps);
     redraw();
   }
   if (key === "s" || key === "S") saveHQ(false);

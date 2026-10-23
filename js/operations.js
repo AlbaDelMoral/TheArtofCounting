@@ -164,40 +164,90 @@ const valSpans = {};
 function createPanel() {
   const panel = createDiv("").class("side-panel");
 
-  addSection("Technical variables");
-
-  // ── expression input ────────────────────────────────────────────────────────
-  const customSection = createDiv("").class("custom-section");
+  // ── calculator section ───────────────────────────────────────────────────────
+  const customSection = createDiv("").class("custom-section calculator");
   customSection.parent(panel);
-  const opInput = createElement("input").class("custom-input");
+
+  const opInput = createElement("input").class("calc-display");
   opInput.attribute("type", "text");
   opInput.attribute("placeholder", "write your own operation: 2 + 3 − 4…");
   opInput.attribute("spellcheck", "false");
   opInput.parent(customSection);
 
-  createDiv("↵ apply  ·  esc → random")
-    .class("custom-input-hint")
-    .parent(customSection);
+  function applyInput() {
+    const parsed = parseChains(opInput.value());
+    if (parsed.length > 0) {
+      customOps = parsed;
+      generateChainData();
+    }
+  }
 
-  const randomBtn = createElement("button", "random").class("panel-btn");
+  function clearInput() {
+    opInput.value("");
+    customOps = [];
+    generateChainData();
+  }
+
+  function backspaceInput() {
+    opInput.value(opInput.value().slice(0, -1));
+  }
+
+  opInput.elt.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") applyInput();
+    if (e.key === "Escape") clearInput();
+    e.stopPropagation();
+  });
+
+  // digit row — colored to match each digit's palette2.csv ring color
+  const digitRow = createDiv("").class("calc-digit-row");
+  digitRow.parent(customSection);
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].forEach((d) => {
+    const btn = createElement("button", String(d)).class("calc-digit-btn");
+    btn.parent(digitRow);
+    const tier = NUMBER_COLORS[d] && NUMBER_COLORS[d].mid;
+    const hex = tier ? color(tier.H, tier.S, tier.B).toString("#rrggbb") : "#606369";
+    btn.elt.style.setProperty("--calc-digit-color", hex);
+    btn.mousePressed(() => opInput.value(opInput.value() + d));
+  });
+
+  // operator grid — grouped like a normal calculator
+  const opGrid = createDiv("").class("calc-op-grid");
+  opGrid.parent(customSection);
+  const opButtons = [
+    { label: "(", insert: "(" },
+    { label: ")", insert: ")" },
+    { label: "⌫", action: backspaceInput },
+    { label: "×", insert: " × " },
+    { label: "/", insert: " / " },
+    { label: ",", insert: ", " },
+    { label: "+", insert: " + " },
+    { label: "−", insert: " - " },
+    { label: ".", insert: "." },
+  ];
+  opButtons.forEach(({ label, insert, action }) => {
+    const btn = createElement("button", label).class("calc-btn");
+    btn.parent(opGrid);
+    btn.mousePressed(() => (action ? action() : opInput.value(opInput.value() + insert)));
+  });
+
+  const clearEqualsRow = createDiv("").class("calc-row");
+  clearEqualsRow.parent(customSection);
+
+  const clearBtn = createElement("button", "clear").class("calc-btn calc-clear-btn");
+  clearBtn.parent(clearEqualsRow);
+  clearBtn.mousePressed(() => clearInput());
+
+  const equalsBtn = createElement("button", "=").class("calc-btn calc-equals-btn");
+  equalsBtn.parent(clearEqualsRow);
+  equalsBtn.mousePressed(() => applyInput());
+
+  const randomBtn = createElement("button", "random equation").class(
+    "calc-btn calc-random-btn",
+  );
   randomBtn.parent(customSection);
   randomBtn.mousePressed(() => generateChainData());
 
-  opInput.elt.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      const parsed = parseChains(opInput.value());
-      if (parsed.length > 0) {
-        customOps = parsed;
-        generateChainData();
-      }
-    }
-    if (e.key === "Escape") {
-      opInput.value("");
-      customOps = [];
-      generateChainData();
-    }
-    e.stopPropagation();
-  });
+  addSection("Technical variables");
 
   // ── sliders ─────────────────────────────────────────────────────────────────
   function addSection(title) {

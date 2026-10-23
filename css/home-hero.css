@@ -1,0 +1,14 @@
+/* home-hero.css — homepage is just the logo, centered, full viewport width */
+.home-hero {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-hero-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+}

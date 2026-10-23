@@ -214,10 +214,12 @@ function _drawOpVBand(x, tokens, cT, cB, CR, pad) {
   }
 }
 
-// ─── main draw ────────────────────────────────────────────────────────────────
-function drawMultiplication(parsed) {
-  if (!parsed || !MUL_COL.hCol) return;
-
+// ─── shared geometry core ───────────────────────────────────────────────────
+// Everything about a multiplication's layout that does NOT depend on where
+// it's centered on the canvas — digit decomposition, section sizes, and the
+// resulting square size. Used both to render (drawMultiplication) and to
+// measure a step before placing it in a chain (_multSquareSize).
+function _multGeometryCore(parsed) {
   const { sideA, sideB, result } = parsed;
   const positive = result >= 0;
   const { bw, obw, pad, lgap, dgap, oh, decExt } = CONFIG;
@@ -244,73 +246,103 @@ function drawMultiplication(parsed) {
     return secs;
   }
 
+  // sectsA/sectsB keep integer sections first, then decimal sections, in
+  // order — decimals are now just more sections, sized and stacked the same
+  // way as integer digits, so they live INSIDE the square instead of
+  // extending past its edges. decSecsA/decSecsB are kept only to know
+  // whether a side HAS decimals (for the separator dash) and where they start.
   const sectsA  = buildSections(sideA);
   const sectsB  = buildSections(sideB);
-  const intSecsA = sectsA.filter(s => !s.isDecimal);
-  const intSecsB = sectsB.filter(s => !s.isDecimal);
   const decSecsA = sectsA.filter(s =>  s.isDecimal);
   const decSecsB = sectsB.filter(s =>  s.isDecimal);
-  const nIntA   = intSecsA.length;
-  const nIntB   = intSecsB.length;
+  const firstDecIdxA = sectsA.findIndex(s => s.isDecimal);
+  const firstDecIdxB = sectsB.findIndex(s => s.isDecimal);
+  const nSecA = sectsA.length;
+  const nSecB = sectsB.length;
 
   // ── Section sizing ──────────────────────────────────────────────────────────
   // sectionSize = count × bandThickness + (count−1) × lineGap + thickness × 0.5
-  const secSzH = sec => { const n = Math.max(1, sec.count); return n * bandHH + Math.max(0, n-1) * lgap + bandHH * 0.5; };
-  const secSzV = sec => { const n = Math.max(1, sec.count); return n * bandVW + Math.max(0, n-1) * lgap + bandVW * 0.5; };
+  // Decimal sections get the same formula plus decExt% extra breathing room.
+  const secSzH = sec => {
+    const n = Math.max(1, sec.count);
+    const base = n * bandHH + Math.max(0, n-1) * lgap + bandHH * 0.5;
+    return sec.isDecimal ? base * (1 + decExt / 100) : base;
+  };
+  const secSzV = sec => {
+    const n = Math.max(1, sec.count);
+    const base = n * bandVW + Math.max(0, n-1) * lgap + bandVW * 0.5;
+    return sec.isDecimal ? base * (1 + decExt / 100) : base;
+  };
 
-  const secHszArr = intSecsA.map(secSzH);
-  const secVszArr = intSecsB.map(secSzV);
+  const secHszArr = sectsA.map(secSzH);
+  const secVszArr = sectsB.map(secSzV);
 
-  const totalSecH = secHszArr.reduce((s, v) => s + v, 0) + Math.max(0, nIntA - 1) * dgap;
-  const totalSecV = secVszArr.reduce((s, v) => s + v, 0) + Math.max(0, nIntB - 1) * dgap;
+  const totalSecH = secHszArr.reduce((s, v) => s + v, 0) + Math.max(0, nSecA - 1) * dgap;
+  const totalSecV = secVszArr.reduce((s, v) => s + v, 0) + Math.max(0, nSecB - 1) * dgap;
 
-  // Square must fit all content; enforce a sane minimum so it never collapses
+  // Square must fit all content — integer AND decimal sections alike; enforce
+  // a sane minimum so it never collapses. Using the same value for both axes
+  // is what keeps this an actual SQUARE (never a rectangle).
   const sqSize = Math.max(totalSecH, totalSecV, bandHH * 3, bandVW * 3);
 
-  const cx = width  / 2;
-  const cy = height / 2;
+  return {
+    sideA, sideB, result, positive, bw, obw, pad, lgap, dgap, oh, decExt, CR, bm,
+    bandHH, bandVW, sectsA, sectsB, decSecsA, decSecsB, firstDecIdxA, firstDecIdxB,
+    nSecA, nSecB, secHszArr, secVszArr, totalSecH, totalSecV, sqSize,
+  };
+}
+
+// Square size only — used to measure a chain step before it's positioned.
+function _multSquareSize(parsed) {
+  return _multGeometryCore(parsed).sqSize;
+}
+
+// Looks up a digit's (1–9) color from palette2.csv, same source the number
+// circles use. Falls back to MUL_COL when the digit has no entry (e.g. 0).
+function _digitBandColor(digit) {
+  const tier = NUMBER_COLORS[digit] && NUMBER_COLORS[digit].mid;
+  return tier ? color(tier.H, tier.S, tier.B) : null;
+}
+
+// ─── main draw ────────────────────────────────────────────────────────────────
+function drawMultiplication(parsed, cx, cy) {
+  if (!parsed || !MUL_COL.hCol) return;
+
+  const geo = _multGeometryCore(parsed);
+  const {
+    sideA, sideB, positive, bw, pad, lgap, dgap, oh, CR, bm,
+    bandHH, bandVW, sectsA, sectsB, decSecsA, decSecsB, firstDecIdxA, firstDecIdxB,
+    nSecA, nSecB, secHszArr, secVszArr, totalSecH, totalSecV, sqSize,
+  } = geo;
+
+  cx = cx ?? width  / 2;
+  cy = cy ?? height / 2;
   const sqL = cx - sqSize / 2,  sqR = cx + sqSize / 2;
   const sqT = cy - sqSize / 2,  sqB = cy + sqSize / 2;
 
-  // Center each axis's content inside the square
-  const contentH = secHszArr.reduce((s, v) => s + v, 0) + Math.max(0, nIntA - 1) * dgap;
-  const contentV = secVszArr.reduce((s, v) => s + v, 0) + Math.max(0, nIntB - 1) * dgap;
+  // Center each axis's content inside the square — integer AND decimal
+  // sections together, so decimals land fully inside the square instead of
+  // past its edges.
+  const secHstarts = []; let yy = sqT + (sqSize - totalSecH) / 2;
+  for (let g = 0; g < nSecA; g++) { secHstarts.push(yy); yy += secHszArr[g] + dgap; }
+  const secVstarts = []; let xx = sqL + (sqSize - totalSecV) / 2;
+  for (let g = 0; g < nSecB; g++) { secVstarts.push(xx); xx += secVszArr[g] + dgap; }
 
-  const secHstarts = []; let yy = sqT + (sqSize - contentH) / 2;
-  for (let g = 0; g < nIntA; g++) { secHstarts.push(yy); yy += secHszArr[g] + dgap; }
-  const secVstarts = []; let xx = sqL + (sqSize - contentV) / 2;
-  for (let g = 0; g < nIntB; g++) { secVstarts.push(xx); xx += secVszArr[g] + dgap; }
+  // Full band spans — both axes are already equal-length (sqSize is a true
+  // square), so overhang just extends both ends evenly, no equalizing needed.
+  const hBandL = sqL - oh, hBandR = sqR + oh;
+  const vBandT = sqT - oh, vBandB = sqB + oh;
 
-  // ── Decimal section sizes (extend outside the square) ──────────────────────
-  const minDecSzH = sec => { const n = Math.max(1, sec.count); return n * bandHH + Math.max(0, n-1) * lgap + bandHH; };
-  const minDecSzV = sec => { const n = Math.max(1, sec.count); return n * bandVW + Math.max(0, n-1) * lgap + bandVW; };
-
-  const decSzA = decSecsA.length > 0 ? Math.max(...decSecsA.map(minDecSzH)) * (1 + decExt / 100) : 0;
-  const decSzB = decSecsB.length > 0 ? Math.max(...decSecsB.map(minDecSzV)) * (1 + decExt / 100) : 0;
-
-  // Extended square edges (including decimal zones)
-  const sqBext = sqB + decSecsA.length * decSzA;
-  const sqRext = sqR + decSecsB.length * decSzB;
-
-  // Full band spans — equalized so both axes have the same visual length
-  const hBandL = sqL - oh;
-  const vBandT = sqT - oh;
-  let hBandR = sqRext + oh;
-  let vBandB = sqBext + oh;
-  // Extend the shorter axis to match the longer one for visual balance
-  const _hLen = hBandR - hBandL;
-  const _vLen = vBandB - vBandT;
-  if (_hLen > _vLen) { vBandB = vBandT + _hLen; }
-  else if (_vLen > _hLen) { hBandR = hBandL + _vLen; }
-
-  // Op-chain circle span: capped to integer square + overhang, inset by bandMargin
+  // Op-chain circle span: capped to the square + overhang, inset by bandMargin
   const cL = sqL - oh + CR + bm,   cR_op = sqR + oh - CR - bm;
   const cT = sqT - oh + CR + bm,   cB_op = sqB + oh - CR - bm;
 
   // ── Compute Y positions for horizontal bands (operand A) ───────────────────
+  // One pass over ALL sections (integer + decimal) — decimals are sized and
+  // stacked exactly like integer digit-groups, just flagged isDecimal.
   const rowGroups = [];
-  for (let g = 0; g < nIntA; g++) {
-    const sec = intSecsA[g], count = sec.count, ys = [];
+  for (let g = 0; g < nSecA; g++) {
+    const sec = sectsA[g], count = sec.count, ys = [];
     if (count > 0) {
       const secTop = secHstarts[g], secSz = secHszArr[g];
       const maxLg  = count > 1 ? Math.max(0, (secSz - count * bandHH) / (count - 1)) : 0;
@@ -319,27 +351,13 @@ function drawMultiplication(parsed) {
       const sy     = secTop + (secSz - grpH) / 2;
       for (let k = 0; k < count; k++) ys.push(sy + bandHH / 2 + k * (bandHH + lg));
     }
-    rowGroups.push({ ys, isDecimal: false });
-  }
-  let curDecY = sqB;
-  for (let g = 0; g < decSecsA.length; g++) {
-    const sec = decSecsA[g], count = sec.count, ys = [];
-    if (count > 0) {
-      const avail = decSzA - bandHH;
-      const maxLg = count > 1 ? Math.max(0, (avail - count * bandHH) / (count - 1)) : 0;
-      const lg    = Math.min(lgap, maxLg);
-      const grpH  = count * bandHH + (count - 1) * lg;
-      const sy    = curDecY + (decSzA - grpH) / 2;
-      for (let k = 0; k < count; k++) ys.push(sy + bandHH / 2 + k * (bandHH + lg));
-    }
-    rowGroups.push({ ys, isDecimal: true });
-    curDecY += decSzA;
+    rowGroups.push({ ys, isDecimal: sec.isDecimal, digit: sec.count });
   }
 
   // ── Compute X positions for vertical bands (operand B) ─────────────────────
   const colGroups = [];
-  for (let g = 0; g < nIntB; g++) {
-    const sec = intSecsB[g], count = sec.count, xs = [];
+  for (let g = 0; g < nSecB; g++) {
+    const sec = sectsB[g], count = sec.count, xs = [];
     if (count > 0) {
       const secLeft = secVstarts[g], secSz = secVszArr[g];
       const maxLg   = count > 1 ? Math.max(0, (secSz - count * bandVW) / (count - 1)) : 0;
@@ -348,21 +366,7 @@ function drawMultiplication(parsed) {
       const sx      = secLeft + (secSz - grpW) / 2;
       for (let k = 0; k < count; k++) xs.push(sx + bandVW / 2 + k * (bandVW + lg));
     }
-    colGroups.push({ xs, isDecimal: false });
-  }
-  let curDecX = sqR;
-  for (let g = 0; g < decSecsB.length; g++) {
-    const sec = decSecsB[g], count = sec.count, xs = [];
-    if (count > 0) {
-      const avail = decSzB - bandVW;
-      const maxLg = count > 1 ? Math.max(0, (avail - count * bandVW) / (count - 1)) : 0;
-      const lg    = Math.min(lgap, maxLg);
-      const grpW  = count * bandVW + (count - 1) * lg;
-      const sx    = curDecX + (decSzB - grpW) / 2;
-      for (let k = 0; k < count; k++) xs.push(sx + bandVW / 2 + k * (bandVW + lg));
-    }
-    colGroups.push({ xs, isDecimal: true });
-    curDecX += decSzB;
+    colGroups.push({ xs, isDecimal: sec.isDecimal, digit: sec.count });
   }
 
   // ── Dashed separator line parameters ───────────────────────────────────────
@@ -377,50 +381,70 @@ function drawMultiplication(parsed) {
   // Using lineCap='butt' prevents SQUARE-cap segment overlap (which made dashes
   // look solid when strokeCap(SQUARE) was set).
 
-  // 1. All vertical bands (integer + decimal sections)
+  // 1. All vertical bands (integer + decimal sections) — each digit-group is
+  //    colored by its own value (1–10 digit palette), not one uniform color
   for (const grp of colGroups) {
+    const vCol = _digitBandColor(grp.digit) || MUL_COL.vCol;
     for (const bx of grp.xs) {
       if (sideB.type === 'chain') {
         _drawOpVBand(bx, sideB.tokens, cT, cB_op, CR, pad);
       } else {
-        _drawVBand(bx, vBandT, vBandB, bw, MUL_COL.vCol, positive);
+        _drawVBand(bx, vBandT, vBandB, bw, vCol, positive);
       }
     }
   }
 
   // 2. All horizontal bands on top (integer + decimal sections)
   for (const grp of rowGroups) {
+    const hCol = _digitBandColor(grp.digit) || MUL_COL.hCol;
     for (const ry of grp.ys) {
       if (sideA.type === 'chain') {
         _drawOpHBand(ry, sideA.tokens, cL, cR_op, CR, pad);
       } else {
-        _drawHBand(hBandL, ry, hBandR, bw, MUL_COL.hCol, positive);
+        _drawHBand(hBandL, ry, hBandR, bw, hCol, positive);
       }
     }
   }
 
-  // 3. Vertical decimal dashed line at x = sqR — drawn after H bands so they
-  //    visually break the dash, and lineCap='butt' ensures clean segments
+  // 3. Vertical decimal dashed line — now marks the boundary INSIDE the
+  //    square where B's integer sections end and its decimal sections begin
+  //    (instead of the square's own right edge), since decimals live inside
+  //    the square now. Drawn after H bands so they visually break the dash.
   if (decSecsB.length > 0) {
+    const xDash = secVstarts[firstDecIdxB];
     push(); blendMode(BLEND);
     stroke(MUL_COL.vCol); strokeWeight(bw); noFill();
     drawingContext.lineCap = 'butt';
     drawingContext.setLineDash([dashOn, dashOff]);
-    line(sqR, vBandT, sqR, vBandB);
+    line(xDash, vBandT, xDash, vBandB);
     drawingContext.setLineDash([]);
     drawingContext.lineCap = 'round'; // restore p5 default
     pop();
   }
 
-  // 4. Horizontal decimal dashed line at y = sqB — drawn after V bands
+  // 4. Horizontal decimal dashed line — same idea, marks where A's integer
+  //    sections end and its decimal sections begin, inside the square.
   if (decSecsA.length > 0) {
+    const yDash = secHstarts[firstDecIdxA];
     push(); blendMode(BLEND);
     stroke(MUL_COL.hCol); strokeWeight(bw); noFill();
     drawingContext.lineCap = 'butt';
     drawingContext.setLineDash([dashOn, dashOff]);
-    line(hBandL, sqB, hBandR, sqB);
+    line(hBandL, yDash, hBandR, yDash);
     drawingContext.setLineDash([]);
     drawingContext.lineCap = 'round';
+    pop();
+  }
+
+  // 5. Debug: thin black outline around this step's square — lets us see
+  //    exactly where each square's bounds fall as chains grow/fuse.
+  if (CONFIG.showSquareOutline !== false) {
+    push();
+    noFill();
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    rectMode(CORNERS);
+    rect(sqL, sqT, sqR, sqB);
     pop();
   }
 
