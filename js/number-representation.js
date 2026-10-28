@@ -27,8 +27,8 @@ const NUMBER_REPRESENTATION = {
   showTicks: true, // set to false to hide tick marks/outline entirely
   ringStyle: "ticks", // "ticks" (original) or "outline" (thin circle per digit ring)
   ringOutlineWeightRatio: 0.0, // outline thickness, only used when ringStyle === "outline"
-  tickLengthRatio: 0.1, // only used when ringStyle === "ticks"
-  tickStrokeWeight: 1,
+  tickLengthRatio: 0.06, // only used when ringStyle === "ticks"
+  tickStrokeWeightRatio: 0.006, // scales with outerR, so ticks don't look thick on small numbers
   tickOpacity: 255,
   tickColor: COLORS.tickMarks, // see js/colors.js
 

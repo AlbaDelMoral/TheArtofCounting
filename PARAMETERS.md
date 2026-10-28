@@ -1,6 +1,8 @@
 # Interactive Parameters — The Art of Counting
 
-A full map of every slider, input, toggle, and config value the user can interact with across the three sketch pages. Use this for brainstorming what to keep, remove, expose differently, or add.
+A full map of every slider, input, toggle, and config value the user can interact with. Use this for brainstorming what to keep, remove, expose differently, or add.
+
+> **Note:** numbers, operations (addition/subtraction), and multiplication used to be three separate pages (`numbers.html`, `operations.html`, `multiplication.html`). They're now unified into one page, `play.html` (`js/play.js`), with one shared calculator — what you type decides which mode is shown. Each mode still has its own CONFIG object and its own "Technical variables" section (now a collapsible dropdown), described individually below exactly as before. The old page files still exist as redirects to `play.html`.
 
 ---
 
@@ -48,7 +50,6 @@ Addition/subtraction chains. Circles connected by filled (positive) or outlined 
 | **size** | 1–40 | 9 | Base circle radius as % of canvas short edge |
 | **spread** | 0–95 | 90 | Size variation across circles in the chain |
 | **spacing** | –150 to 95 | –50 | Gap between circles — negative = gap, positive = overlap |
-| **margin** | 0–50 | 12 | Belt offset from circle edge (% of radius) |
 | **bokeh** | 0–30 px | 0 | Gaussian blur |
 | **grain** | 0–100 | 0 | Film grain intensity |
 | **reality** | 0–100 | 0 | Crossfade from abstract → readable numbers |
@@ -62,6 +63,7 @@ Addition/subtraction chains. Circles connected by filled (positive) or outlined 
 ### Internal (not exposed to user)
 - `valueSizeInfluence` (0.9) — how much the numeric magnitude drives circle size vs. random
 - `beltStrokeRatio` (0.04) — stroke weight of the outlined belt for negative results
+- `beltMarginRatio` (0.05, fixed) — belt offset from circle edge; used to be a "margin" slider
 
 ---
 
@@ -133,7 +135,7 @@ These are set per-page and control the number circle rendering engine. Most are 
 | `blendModeName` | p5 blend mode for rings (BLEND, ADD, MULTIPLY, SCREEN…). Currently "NONE" everywhere. |
 | `portionArcSteps` | Smoothness of the pie-wedge arcs (38 = smooth) |
 | `tickOpacity` | Opacity of the 9 tick marks (0–255) |
-| `tickStrokeWeight` | Pixel weight of tick lines (independent of circle size) |
+| `tickStrokeWeightRatio` | Tick stroke weight, scaled by the number circle's own radius |
 | `centerDotRatio` | Size of the center dot as % of radius |
 | `outerStrokeRatio` | Stroke weight of the outer circle border |
 

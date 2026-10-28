@@ -40,7 +40,10 @@ function drawBelt(x1, y1, R1, x2, y2, R2, resultPositive, cssColor) {
     ctx.fill();
   } else {
     ctx.strokeStyle = cssColor;
-    ctx.lineWidth   = Math.max(R1, R2) * CONFIG.beltStrokeRatio;
+    // Floored so a negative belt's outline stays readable once it gets
+    // small — larger belts are unaffected since the ratio alone already
+    // clears this floor there.
+    ctx.lineWidth   = Math.max(0.4, Math.max(R1, R2) * CONFIG.beltStrokeRatio);
     ctx.stroke();
   }
 }

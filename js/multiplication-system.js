@@ -140,37 +140,48 @@ function parseMultChain(raw) {
 
 // ─── private drawing helpers ──────────────────────────────────────────────────
 
-// Horizontal rectangle band spanning x1→x2 centered on y
+// bw always sets the band's own footprint (needed so rows/cols still stack
+// correctly regardless of sign). The outline's stroke weight is kept a fixed
+// fraction of that footprint — scales with bw like the request asks, but
+// stays well short of it so the outline never collapses into a solid block,
+// even at bw's smallest slider value.
+const OUTLINE_STROKE_RATIO = 0.25;
+
+// Horizontal rectangle band spanning x1→x2 centered on y.
+// Positive (filled): bw is the solid band's thickness.
+// Negative (outline): bw scales the outline stroke's own thickness instead.
 function _drawHBand(x1, y, x2, bw, col, filled) {
   push(); blendMode(BLEND); rectMode(CORNERS);
   if (filled) { fill(col); noStroke(); }
-  else        { noFill(); stroke(col); strokeWeight(Math.max(1.5, bw * 0.1)); }
+  else        { noFill(); stroke(col); strokeWeight(Math.max(0.3, bw * OUTLINE_STROKE_RATIO)); }
   rect(x1, y - bw / 2, x2, y + bw / 2, 0);
   pop();
 }
 
-// Vertical rectangle band spanning y1→y2 centered on x
+// Vertical rectangle band spanning y1→y2 centered on x. Same filled/outline
+// thickness convention as _drawHBand.
 function _drawVBand(x, y1, y2, bw, col, filled) {
   push(); blendMode(BLEND); rectMode(CORNERS);
   if (filled) { fill(col); noStroke(); }
-  else        { noFill(); stroke(col); strokeWeight(Math.max(1.5, bw * 0.1)); }
+  else        { noFill(); stroke(col); strokeWeight(Math.max(0.3, bw * OUTLINE_STROKE_RATIO)); }
   rect(x - bw / 2, y1, x + bw / 2, y2, 0);
   pop();
 }
 
 // One horizontal op-chain band at y, circles evenly from cL to cR
-function _drawOpHBand(y, tokens, cL, cR, CR, pad) {
+function _drawOpHBand(y, tokens, cL, cR, CR, marginRatio) {
   const n   = tokens.length;
   const pos = tokens.map((_, i) => [
     n === 1 ? (cL + cR) / 2 : cL + (i / (n - 1)) * (cR - cL),
     y,
   ]);
+  const beltR = CR * (1 + marginRatio);
 
   // Pass 1 — belts (behind circles)
   for (let i = 0; i < n - 1; i++) {
     const local = tokens[i].val * tokens[i].sign + tokens[i + 1].val * tokens[i + 1].sign;
-    drawBelt(pos[i][0], pos[i][1], CR + pad,
-             pos[i+1][0], pos[i+1][1], CR + pad,
+    drawBelt(pos[i][0], pos[i][1], beltR,
+             pos[i+1][0], pos[i+1][1], beltR,
              local >= 0, MUL_COL.chains[i % 4]);
   }
 
@@ -188,18 +199,19 @@ function _drawOpHBand(y, tokens, cL, cR, CR, pad) {
 }
 
 // One vertical op-chain band at x, circles evenly from cT to cB
-function _drawOpVBand(x, tokens, cT, cB, CR, pad) {
+function _drawOpVBand(x, tokens, cT, cB, CR, marginRatio) {
   const n   = tokens.length;
   const pos = tokens.map((_, i) => [
     x,
     n === 1 ? (cT + cB) / 2 : cT + (i / (n - 1)) * (cB - cT),
   ]);
+  const beltR = CR * (1 + marginRatio);
 
   // Pass 1 — belts
   for (let i = 0; i < n - 1; i++) {
     const local = tokens[i].val * tokens[i].sign + tokens[i + 1].val * tokens[i + 1].sign;
-    drawBelt(pos[i][0], pos[i][1], CR + pad,
-             pos[i+1][0], pos[i+1][1], CR + pad,
+    drawBelt(pos[i][0], pos[i][1], beltR,
+             pos[i+1][0], pos[i+1][1], beltR,
              local >= 0, MUL_COL.chains[i % 4]);
   }
 
@@ -222,7 +234,7 @@ function _drawOpVBand(x, tokens, cT, cB, CR, pad) {
 function _multGeometryCore(parsed) {
   const { sideA, sideB, result } = parsed;
   const positive = result >= 0;
-  const { bw, obw, pad, lgap, dgap, oh, decExt } = CONFIG;
+  const { bw, obw, beltMarginRatio: pad, lgap, dgap, oh, decExt } = CONFIG;
   // CR is decoupled from band thickness: circleScale lets circles be smaller than the band
   const CR = (obw / 2) * CONFIG.circleScale;
   // bandMargin insets the circle span from the band edges
@@ -237,11 +249,20 @@ function _multGeometryCore(parsed) {
     if (side.type === 'chain') {
       // Chain: use the digit decomposition of abs(round(result)), padded to ≥2
       const d = side.digits;
-      return (d.length === 1 ? [0, d[0]] : d).map(c => ({ count: c, isDecimal: false }));
+      const counts = d.length === 1 ? [0, d[0]] : d;
+      // A chain's sum can land on exactly 0 (e.g. 6+2-8) — still show the
+      // addition/subtraction circles+belts at least once, otherwise the
+      // whole chain visually disappears instead of just its digit bands.
+      if (counts.every(c => c === 0)) return [{ count: 1, isDecimal: false }];
+      return counts.map(c => ({ count: c, isDecimal: false }));
     }
     // Simple: integer digits inside square, decimal digits extend outside
     const intPad = side.intDigits.length === 1 ? [0, side.intDigits[0]] : side.intDigits;
-    const secs   = intPad.map(c => ({ count: c, isDecimal: false }));
+    // A plain value can land on exactly 0 too (e.g. a chained step whose
+    // running result is 0) — still show one band instead of leaving the
+    // whole operand blank.
+    const intCounts = intPad.every(c => c === 0) ? [1] : intPad;
+    const secs = intCounts.map(c => ({ count: c, isDecimal: false }));
     (side.decDigits || []).forEach(c => secs.push({ count: c, isDecimal: true }));
     return secs;
   }
@@ -320,13 +341,22 @@ function drawMultiplication(parsed, cx, cy) {
   const sqL = cx - sqSize / 2,  sqR = cx + sqSize / 2;
   const sqT = cy - sqSize / 2,  sqB = cy + sqSize / 2;
 
-  // Center each axis's content inside the square — integer AND decimal
-  // sections together, so decimals land fully inside the square instead of
-  // past its edges.
-  const secHstarts = []; let yy = sqT + (sqSize - totalSecH) / 2;
-  for (let g = 0; g < nSecA; g++) { secHstarts.push(yy); yy += secHszArr[g] + dgap; }
-  const secVstarts = []; let xx = sqL + (sqSize - totalSecV) / 2;
-  for (let g = 0; g < nSecB; g++) { secVstarts.push(xx); xx += secVszArr[g] + dgap; }
+  // Stretch each axis's sections across the full square — integer AND
+  // decimal sections together — instead of packing them tightly and
+  // centering the block. Any slack (when the OTHER axis is what's actually
+  // sizing the square, e.g. a short simple number against a tall op-chain)
+  // is spread evenly between sections instead of sitting as outer margin,
+  // so the first/last section always reach the square's own edges, close to
+  // the op-chain circles there instead of clustering far from them.
+  const extraH = Math.max(0, sqSize - totalSecH);
+  const gapExtraH = nSecA > 1 ? extraH / (nSecA - 1) : 0;
+  const secHstarts = []; let yy = sqT + (nSecA > 1 ? 0 : extraH / 2);
+  for (let g = 0; g < nSecA; g++) { secHstarts.push(yy); yy += secHszArr[g] + dgap + gapExtraH; }
+
+  const extraV = Math.max(0, sqSize - totalSecV);
+  const gapExtraV = nSecB > 1 ? extraV / (nSecB - 1) : 0;
+  const secVstarts = []; let xx = sqL + (nSecB > 1 ? 0 : extraV / 2);
+  for (let g = 0; g < nSecB; g++) { secVstarts.push(xx); xx += secVszArr[g] + dgap + gapExtraV; }
 
   // Full band spans — both axes are already equal-length (sqSize is a true
   // square), so overhang just extends both ends evenly, no equalizing needed.

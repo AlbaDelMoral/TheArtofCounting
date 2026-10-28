@@ -298,6 +298,60 @@ canvas {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   COLLAPSIBLE "TECHNICAL VARIABLES" DROPDOWNS (Numbers / Addition &
+   Subtraction / Multiplication) — accordion: clicking a title expands its
+   sliders and collapses the others. Uses the CSS grid 0fr→1fr trick so it
+   animates smoothly without needing to know the content's height in JS.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.panel-dropdown-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  user-select: none;
+  /* tighter than the general .panel-section margin — these three titles sit
+     one after another and shouldn't read as far-apart standalone sections */
+  margin: 10px 0 8px 0;
+}
+
+/* Only the active mode's dropdown can be opened — the others are shown
+   disabled/greyed, not clickable, since the calculator input (not the user
+   clicking a title) decides which mode/dropdown is active. */
+.panel-dropdown:not(.panel-dropdown--open) .panel-dropdown-toggle {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.panel-dropdown-arrow {
+  display: inline-block;
+  font-size: var(--panel-section-font-size);
+  color: var(--panel-section-line-color);
+  transition: transform 0.3s ease;
+}
+
+.panel-dropdown--open .panel-dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.panel-dropdown-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.35s ease,
+    opacity 0.25s ease;
+}
+
+.panel-dropdown--open .panel-dropdown-content {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.panel-dropdown-content-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    SLIDER ROWS
    ═══════════════════════════════════════════════════════════════════════════ */
 .slider-row {
@@ -529,6 +583,38 @@ canvas {
   .panel-section {
     --panel-section-pad-y: 8px;
     --panel-section-margin-top: 10px;
+    --panel-section-font-size: 14px;
+  }
+
+  /* Bigger sliders + text — small enough to miss with a finger on desktop,
+     unusable on a phone. Thumb/track scale together via --panel-thumb-size;
+     everything else just needs to be legible and have room to tap. */
+  .side-panel {
+    --panel-thumb-size: 24px;
+    --panel-font-size: 13px;
+    --panel-ruler-height: 8px;
+    --panel-row-pad-top: 16px;
+    --panel-row-pad-bottom: 8px;
+    --panel-label-gap: 10px;
+  }
+
+  .side-panel input[type="range"] {
+    height: 28px; /* touch hit area — matches the bigger thumb */
+  }
+
+  /* Bigger calculator buttons — operator grid, clear/equals, random equation.
+     Digit circles already scale via cqw, so they're left alone. */
+  .calc-btn {
+    font-size: 15px;
+    padding: 12px 6px;
+  }
+
+  .calc-op-grid {
+    gap: 4px;
+  }
+
+  .calc-row {
+    gap: 4px;
   }
 
   /* Compact hint text */

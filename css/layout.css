@@ -96,45 +96,6 @@
   font-weight: 1000; /* Black */
 }
 
-/* ── play dropdown ───────────────────────────────────────────────────────── */
-.nav-dropdown-menu {
-  display: none;
-  position: fixed;
-  /* just below the nav row (which sits at grid-margin-top + logo height) */
-  top: calc(var(--grid-margin-top, 1.25rem) + 20px + 10px);
-  /* left-aligned with "Play" itself (column 8's left edge) */
-  left: calc(var(--grid-margin-x) + 7 * (var(--grid-col-width) + var(--grid-gap)));
-  flex-direction: column;
-  gap: 5px;
-  white-space: nowrap;
-}
-
-.nav-dropdown-menu--open {
-  display: flex;
-}
-
-.nav-dropdown-menu a {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-style: normal;
-  font-size: var(--text-xs);
-  color: #838383;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  display: block;
-  line-height: 1.6;
-  transition: color var(--duration-fast) var(--ease);
-}
-
-.nav-dropdown-menu a:hover {
-  color: var(--color-main);
-  font-style: italic;
-}
-
-.nav-dropdown-menu a.active {
-  color: var(--color-main);
-}
-
 /* ── hamburger — hidden on desktop ──────────────────────────────────────────── */
 .nav-hamburger {
   display: none;

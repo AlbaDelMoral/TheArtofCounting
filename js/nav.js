@@ -39,16 +39,7 @@ const DEBUG_GRID = false;
            column's left edge (label) -->
       <div class="nav-links">
         <a href="learn.html" class="nav-link-item nav-link-learn${activeClass("learn.html")}"><span class="nav-num">1</span><span class="nav-label">Learn</span></a>
-        <div class="nav-dropdown">
-          <div class="nav-dropdown-inner">
-            <a href="numbers.html" class="nav-link-item nav-link-play${activeClass("numbers.html", "operations.html", "multiplication.html")}"><span class="nav-num">2</span><span class="nav-label">Play</span></a>
-            <div class="nav-dropdown-menu">
-              <a href="numbers.html"${active("numbers.html")}>Numbers</a>
-              <a href="operations.html"${active("operations.html")}>Operations</a>
-              <a href="multiplication.html"${active("multiplication.html")}>Multiplication</a>
-            </div>
-          </div>
-        </div>
+        <a href="play.html" class="nav-link-item nav-link-play${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-num">2</span><span class="nav-label">Play</span></a>
         <a href="gallery.html" class="nav-link-item nav-link-about${activeClass("gallery.html")}"><span class="nav-num">3</span><span class="nav-label">About</span></a>
       </div>
 
@@ -60,39 +51,12 @@ const DEBUG_GRID = false;
       <!-- mobile dropdown menu -->
       <div class="nav-mobile-menu">
         <a href="learn.html"${active("learn.html")}>Learn</a>
-        <a href="numbers.html"${active("numbers.html")}>Numbers</a>
-        <a href="operations.html"${active("operations.html")}>Operations</a>
-        <a href="multiplication.html"${active("multiplication.html")}>Multiplication</a>
+        <a href="play.html"${active("play.html")}>Play</a>
         <a href="gallery.html"${active("gallery.html")}>About</a>
       </div>
     `;
 
     document.body.prepend(nav);
-
-    // ── play dropdown ───────────────────────────────────────────────────────────
-    // The trigger link and the menu are both position:fixed (grid-aligned),
-    // so they sit in physically separate spots on the page — pure CSS :hover
-    // drops the instant the pointer crosses the gap between them. Track both
-    // with a short close delay instead, so there's time to reach the menu.
-    const dropdown = nav.querySelector('.nav-dropdown');
-    const dropdownMenu = nav.querySelector('.nav-dropdown-menu');
-    let dropdownHideTimer = null;
-
-    function openDropdown() {
-      clearTimeout(dropdownHideTimer);
-      dropdownMenu.classList.add('nav-dropdown-menu--open');
-    }
-    function scheduleCloseDropdown() {
-      clearTimeout(dropdownHideTimer);
-      dropdownHideTimer = setTimeout(() => {
-        dropdownMenu.classList.remove('nav-dropdown-menu--open');
-      }, 300);
-    }
-
-    dropdown.addEventListener('mouseenter', openDropdown);
-    dropdown.addEventListener('mouseleave', scheduleCloseDropdown);
-    dropdownMenu.addEventListener('mouseenter', openDropdown);
-    dropdownMenu.addEventListener('mouseleave', scheduleCloseDropdown);
 
     // ── hamburger toggle ────────────────────────────────────────────────────────
     const hamburger = nav.querySelector('.nav-hamburger');

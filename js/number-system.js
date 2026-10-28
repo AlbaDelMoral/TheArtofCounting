@@ -112,10 +112,18 @@ function getPanelArea() {
     };
   }
 
+  // Panel offset in CANVAS-local coordinates — the canvas may itself start
+  // partway across the viewport (e.g. confined to the grid's columns 3+ on
+  // the unified Play page), so measure the overlap relative to the canvas's
+  // own left edge rather than assuming canvas-local (0,0) is viewport (0,0).
+  const canvasEl    = document.querySelector("canvas");
+  const canvasLeft  = canvasEl ? canvasEl.getBoundingClientRect().left : 0;
+  const panelOverlap = Math.max(0, rect.right - canvasLeft);
+
   return {
-    areaX: panelEl.offsetWidth + pad,
+    areaX: panelOverlap + pad,
     areaY: navH + pad,
-    areaW: width - panelEl.offsetWidth - 2 * pad,
+    areaW: width - panelOverlap - 2 * pad,
     areaH: height - navH - 2 * pad,
   };
 }
@@ -138,7 +146,10 @@ function annularWedge(cx, cy, r1, r2, a1, a2, col, outlined, outerR) {
   if (outlined) {
     noFill();
     stroke(col);
-    strokeWeight(outerR * CONFIG.negStrokeRatio);
+    // Floored so a negative number's outline stays readable once it gets
+    // small — larger numbers are unaffected since the ratio alone already
+    // clears this floor there.
+    strokeWeight(Math.max(0.4, outerR * CONFIG.negStrokeRatio));
     strokeCap(ROUND);
     strokeJoin(ROUND);
   } else {
@@ -167,7 +178,7 @@ function annularWedge(cx, cy, r1, r2, a1, a2, col, outlined, outerR) {
 }
 
 // ─── tick marks ───────────────────────────────────────────────────────────────
-function drawTicks(cx, cy, r, localW) {
+function drawTicks(cx, cy, r, localW, outerR) {
   if (CONFIG.showTicks === false) return;
   push();
   if (CONFIG.tickColor) {
@@ -175,7 +186,7 @@ function drawTicks(cx, cy, r, localW) {
   } else {
     stroke(hue(PAL.ticks), saturation(PAL.ticks), brightness(PAL.ticks), CONFIG.tickOpacity);
   }
-  strokeWeight(CONFIG.tickStrokeWeight);
+  strokeWeight(Math.max(0.25, outerR * CONFIG.tickStrokeWeightRatio));
   strokeCap(SQUARE);
   noFill();
   const tickLen = localW * CONFIG.tickLengthRatio;
@@ -264,7 +275,7 @@ function drawNumber(numStr, cx, cy, outerR) {
   for (let i = 0; i < numRings; i++) {
     const r1 = i === 0 ? 0 : bdry[i - 1];
     if (CONFIG.ringStyle === "outline") drawRingOutline(cx, cy, bdry[i], outerR);
-    else drawTicks(cx, cy, bdry[i], bdry[i] - r1);
+    else drawTicks(cx, cy, bdry[i], bdry[i] - r1, outerR);
   }
 
   const portionAngle = TWO_PI / 10;
