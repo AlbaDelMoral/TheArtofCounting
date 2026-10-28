@@ -272,12 +272,6 @@ function drawNumber(numStr, cx, cy, outerR) {
   pop();
   blendMode(BLEND);
 
-  for (let i = 0; i < numRings; i++) {
-    const r1 = i === 0 ? 0 : bdry[i - 1];
-    if (CONFIG.ringStyle === "outline") drawRingOutline(cx, cy, bdry[i], outerR);
-    else drawTicks(cx, cy, bdry[i], bdry[i] - r1, outerR);
-  }
-
   const portionAngle = TWO_PI / 10;
   // Draw from the biggest digit down to the smallest (units last), so smaller
   // rings' outlines sit on top and stay readable when outlined (negative numbers).
@@ -308,6 +302,14 @@ function drawNumber(numStr, cx, cy, outerR) {
         );
       }
     }
+  }
+
+  // Ticks drawn after the digit portions so they stay visible above the
+  // colored wedges instead of being covered by them.
+  for (let i = 0; i < numRings; i++) {
+    const r1 = i === 0 ? 0 : bdry[i - 1];
+    if (CONFIG.ringStyle === "outline") drawRingOutline(cx, cy, bdry[i], outerR);
+    else drawTicks(cx, cy, bdry[i], bdry[i] - r1, outerR);
   }
 
   if (decimalCount > 0)

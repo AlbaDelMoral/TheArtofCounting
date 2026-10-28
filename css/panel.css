@@ -32,17 +32,18 @@ canvas {
   --panel-ruler-width: 0.5px; /* width of each individual tick mark      */
 
   /* ── slider track ────────────────────────────────────────────────────────── */
-  /* track height always matches the thumb diameter, so the circle sits
-     flush inside the rectangle instead of overflowing it */
-  --panel-track-height: var(--panel-thumb-size);
+  /* thinner than the thumb now, so the circle overflows above/below it
+     instead of sitting flush inside it */
+  --panel-track-height: 2px;
   --panel-track-color: rgb(234, 234, 234);
 
   /* ── slider thumb ────────────────────────────────────────────────────────── */
-  --panel-thumb-size: 4px; /* diameter of the circle                  */
+  --panel-thumb-size: 6px; /* diameter of the circle                  */
   --panel-thumb-color: #606369;
 
   /* ── section headers (Technical / Artistic) ─────────────────────────────── */
   --panel-section-line-color: #1e1e1c; /* the two divider lines            */
+  --panel-disabled-color: #c4c4c4; /* inactive dropdown title + its lines  */
   --panel-section-pad-y: 1px; /* space between the lines and the title   */
   --panel-section-margin-top: 25px; /* gap above the section            */
   --panel-section-font-size: 9px;
@@ -94,6 +95,12 @@ canvas {
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: auto;
+  /* scrolls when content overflows, but the scrollbar itself stays hidden */
+  scrollbar-width: none;
+}
+
+.side-panel::-webkit-scrollbar {
+  display: none;
 }
 
 /* divider between the slider panel and the rest of the page — sits past the
@@ -225,31 +232,33 @@ canvas {
 .calc-op-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
+  row-gap: 4px;
+  column-gap: 2px;
   margin-top: 16px;
 }
 
 .calc-btn {
-  background: var(--panel-track-color);
-  border: none;
-  border-radius: 0;
+  background: transparent;
+  border: 0.5px solid #717172;
+  border-radius: 2px;
   padding: 2px 4px;
   font-family: "KMRWaldenburg", sans-serif;
   font-size: 9px;
   font-weight: 500;
-  color: #333;
+  color: #717172;
   text-align: center;
   cursor: pointer;
 }
 
 .calc-btn:hover {
-  background: #e2e2da;
+  background: #717172;
+  color: #fff;
 }
 
 .calc-row {
   display: flex;
-  gap: 2px;
-  margin-top: 2px;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 .calc-clear-btn,
@@ -260,7 +269,7 @@ canvas {
 
 .calc-random-btn {
   width: 100%;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .panel-export-btn {
@@ -269,8 +278,8 @@ canvas {
 
 .calc-random-btn {
   background: transparent;
-  border: 0.5px solid #606369;
-  color: #606369;
+  border: 0.5px solid #717172;
+  color: #717172;
 }
 
 .calc-random-btn:hover {
@@ -290,11 +299,12 @@ canvas {
 
 .panel-section-title {
   display: block;
-  font-family: "KMRWaldenburg", sans-serif;
-  font-size: var(--panel-section-font-size);
-  font-weight: var(--panel-section-font-weight);
+  font-family: "Aeonik TRIAL", sans-serif;
+  font-weight: 350;
+  font-size: 20px;
   letter-spacing: var(--panel-section-letter-spacing);
   color: var(--panel-section-line-color);
+  text-transform: lowercase;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -308,17 +318,56 @@ canvas {
   justify-content: space-between;
   align-items: baseline;
   user-select: none;
+  cursor: pointer;
   /* tighter than the general .panel-section margin — these three titles sit
      one after another and shouldn't read as far-apart standalone sections */
-  margin: 10px 0 8px 0;
+  margin: 2px 0 5px 0;
+  /* no border of its own — the line above comes from the previous
+     .panel-dropdown's trailing border-bottom (or, for the very first
+     dropdown, the explicit border-top added below); a second border here
+     would double up with it */
+  border-top: none;
+  border-bottom: none;
+}
+
+/* only the first dropdown needs its own top line — every later one already
+   gets a top line for free, since it's the previous dropdown's bottom line */
+.panel-dropdown:first-of-type .panel-dropdown-toggle {
+  border-top: 0.5px solid var(--panel-section-line-color);
+}
+
+/* the curtain line: sits after the (possibly expanded) content, so it moves
+   down as the dropdown opens and back up as it closes. Doubles as the next
+   dropdown's (or next .panel-section's) top line, so neither adds its own. */
+.panel-dropdown {
+  border-bottom: 0.5px solid var(--panel-section-line-color);
+}
+
+.panel-dropdown + .panel-section {
+  border-top: none;
 }
 
 /* Only the active mode's dropdown can be opened — the others are shown
    disabled/greyed, not clickable, since the calculator input (not the user
-   clicking a title) decides which mode/dropdown is active. */
+   clicking a title) decides which mode/dropdown is active. A dedicated
+   lighter grey (rather than opacity) so the title AND its lines fade
+   together, consistently. */
 .panel-dropdown:not(.panel-dropdown--open) .panel-dropdown-toggle {
-  opacity: 0.4;
   pointer-events: none;
+  border-top-color: var(--panel-disabled-color);
+}
+
+.panel-dropdown:not(.panel-dropdown--open)
+  .panel-dropdown-toggle
+  .panel-section-title,
+.panel-dropdown:not(.panel-dropdown--open)
+  .panel-dropdown-toggle
+  .panel-dropdown-arrow {
+  color: var(--panel-disabled-color);
+}
+
+.panel-dropdown:not(.panel-dropdown--open) {
+  border-bottom-color: var(--panel-disabled-color);
 }
 
 .panel-dropdown-arrow {
@@ -328,7 +377,7 @@ canvas {
   transition: transform 0.3s ease;
 }
 
-.panel-dropdown--open .panel-dropdown-arrow {
+.panel-dropdown--open:not(.panel-dropdown--collapsed) .panel-dropdown-arrow {
   transform: rotate(180deg);
 }
 
@@ -341,7 +390,8 @@ canvas {
     opacity 0.25s ease;
 }
 
-.panel-dropdown--open .panel-dropdown-content {
+/* manually collapsed by clicking the active dropdown's own title */
+.panel-dropdown--open:not(.panel-dropdown--collapsed) .panel-dropdown-content {
   grid-template-rows: 1fr;
   opacity: 1;
 }
@@ -349,6 +399,14 @@ canvas {
 .panel-dropdown-content-inner {
   overflow: hidden;
   min-height: 0;
+}
+
+/* breathing room between the last slider and the curtain line below it —
+   scoped to the open state only, since padding (unlike content height)
+   doesn't collapse to 0 when the dropdown closes, so applying it
+   unconditionally would push the closed line down too. */
+.panel-dropdown--open:not(.panel-dropdown--collapsed) .panel-dropdown-content-inner {
+  padding-bottom: 20px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -591,6 +649,7 @@ canvas {
      everything else just needs to be legible and have room to tap. */
   .side-panel {
     --panel-thumb-size: 24px;
+    --panel-track-height: 8px;
     --panel-font-size: 13px;
     --panel-ruler-height: 8px;
     --panel-row-pad-top: 16px;

@@ -469,3 +469,196 @@ Two optional outlines help verify the above visually, both on by default:
 ### 14.5 Open question: band-width inheritance
 
 Not yet implemented: whether a step's "carried-over" horizontal bands (the ones representing the previous result's digits) should keep the band thickness they were first drawn at in step 0, rather than each step recalculating thickness independently. Currently all bands — carried-over or freshly introduced — use the same global `thickness` (`CONFIG.bw`) slider value. This is intentionally left open pending further direction.
+
+---
+
+## Part 15: Multiplication as an Addition/Subtraction Operand
+
+A chain operand no longer has to be a plain constant — it can be a parenthesized multiplication, e.g. `(3×4) + 5` or `5 + (8×9×5)`. When that happens, the operand isn't collapsed down to its numeric result and drawn as an ordinary number circle; the **actual multiplication square** (everything in Parts 1–14, including multi-step chains) is rendered in its place, still joined into the belt chain like any other operand. This is implemented in `js/addition-system.js` + `js/play.js`, not `js/multiplication-system.js` — the multiplication engine itself doesn't know it's being embedded.
+
+### 15.1 Parsing
+
+The addition/subtraction tokenizer (`parseChainsWithMult` / `_tokenizeChainSegment`, in `addition-system.js`) walks the typed expression term by term. A term is either:
+
+- a plain signed number, same as always, or
+- a parenthesized group containing a top-level `×` — detected by `_hasTopLevelMultSign`, which scans for `×` at paren-depth 0 *inside* that group (so a nested chain like `(2+3)×15` at the outer level is unaffected; this only triggers for a group whose own content multiplies).
+
+A multiplication term is parsed with `parseMultChain` — **not** `parseMultExpr`, which only handles a single `A×B` pair. Using the chain-aware parser means `(8×9×5)` resolves to all of its steps (`8×9=72`, then `72×5=360`), not just the first pair.
+
+```
+(3×4) + 5        → term0: mult [3×4=12],         term1: num 5
+5 + (3×4)        → term0: num 5,                 term1: mult [3×4=12]
+(8×9×5) + 5      → term0: mult [8×9=72, 72×5=360], term1: num 5
+(8×34×2) + (4×5) → term0: mult [8×34=272, 272×2=544], term1: mult [4×5=20]
+```
+
+Each `mult` term carries: `sign` (the chain-level `+`/`−` immediately before the parenthesis — independent of any sign *inside* the multiplication itself), `value` (`sign × last step's result`, used for magnitude/belt-sign math like any other term), `steps` (the `parseMultChain` array), and `exprStr` (the raw inner text, e.g. `"8x9x5"`, kept only for the reality-mode label).
+
+### 15.2 Sizing — every operand in the chain matches the multiplication's size
+
+Normally each circle in a chain is sized independently from its own magnitude (`log10(value)`). Once a chain contains a multiplication term, that rule is overridden: **every other operand in that chain — plain numbers and any other multiplication terms — is forced to the same size as the first multiplication term**, rather than being sized by its own value. This is a deliberate design choice (not a magnitude-matching coincidence): two multiplications in one chain, e.g. `(8×34×2) + (4×5)`, are meant to read as the same size imaginary square regardless of how different their actual products are.
+
+```js
+// computeOperationsPositions(), js/play.js
+const multIdx = terms.findIndex((t) => t.kind === "mult");
+if (multIdx !== -1) {
+  for (let i = 0; i < n; i++) if (i !== multIdx) radii[i] = radii[multIdx];
+}
+```
+
+The multiplication's own target half-size (`node.r`) is then whatever the normal magnitude-based circle-sizing formula produces for its value — it's just that every sibling operand copies it instead of computing their own.
+
+### 15.3 The embedded square always fills its target size exactly
+
+A multiplication term's `squareScale` is computed so its **full visible extent** — the chain's bounding square (always a true square; see Part 14.3) plus overhang — lands exactly on `node.r`:
+
+```js
+const { offsets, half: naturalHalf } = _computeStepOffsets(term.steps); // CONFIG = CONFIG_MULTIPLICATION while this runs
+const naturalFull = naturalHalf + embeddedConfig.oh;
+node.squareScale = naturalFull > 0 ? node.r / naturalFull : 1;
+```
+
+This mirrors how a plain circle's own radius already equals `node.r` — both shapes fill the exact same footprint, so the belt around them (see 15.5) wraps both with the same proportional margin rather than one of them sitting flush against the belt's wall. `_computeStepOffsets` is the pure (non-global-state) version of `_computeOffsets` (Part 14.2) — it returns `{ offsets, half }` instead of writing into the page's own `_stepOffsets`, so measuring/drawing an embedded chain never disturbs multiplication mode's own standalone chain.
+
+**Overhang is forced to 0** for an embedded multiplication specifically, via `_embeddedMultConfig()` — a shallow clone of `CONFIG_MULTIPLICATION` with `oh: 0` — used instead of `CONFIG_MULTIPLICATION` directly whenever sizing or drawing an embedded square. The live Multiplication overhang slider therefore has no effect on embedded squares; this was a deliberate call for now (the overhang amount is tuned for multiplication mode's own full-canvas chain, and reads as excessive once the whole thing is also shrunk down into a belt).
+
+Multi-step chains (`(8×9×5)`) draw every step, each translated to its own `stepOffsets[s]` position inside the shared `translate + scale(squareScale)` transform — same staircase as Part 14, just nested inside the belt's coordinate space instead of the canvas's.
+
+### 15.4 Background
+
+`drawMultiplication` never paints a background behind its own bands — on the multiplication page this doesn't matter, since the canvas itself is already that color. Embedded in a belt, the square's gaps need to visibly match a number circle's own background, so the erase step behind an embedded square paints `CONFIG_OPERATIONS.bgColor` explicitly (the same grey a number circle ends up with, since `drawNumber` paints that color over its own identical erase step) instead of plain white.
+
+### 15.5 The belt — flat cap on the square side, wraps it completely
+
+Three belt-drawing functions now exist in `addition-system.js`, dispatched by `(cA.kind, cB.kind)`:
+
+| Both kinds      | Function                  | Shape                                                              |
+| --------------- | -------------------------- | ------------------------------------------------------------------ |
+| circle + circle  | `drawBelt` (existing)      | Arc on both ends — the original stadium/pill shape.                 |
+| circle + square  | `drawBeltToSquare`         | Arc on the circle end; flat cap on the square end.                  |
+| square + square  | `drawBeltSquareToSquare`   | Flat caps on both ends — a plain quad, no arcs at all.               |
+
+The key design point for both new functions: **the flat cap sits beyond the square's *far* side** — the side facing *away* from whatever it's connected to — not at its near edge. That's what makes the belt fully enclose the square (margin visible on every side, including the side with nothing attached to it) instead of looking like the belt merely touches the square's near edge and stops.
+
+`drawBeltToSquare(ccx, ccy, R, sqx, sqy, H, ...)` keeps the exact same tangent-arc geometry `drawBelt` already uses on the circle side (computed treating the square's half-size `H` as if it were "the other circle's radius", for the `alpha = asin((R−H)/d)` taper) — only the square side changes, from an arc to two straight lines running past the square's far edge to its two corners there.
+
+`drawBeltSquareToSquare` doesn't need any tangent-angle math at all, since neither side has a curve: it's just the four corners (both squares' far-edge corners) connected directly.
+
+All belt margin math (`node.r * (1 + beltMarginRatio)`) is identical for every shape kind — a mult node's `r` already equals its full visible extent (15.3), exactly like a circle's `r` already is its own radius, so one shared formula produces a uniform-width, non-tapering belt whenever two same-sized shapes are connected (which, per 15.2, is always true for a chain with a multiplication in it).
+
+The belt's own fill (filled = positive, outlined = negative) still follows the sum of the two connected operands' signed `value`s, same rule as any other belt. Independently, **the square's own fill** (its bands — filled vs. outlined) follows its *own* effective value: if the chain-level sign negates an otherwise-positive product (e.g. `-(3×4)+20`), only the **last** step's `result` is sign-flipped for rendering (`effStep = { ...step, result: -step.result }`) — earlier steps in a multi-step chain keep their own natural sign, same as they would on the multiplication page itself. Digit decomposition is unaffected either way, since it's always derived from each side's own magnitude, never from `result`'s sign.
+
+The belt's stroke weight when outlined (negative) uses `CONFIG_OPERATIONS.beltStrokeRatio` (0.02) rather than multiplication's own `CONFIG_MULTIPLICATION.beltStrokeRatio` (0.04) — these belts tend to be much larger than a typical op-chain belt inside a multiplication square, so a thinner ratio keeps the outline from reading as too heavy.
+
+### 15.6 The Multiplication panel stays live
+
+Normally only the active mode's dropdown (Numbers / Addition and Subtraction / Multiplication) is open and interactive — the other two are greyed out (see `system-numbers.md` / the panel CSS). Since an embedded multiplication's geometry is directly controlled by the Multiplication sliders (thickness, digit gap, line gap, overhang), `_syncDropdowns()` also opens the Multiplication dropdown whenever the current Operations chain contains a `mult` term:
+
+```js
+const opsHasMult = activeMode === "operations" && customOps.some((chain) => chain.some((t) => t.kind === "mult"));
+const isOpen = mode === activeMode || (mode === "multiplication" && opsHasMult);
+```
+
+Dragging any of those sliders calls `_onMultGeometryChange()`, which (a) recomputes multiplication mode's own standalone `_stepOffsets` with `CONFIG` correctly pointed at `CONFIG_MULTIPLICATION` regardless of which mode is actually active (since these sliders are now reachable from Operations mode, and the generic `CONFIG` pointer would otherwise be `CONFIG_OPERATIONS` — missing `bw`/`lgap`/`dgap`/etc. entirely — while this runs), and (b) calls `computeOperationsPositions()` when in Operations mode, so the embedded square's cached `squareScale`/`stepOffsets` — set once when the chain was typed — are recomputed immediately instead of silently going stale as the sliders move.
+
+### 15.7 Scope note
+
+A chain may contain more than one multiplication term (`(8×34×2) + (4×5)` is valid and handled — see 15.2 and 15.5). Nesting a parenthesized *addition* chain as another chain's own operand is covered separately, in Part 16.
+
+---
+
+## Part 16: A Nested Chain as an Operand — "Pill Inside a Pill"
+
+Just as a chain operand can be a parenthesized multiplication (Part 15), it can also be *another* parenthesized addition/subtraction chain: `(3×4) + (5+6)` renders the left side as the usual multiplication square, and the right side as its own fully self-contained pill — two number circles joined by their own inner belt — nested inside the outer belt. Any depth of nesting is supported (the tokenizer in `addition-system.js` is simply recursive), and a nested chain can itself contain further nested `mult` or `chain` terms.
+
+### 16.1 Parsing — three kinds of term, not two
+
+`_tokenizeChainSegment` now produces one of three term kinds for a parenthesized group:
+
+1. the inner content has a top-level `×` → `kind: 'mult'` (Part 15)
+2. the inner content is a bare signed number (the *whole* string, not just a leading number) → `kind: 'num'`
+3. otherwise → recurse: parse the inner content with this same tokenizer. If that yields 2+ terms, it's `kind: 'chain'`, carrying `terms` (the nested array) and `value` (the sum of the nested terms' own signed values).
+
+A `chain` term's `sign` is the chain-level `+`/`−` immediately before its parenthesis — same convention as a `mult` term's `sign` (Part 15.1) — independent of whatever signs appear *inside* the nested chain itself.
+
+### 16.2 Data prep and layout are both just recursive now
+
+Two functions in `js/play.js` carry this recursion:
+
+- **`_prepareTermsData(terms)`** — builds the `{ terms, sizeTs, colorSeeds, beltColorSeeds, angles, rotSpeeds, fontIdxs }` bundle a chain needs (this used to be inlined in `generateChainData`). For a `chain` term, it recurses and stores the result as `term.nested` — so a nested chain gets exactly the same *stable* per-circle randomness (rolled once, not re-rolled every frame) a top-level chain does.
+- **`_layoutChainTerms(data, m, fitW, fitH)`** — computes node positions + belts in LOCAL coordinates centered on `(0,0)` (this used to be inlined in `computeOperationsPositions`, which is now a thin wrapper: call this, then shift the top-level result into panel space). For a `chain` term it recurses with `fitW = fitH = Infinity` — see 16.3 for why.
+
+### 16.3 Sizing — a nested chain matches a sibling multiplication too, via a uniform rescale
+
+Part 15.2's "every operand matches the multiplication's size" rule now includes a `chain`-kind term — this was tweaked after the first pass (which exempted nested chains, sizing them independently) turned out to look disproportionate: a small nested chain next to a big multiplication square read as mismatched rather than as one consistent band.
+
+```js
+const multIdx = terms.findIndex((t) => t.kind === "mult");
+if (multIdx !== -1) {
+  for (let i = 0; i < n; i++) if (i !== multIdx) radii[i] = radii[multIdx];
+}
+```
+
+A nested chain still lays itself out at its own *natural* size first — unconstrained by the parent (`fitW`/`fitH = Infinity`, so the fit-to-area clamp never kicks in), its own circles sized from their own magnitudes relative to EACH OTHER, same formula a top-level chain uses. Only afterward is the **whole nested pill uniformly rescaled** so its natural half-width lands on the shared target size — `chainScale`, computed and applied exactly like a multiplication square's `squareScale` (Part 15.3):
+
+```js
+const nestedLayout = _layoutChainTerms(term.nested, m, Infinity, Infinity);
+node.nestedLayout = nestedLayout;
+node.nestedData = term.nested;
+node.chainScale = nestedLayout.halfW > 0 ? node.r / nestedLayout.halfW : 1;
+```
+
+The nested circles' sizes *relative to each other* are therefore still determined by their own magnitudes (a `9` circle is still bigger than a `2` circle inside the same nested pill) — only the pill's overall scale is forced to match, not each individual circle's size in isolation.
+
+When there's no multiplication in the chain at all, a nested chain still sizes independently (its natural `halfW`, `chainScale = 1`) — the matching rule only ever triggers alongside a sibling `mult` term, same condition as for a plain number.
+
+### 16.4 The outer belt wraps a nested chain exactly like a circle
+
+A nested chain has no flat edge of its own — it's bounded by a stadium shape (rounded both ends), not a square — so from the *outside*, the belt dispatch in `_drawChainNodes` treats a `chain`-kind node exactly like a `num`-kind one: if neither side is `mult`, it's a plain `drawBelt` circle-arc join on both ends, same as any two ordinary circles. `node.r` is the TARGET half-size (15.2/16.3 above, whatever the sizing rule decided it should be) — not the nested pill's own natural half-width, which is a separate, pre-rescale number (`nestedLayout.halfW`, used only to derive `chainScale`).
+
+When there's no sibling multiplication forcing a match, `node.r` just equals the nested pill's own natural `halfW` and `chainScale` is `1` — the pill is bounded by a simple circular arc sized to its own half-*width*, which (since the pill is elongated, wider than tall) leaves some visible slack above and below it; that slack is the "pill inside a pill" margin visible in the reference image, not a bug to be tightened.
+
+### 16.5 Drawing — no erase step, unlike a multiplication square
+
+`_drawChainNodes` recurses on a `chain` node the same way the multiplication branch does on a `mult` node — translate to the node's own position, then hand off — but with one deliberate difference: **no erase/backdrop rectangle is painted first.**
+
+```js
+if (circle.kind === "chain") {
+  push();
+  translate(circle.x, circle.y);
+  _drawChainNodes(circle.nestedLayout.nodes, circle.nestedLayout.belts, circle.nestedData, shapeAlpha, textAlpha);
+  pop();
+  continue;
+}
+```
+
+A multiplication square needs that erase step because `drawMultiplication` never paints its own background (Part 15.4) — its gaps would otherwise show the belt color behind it. A nested chain doesn't have this problem: every one of its own circles already erases its own backdrop (same as any number circle does), and the outer belt's color showing through the *gaps between* those circles — and in the margin around the whole nested pill (16.4) — is exactly the intended look, not something to paint over.
+
+### 16.6 Minimum spacing between operands
+
+`chainSpacing` (Part 9-ish shared config) sets the gap between two adjacent operands as a *percentage* of `(r1 + r2)` — fine when both shapes are similar sizes, but a small nested chain sitting next to a big multiplication square could end up with barely any visible gap, since the percentage is computed off a small `r1`. `_layoutChainTerms` now enforces an absolute floor on top of that percentage, independent of either shape's own size:
+
+```js
+const MIN_GAP = m * 0.04;
+const gapAt = (r1, r2, minGap) => Math.max((r1 + r2) * CONFIG_OPERATIONS.chainSpacing, minGap);
+```
+
+`m` is the same panel-scale basis `_layoutChainTerms` already uses for sizing (`min(areaW, areaH)`), so the floor stays proportionate across different canvas sizes. It's applied identically in both the pre-fit-scale width estimate (`xs0`/`totalW0`, so the floor is accounted for *before* deciding whether to shrink to fit) and the final positions (`xs`, using `MIN_GAP * scale` so the floor shrinks right along with everything else if the chain did end up scaled down to fit its row).
+
+### 16.7 Worked example: `(3×4) + (5+6-20)`
+
+```
+Outer chain: 2 terms
+  term 0: mult  → 3×4 = 12           → rendered as the usual square (Part 1-14)
+  term 1: chain → 5 + 6 - 20 = -9    → rendered as its OWN pill, rescaled (chainScale)
+                                        to match the square's own node.r:
+                                          circle(5) --belt(5+6=11, FILLED)-- circle(6)
+                                                        --belt(6-20=-14, OUTLINED)-- circle(-20, outlined)
+
+Outer belt: 12 + (-9) = 3 ≥ 0 → FILLED, wrapping the square (flat cap, node.r)
+                                  and the whole nested pill (round cap, same node.r)
+```
+
+### 16.8 Scope note
+
+A multiplication forces every sibling operand — plain numbers and nested chains alike — to match its size (Part 15.2, 16.3). Without a multiplication present, a nested chain sizes itself independently from its own magnitude, same as a plain number would. The color, rotation, and random-chain machinery is fully recursive and depth-unlimited either way.

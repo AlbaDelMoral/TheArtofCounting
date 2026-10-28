@@ -319,10 +319,22 @@ function _multSquareSize(parsed) {
 }
 
 // Looks up a digit's (1–9) color from palette2.csv, same source the number
-// circles use. Falls back to MUL_COL when the digit has no entry (e.g. 0).
-function _digitBandColor(digit) {
-  const tier = NUMBER_COLORS[digit] && NUMBER_COLORS[digit].mid;
-  return tier ? color(tier.H, tier.S, tier.B) : null;
+// circles use — same tier convention as the Numbers page: units=light
+// (1-10), tens=mid (10-100), hundreds+=dark (100-1000+). Falls back to
+// MUL_COL when the digit has no entry (e.g. 0).
+function _digitBandColor(digit, tier) {
+  const t = NUMBER_COLORS[digit] && NUMBER_COLORS[digit][tier];
+  return t ? color(t.H, t.S, t.B) : null;
+}
+
+// Integer section index g (0 = most significant) → place-value tier, mirroring
+// number-system.js's "units=light, tens=mid, hundreds+=dark". Decimal sections
+// (g >= nIntSecs) always get 'mid' — place value below the decimal point
+// isn't part of this convention.
+function _placeTier(g, nIntSecs) {
+  if (g >= nIntSecs) return 'mid';
+  const placeFromEnd = nIntSecs - 1 - g;
+  return placeFromEnd === 0 ? 'light' : placeFromEnd === 1 ? 'mid' : 'dark';
 }
 
 // ─── main draw ────────────────────────────────────────────────────────────────
@@ -370,6 +382,9 @@ function drawMultiplication(parsed, cx, cy) {
   // ── Compute Y positions for horizontal bands (operand A) ───────────────────
   // One pass over ALL sections (integer + decimal) — decimals are sized and
   // stacked exactly like integer digit-groups, just flagged isDecimal.
+  const nIntSecsA = nSecA - decSecsA.length;
+  const nIntSecsB = nSecB - decSecsB.length;
+
   const rowGroups = [];
   for (let g = 0; g < nSecA; g++) {
     const sec = sectsA[g], count = sec.count, ys = [];
@@ -381,7 +396,7 @@ function drawMultiplication(parsed, cx, cy) {
       const sy     = secTop + (secSz - grpH) / 2;
       for (let k = 0; k < count; k++) ys.push(sy + bandHH / 2 + k * (bandHH + lg));
     }
-    rowGroups.push({ ys, isDecimal: sec.isDecimal, digit: sec.count });
+    rowGroups.push({ ys, isDecimal: sec.isDecimal, digit: sec.count, tier: _placeTier(g, nIntSecsA) });
   }
 
   // ── Compute X positions for vertical bands (operand B) ─────────────────────
@@ -396,7 +411,7 @@ function drawMultiplication(parsed, cx, cy) {
       const sx      = secLeft + (secSz - grpW) / 2;
       for (let k = 0; k < count; k++) xs.push(sx + bandVW / 2 + k * (bandVW + lg));
     }
-    colGroups.push({ xs, isDecimal: sec.isDecimal, digit: sec.count });
+    colGroups.push({ xs, isDecimal: sec.isDecimal, digit: sec.count, tier: _placeTier(g, nIntSecsB) });
   }
 
   // ── Dashed separator line parameters ───────────────────────────────────────
@@ -414,7 +429,7 @@ function drawMultiplication(parsed, cx, cy) {
   // 1. All vertical bands (integer + decimal sections) — each digit-group is
   //    colored by its own value (1–10 digit palette), not one uniform color
   for (const grp of colGroups) {
-    const vCol = _digitBandColor(grp.digit) || MUL_COL.vCol;
+    const vCol = _digitBandColor(grp.digit, grp.tier) || MUL_COL.vCol;
     for (const bx of grp.xs) {
       if (sideB.type === 'chain') {
         _drawOpVBand(bx, sideB.tokens, cT, cB_op, CR, pad);
@@ -426,7 +441,7 @@ function drawMultiplication(parsed, cx, cy) {
 
   // 2. All horizontal bands on top (integer + decimal sections)
   for (const grp of rowGroups) {
-    const hCol = _digitBandColor(grp.digit) || MUL_COL.hCol;
+    const hCol = _digitBandColor(grp.digit, grp.tier) || MUL_COL.hCol;
     for (const ry of grp.ys) {
       if (sideA.type === 'chain') {
         _drawOpHBand(ry, sideA.tokens, cL, cR_op, CR, pad);

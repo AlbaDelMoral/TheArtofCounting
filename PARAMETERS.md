@@ -41,7 +41,7 @@ Addition/subtraction chains. Circles connected by filled (positive) or outlined 
 ### Text input
 | Input | What it does |
 |-------|--------------|
-| expression field | Type an expression like `2 + 3 - 10`. Enter to apply, Esc to go random. Supports chains of any length. |
+| expression field | Type an expression like `2 + 3 - 10`. Enter to apply, Esc to go random. Supports chains of any length. A term can also be a parenthesized multiplication, e.g. `(3x4) + 5` or `5 + (8x9x5)` — that operand renders as the actual multiplication square instead of a number circle, matched to the same size as the rest of the chain. See `multiplication.md` Part 15. |
 
 ### Sliders
 | Slider | Range | Default | What it controls |
@@ -62,8 +62,9 @@ Addition/subtraction chains. Circles connected by filled (positive) or outlined 
 
 ### Internal (not exposed to user)
 - `valueSizeInfluence` (0.9) — how much the numeric magnitude drives circle size vs. random
-- `beltStrokeRatio` (0.04) — stroke weight of the outlined belt for negative results
+- `beltStrokeRatio` (0.02) — stroke weight of the outlined belt for negative results
 - `beltMarginRatio` (0.05, fixed) — belt offset from circle edge; used to be a "margin" slider
+- When a chain contains a multiplication term, every other operand (circles and any other multiplication) is forced to match its size — see `multiplication.md` Part 15.2
 
 ---
 

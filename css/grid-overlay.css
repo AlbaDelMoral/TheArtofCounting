@@ -3,7 +3,7 @@
 
 :root {
   --grid-columns: 9;
-  --grid-gap: 1.25rem; /* 20px */
+  --grid-gap: 0.75rem; /* 12px */
   --grid-margin-top: 0.9375rem; /* 15px */
   --grid-margin-x: 1.5625rem; /* 25px */
   --grid-line-color: rgba(0, 0, 0, 0);
