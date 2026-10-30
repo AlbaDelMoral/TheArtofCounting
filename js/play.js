@@ -65,6 +65,15 @@ function setActiveMode(mode) {
         ? CONFIG_OPERATIONS
         : CONFIG_MULTIPLICATION;
   _syncDropdowns();
+  // Every mode switch starts the pan/zoom fresh — otherwise a zoomed-in
+  // multiplication view (or a phone pan/zoom left over from another mode)
+  // would carry over into the next mode's composition. Multiplication
+  // immediately overrides this with its own fitted view right after
+  // (applyMultiplication → _fitMultiplicationView), so this is only ever
+  // the final state for Numbers/Operations.
+  _zoom = 1;
+  _panX = 0;
+  _panY = 0;
 }
 
 // ─── shared canvas state ────────────────────────────────────────────────────
@@ -821,8 +830,67 @@ function _updateDropdownArrow(wrapperElt) {
   wrapperElt._arrowEl.textContent = expanded ? "−" : "+";
 }
 
+// Mobile-only: the floating panel overlay grows (.side-panel--expanded, see
+// panel.css's mobile media query) while any dropdown is actually expanded,
+// so there's real room to reach sliders instead of scrolling a cramped
+// peek-height sheet — and shrinks back down once everything's collapsed.
+// This only ever resizes the overlay itself: the canvas underneath is a
+// fixed full-screen background layer (see _getCanvasRegion) and never
+// reacts to the panel's size. Desktop is untouched: the class only does
+// anything inside the mobile media query.
+function _updateMobilePanelState() {
+  const panelEl = document.querySelector(".side-panel");
+  if (!panelEl || window.innerWidth > 768) return;
+  const anyExpanded = Array.from(
+    document.querySelectorAll(".panel-dropdown.panel-dropdown--open"),
+  ).some((el) => !el.classList.contains("panel-dropdown--collapsed"));
+  panelEl.classList.toggle("side-panel--expanded", anyExpanded);
+}
+
+// Calculator and Artistic Variables are "standalone" dropdowns — always
+// open-able, not tied to _dropdowns/_syncDropdowns' active-mode exclusivity.
+// On mobile they still start collapsed so only the active mode's own
+// dropdown (Numbers, by default) is expanded at first paint — true "one
+// section open at a time" instead of two fighting for the same screen.
+function _initStandaloneDropdown(wrapperElt) {
+  wrapperElt.classList.add("panel-dropdown--open");
+  if (window.innerWidth <= 768) wrapperElt.classList.add("panel-dropdown--collapsed");
+  _updateDropdownArrow(wrapperElt);
+}
+
+// Mobile-only floating action button — the panel is entirely tucked away
+// (0 height, see panel.css) until this is tapped, so the canvas gets the
+// whole screen by default. Tapping it reveals the row of section chips
+// (.side-panel--menu-open); tapping it again collapses everything back
+// down, chips and any open section alike, handing the screen straight
+// back to the canvas. Desktop never sees this — CSS hides it outside the
+// mobile media query, so it has no effect there.
+function _createMobileFab() {
+  const fab = createElement("button", "+").class("mobile-fab");
+  fab.attribute("aria-label", "Toggle panel");
+  fab.mousePressed(() => {
+    const panelEl = document.querySelector(".side-panel");
+    if (!panelEl) return;
+    const isOpen = panelEl.classList.contains("side-panel--menu-open");
+    if (isOpen) {
+      document.querySelectorAll(".panel-dropdown.panel-dropdown--open").forEach((el) => {
+        el.classList.add("panel-dropdown--collapsed");
+        _updateDropdownArrow(el);
+      });
+      panelEl.classList.remove("side-panel--menu-open");
+      fab.elt.textContent = "+";
+    } else {
+      panelEl.classList.add("side-panel--menu-open");
+      fab.elt.textContent = "×";
+    }
+    _updateMobilePanelState();
+  });
+  return fab;
+}
+
 function createPanel() {
   const panel = createDiv("").class("side-panel");
+  _createMobileFab(); // own fixed element, independent of the panel's own height
 
   // ── intro copy — sits above the calculator, explains what this page is ──────
   createP(
@@ -838,8 +906,7 @@ function createPanel() {
   // _dropdowns/_syncDropdowns (which only ever greys out the inactive mode
   // dropdowns).
   const { wrapper: calcWrapper, content: calcContent } = _buildDropdownShell("Calculator");
-  calcWrapper.elt.classList.add("panel-dropdown--open");
-  _updateDropdownArrow(calcWrapper.elt);
+  _initStandaloneDropdown(calcWrapper.elt);
   const customSection = createDiv("").class("custom-section calculator");
   customSection.parent(calcContent);
 
@@ -1019,9 +1086,32 @@ function createPanel() {
     const arrow = createSpan("+").class("panel-dropdown-arrow").parent(toggle);
     wrapper.elt._arrowEl = arrow.elt;
     toggle.elt.addEventListener("click", () => {
-      if (wrapper.elt.classList.contains("panel-dropdown--open")) {
-        wrapper.elt.classList.toggle("panel-dropdown--collapsed");
-        _updateDropdownArrow(wrapper.elt);
+      if (!wrapper.elt.classList.contains("panel-dropdown--open")) return;
+      const wasCollapsed = wrapper.elt.classList.contains("panel-dropdown--collapsed");
+      wrapper.elt.classList.toggle("panel-dropdown--collapsed");
+      _updateDropdownArrow(wrapper.elt);
+
+      // Mobile only: opening a section collapses every other open one
+      // (Calculator vs. the active mode's own dropdown), so only one heavy
+      // content block is ever expanded at a time in the cramped sheet —
+      // then scrolls the one just opened into view.
+      if (window.innerWidth <= 768) {
+        if (wasCollapsed) {
+          document
+            .querySelectorAll(".panel-dropdown.panel-dropdown--open")
+            .forEach((otherElt) => {
+              if (otherElt !== wrapper.elt && !otherElt.classList.contains("panel-dropdown--collapsed")) {
+                otherElt.classList.add("panel-dropdown--collapsed");
+                _updateDropdownArrow(otherElt);
+              }
+            });
+        }
+        _updateMobilePanelState();
+        if (wasCollapsed) {
+          requestAnimationFrame(() => {
+            wrapper.elt.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        }
       }
     });
 
@@ -1086,7 +1176,7 @@ function createPanel() {
     },
   );
 
-  const opsContent = addDropdown("operations", "Addition and Subtraction");
+  const opsContent = addDropdown("operations", "Addition");
   addRow(opsContent, "length", "length", 2, 6, CONFIG_OPERATIONS.numChainNums, 1, (v) => {
     CONFIG_OPERATIONS.numChainNums = int(v);
     generateChainData();
@@ -1146,20 +1236,24 @@ function createPanel() {
   });
 
   // ── Artistic variables — shared across all three modes ───────────────────────
-  const artSection = createDiv("").class("panel-section");
-  artSection.parent(panel);
-  createSpan("Artistic variables").class("panel-section-title").parent(artSection);
+  // Same dropdown shell as Calculator (always open-able, not mode-tied), but
+  // its arrow/click-to-collapse only actually does anything on mobile (see
+  // .panel-dropdown--standalone in panel.css) — desktop keeps its exact old
+  // look: a plain, always-expanded, non-interactive section title.
+  const { wrapper: artWrapper, content: artContent } = _buildDropdownShell("Artistic variables");
+  artWrapper.elt.classList.add("panel-dropdown--standalone");
+  _initStandaloneDropdown(artWrapper.elt);
 
-  addColorRow(panel, "background", canvasBgHex, (hex) => {
+  addColorRow(artContent, "background", canvasBgHex, (hex) => {
     canvasBgHex = hex;
   });
-  const sliderBokeh = addRow(panel, "bokeh", "bokeh", 0, 30, CONFIG_NUMBERS.bokeh, 1, (v) => {
+  const sliderBokeh = addRow(artContent, "bokeh", "bokeh", 0, 30, CONFIG_NUMBERS.bokeh, 1, (v) => {
     CONFIG_NUMBERS.bokeh = int(v);
     CONFIG_OPERATIONS.bokeh = int(v);
     CONFIG_MULTIPLICATION.bokeh = int(v);
   });
   const sliderGrain = addRow(
-    panel,
+    artContent,
     "grain",
     "grain",
     0,
@@ -1173,7 +1267,7 @@ function createPanel() {
     },
   );
   const sliderReality = addRow(
-    panel,
+    artContent,
     "reality",
     "reality",
     0,
@@ -1190,7 +1284,7 @@ function createPanel() {
   const exportBtn = createElement("button", "export").class(
     "calc-btn calc-random-btn panel-export-btn",
   );
-  exportBtn.parent(panel);
+  exportBtn.parent(artContent);
   exportBtn.mousePressed(() => saveHQ(false));
 
   updateValues();
@@ -1219,6 +1313,7 @@ function _syncDropdowns() {
     if (isOpen) wrapperElt.classList.remove("panel-dropdown--collapsed");
     _updateDropdownArrow(wrapperElt);
   }
+  _updateMobilePanelState();
 }
 
 function updateValues() {
@@ -1256,20 +1351,13 @@ function _gridPx(varName) {
 }
 
 function _getCanvasRegion() {
-  // Below panel.css's mobile breakpoint, the side panel becomes a bottom
-  // sheet instead of a left column — nothing reserves columns 1–2 anymore,
-  // so the canvas should use the full viewport width there, and its height
-  // is shrunk by the actual rendered panel height so the composition sits
-  // entirely above the sheet instead of being half-hidden behind it.
+  // Below panel.css's mobile breakpoint, the canvas is a true full-screen
+  // background layer — the panel is a floating overlay on top of it (see
+  // .mobile-fab / .side-panel--menu-open), not something that shares the
+  // viewport with it, so opening/closing or resizing the panel never
+  // resizes or repositions the canvas.
   if (window.innerWidth <= 768) {
-    const panelEl = document.querySelector(".side-panel");
-    const panelH = panelEl ? panelEl.getBoundingClientRect().height : 0;
-    // panel.css caps the sheet at 30vh, so this normally never kicks in —
-    // kept as a hard floor so the canvas can never drop below 70% of the
-    // screen even if the panel somehow renders taller (e.g. a very short
-    // landscape viewport where its own min-height exceeds 30vh).
-    const h = Math.max(window.innerHeight - panelH, window.innerHeight * 0.7);
-    return { x: 0, y: 0, w: window.innerWidth, h };
+    return { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight };
   }
   const marginX = _gridPx("--grid-margin-x");
   const colWidth = _gridPx("--grid-col-width");
@@ -1317,6 +1405,13 @@ function draw() {
   }
 
   if (activeMode === "numbers") {
+    // Phone-only finger pan/zoom (see touchStarted/touchMoved) reuses the
+    // same _panX/_panY/_zoom as multiplication's own pan/zoom; on desktop
+    // these just stay at their identity values (0,0,1), so this is a no-op
+    // there.
+    push();
+    translate(_panX, _panY);
+    scale(_zoom);
     for (let i = 0; i < composition.length; i++) {
       const item = composition[i];
       const data = compositionData[i];
@@ -1348,7 +1443,12 @@ function draw() {
       pop();
     }
     randomSeed();
+    pop();
   } else if (activeMode === "operations") {
+    // Same phone-only pan/zoom as the Numbers branch above.
+    push();
+    translate(_panX, _panY);
+    scale(_zoom);
     for (let c = 0; c < chains.length; c++) {
       const chain = chains[c];
       const data = chainData[c];
@@ -1362,6 +1462,7 @@ function draw() {
       _drawChainNodes(chain.circles, chain.belts, data, shapeAlpha, textAlpha);
     }
     randomSeed();
+    pop();
   } else if (activeMode === "multiplication") {
     // Same piecewise crossfade as Numbers — see the Operations branch above.
     const _rMul = CONFIG_MULTIPLICATION.reality;
@@ -1539,12 +1640,24 @@ function doubleClicked() {
 let _lastTouchDist = null;
 
 function _touchOnPanel(e) {
-  return !!(e && e.target && e.target.closest && e.target.closest(".side-panel"));
+  return !!(
+    e &&
+    e.target &&
+    e.target.closest &&
+    (e.target.closest(".side-panel") || e.target.closest(".mobile-fab"))
+  );
+}
+
+// Multiplication gets pan/zoom on any device (its own long-standing
+// behavior); Numbers/Operations only gain it on phones — on desktop they
+// have no mouse equivalent either, so touch shouldn't be the odd one out.
+function _touchPanZoomAllowed() {
+  return activeMode === "multiplication" || window.innerWidth <= 768;
 }
 
 function touchStarted(e) {
   if (_touchOnPanel(e)) return;
-  if (activeMode === "multiplication") {
+  if (_touchPanZoomAllowed()) {
     if (touches.length === 1) {
       _dragging = true;
       _lastMX = touches[0].x;
@@ -1561,7 +1674,7 @@ function touchStarted(e) {
 
 function touchMoved(e) {
   if (_touchOnPanel(e)) return;
-  if (activeMode === "multiplication") {
+  if (_touchPanZoomAllowed()) {
     if (touches.length === 1 && _dragging) {
       _panX += touches[0].x - _lastMX;
       _panY += touches[0].y - _lastMY;

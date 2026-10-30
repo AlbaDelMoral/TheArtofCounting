@@ -403,6 +403,26 @@ canvas {
   color: var(--panel-section-line-color);
 }
 
+/* "Artistic variables" — built from the same dropdown shell so it can
+   become a real accordion on mobile, but on desktop it must look and act
+   exactly like the plain, always-expanded, non-interactive section it was
+   before: no arrow, title not clickable. Mobile restores both — see the
+   override inside the mobile media query below. */
+.panel-dropdown--standalone .panel-dropdown-arrow {
+  display: none;
+}
+
+.panel-dropdown--standalone .panel-dropdown-toggle {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* keeps the same extra breathing room above "Artistic variables" it had
+   back when it was a plain, non-dropdown .panel-section */
+.panel-dropdown--standalone {
+  margin-top: var(--panel-section-margin-top);
+}
+
 .panel-dropdown-content {
   display: grid;
   grid-template-rows: 0fr;
@@ -631,6 +651,13 @@ canvas {
   text-transform: uppercase;
 }
 
+/* Mobile-only floating action button that reveals/hides the whole panel —
+   hidden entirely outside the mobile media query below, which is the only
+   place that turns it on. */
+.mobile-fab {
+  display: none;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    MOBILE — panel moves from left sidebar to bottom sheet
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -641,29 +668,78 @@ canvas {
     left: 0;
     right: 0;
     bottom: 0;
-
-    /* Full width bottom sheet — capped at 30vh so the viz canvas above it
-       (window height minus this) always keeps at least 70% of the screen. */
     width: 100%;
     min-width: 0;
     max-width: 100%;
-    height: 30vh;
-    min-height: 220px;
-    max-height: 30vh;
 
-    /* Add top border (bottom-sheet layout — no side divider needed) */
-    border-top: 0.5px solid var(--grey-4);
-
-    /* Override the nav-height top padding — panel is no longer at the top */
-    padding: 10px var(--panel-padding-h) 16px;
+    /* Tucked away entirely by default — the FAB (.mobile-fab) is what
+       reveals it. The canvas gets the whole screen until asked for. */
+    height: 0;
+    min-height: 0;
+    max-height: 0;
+    border-top: none;
+    padding: 0 var(--panel-padding-h);
 
     overflow-y: auto;
     overflow-x: hidden;
     touch-action: pan-y; /* allow panel scroll, block pinch-zoom inside panel */
+    transition: height 0.3s ease, max-height 0.3s ease, padding 0.3s ease;
+  }
+
+  /* Revealed by the FAB: the same full-width title rows desktop uses
+     (.panel-dropdown-toggle's own base styling, untouched here), just
+     normally hidden — nothing expanded yet. */
+  .side-panel.side-panel--menu-open {
+    height: auto;
+    min-height: 0;
+    max-height: 46vh;
+    border-top: 0.5px solid var(--grey-4);
+    padding: 16px var(--panel-padding-h) 16px;
+    /* frosted glass instead of a flat white sheet — lets the canvas show
+       through, softened, behind the revealed menu */
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .side-panel.side-panel--menu-open.side-panel--expanded {
+    max-height: 90vh;
+  }
+
+  /* the intro text is the first thing to go when something's open — it's
+     not needed once the user is already interacting with a section, and
+     giving up its space helps the open one fit without scrolling. Kept to
+     4 of the 6 mobile grid columns, same as before, rather than stretching
+     edge to edge of the newly-revealed panel. */
+  .panel-intro {
+    width: 100%;
+    max-width: calc(4 * var(--grid-col-width) + 3 * var(--grid-gap));
+  }
+
+  .side-panel--expanded .panel-intro {
+    display: none;
   }
 
   .side-panel::after {
     display: none; /* vertical divider only makes sense in the desktop sidebar layout */
+  }
+
+  /* "Artistic variables" becomes a real dropdown here too — arrow back,
+     title clickable (see .panel-dropdown--standalone's desktop-only hiding
+     above), and sitting in the stacked list like any other dropdown
+     instead of set apart with its old extra top margin — a section like
+     any other, no special-casing. */
+  .panel-dropdown--standalone .panel-dropdown-arrow {
+    display: inline-block;
+  }
+
+  .panel-dropdown--standalone .panel-dropdown-toggle {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .panel-dropdown--standalone {
+    margin-top: 0;
   }
 
   /* Tighter section headers — save vertical space */
@@ -673,15 +749,36 @@ canvas {
     --panel-section-font-size: 14px;
   }
 
-  /* titles/arrow now scale fluidly via --panel-title-size — no fixed
-     override needed here anymore */
+  /* titles/arrow scale fluidly via --panel-title-size — same rule as
+     desktop, no override needed here */
 
   /* font-size now fluid (see base rule) — only layout stays mobile-specific */
   .panel-intro {
     margin-bottom: 20px;
-    /* capped to 4 of the mobile 6-column grid, instead of spanning the
-       panel's full width */
-    max-width: calc(4 * var(--grid-col-width) + 3 * var(--grid-gap));
+  }
+
+  /* ── mobile FAB — reveals/hides the whole panel ──────────────────────── */
+  .mobile-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--grey-1);
+    color: #ffffff;
+    font-family: "Aeonik TRIAL", sans-serif;
+    font-weight: 350;
+    font-size: 26px;
+    line-height: 1;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+    cursor: pointer;
+    z-index: 70;
   }
 
   /* Bigger sliders + text — small enough to miss with a finger on desktop,
