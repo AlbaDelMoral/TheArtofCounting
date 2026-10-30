@@ -1264,7 +1264,12 @@ function _getCanvasRegion() {
   if (window.innerWidth <= 768) {
     const panelEl = document.querySelector(".side-panel");
     const panelH = panelEl ? panelEl.getBoundingClientRect().height : 0;
-    return { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight - panelH };
+    // panel.css caps the sheet at 50vh, so this normally never kicks in —
+    // kept as a hard floor so the canvas can never drop below half the
+    // screen even if the panel somehow renders taller (e.g. a very short
+    // landscape viewport where its own min-height exceeds 50vh).
+    const h = Math.max(window.innerHeight - panelH, window.innerHeight * 0.5);
+    return { x: 0, y: 0, w: window.innerWidth, h };
   }
   const marginX = _gridPx("--grid-margin-x");
   const colWidth = _gridPx("--grid-col-width");

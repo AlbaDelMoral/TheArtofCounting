@@ -229,12 +229,12 @@ canvas {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1.5px solid var(--calc-digit-color);
+  border: 1px solid var(--calc-digit-color);
   background: transparent;
   color: var(--calc-digit-color);
   font-family: "KMRWaldenburg", sans-serif;
   font-size: 3.5cqw; /* scales with the row's width, same as the circles themselves */
-  font-weight: 800;
+  font-weight: 500;
   padding: 0;
   cursor: pointer;
   overflow: hidden;
@@ -636,15 +636,14 @@ canvas {
     right: 0;
     bottom: 0;
 
-    /* Full width bottom sheet — taller than before so it starts higher up
-       the screen, since the panel now also carries the intro text and its
-       own Calculator dropdown on top of everything else */
+    /* Full width bottom sheet — capped at 50vh so the viz canvas above it
+       (window height minus this) always keeps at least half the screen. */
     width: 100%;
     min-width: 0;
     max-width: 100%;
-    height: 68vh;
-    min-height: 300px;
-    max-height: 560px;
+    height: 50vh;
+    min-height: 260px;
+    max-height: 50vh;
 
     /* Add top border (bottom-sheet layout — no side divider needed) */
     border-top: 0.5px solid var(--grey-4);
@@ -697,10 +696,15 @@ canvas {
   }
 
   /* Bigger calculator buttons — operator grid, clear/equals, random equation.
-     Digit circles already scale via cqw, so they're left alone. */
+     Digit circles already scale via cqw, so they're left alone, other than
+     a touch thicker outline here since it's easy to lose at phone size. */
   .calc-btn {
     font-size: 15px;
     padding: 12px 6px;
+  }
+
+  .calc-digit-btn {
+    border-width: 1.5px;
   }
 
   .calc-op-grid {

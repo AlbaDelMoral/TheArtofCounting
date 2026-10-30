@@ -19,6 +19,12 @@
   );
 }
 
+@media (max-width: 768px) {
+  :root {
+    --grid-columns: 6;
+  }
+}
+
 .grid-overlay {
   position: fixed;
   top: var(--grid-margin-top);
