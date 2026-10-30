@@ -81,6 +81,10 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* kills the default mobile tap-highlight flash (a translucent grey
+     overlay Android/iOS draw on tap) — most visible on the round calc
+     digit buttons, where it reads as a blurry grey halo around the circle */
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ── CSS variables ───────────────────────────────────────────────────────── */

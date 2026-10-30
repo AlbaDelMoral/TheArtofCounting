@@ -811,12 +811,37 @@ let display; // shared calculator display element
 const valSpans = {};
 let _dropdowns = {}; // mode -> { wrapper, content }
 
+// +/− glyph reflects actual expanded state: open AND not manually collapsed
+// → "−" (click to close); anything else (closed, or open but disabled-grey
+// for an inactive mode) → "+" (click to open).
+function _updateDropdownArrow(wrapperElt) {
+  const expanded =
+    wrapperElt.classList.contains("panel-dropdown--open") &&
+    !wrapperElt.classList.contains("panel-dropdown--collapsed");
+  wrapperElt._arrowEl.textContent = expanded ? "−" : "+";
+}
+
 function createPanel() {
   const panel = createDiv("").class("side-panel");
 
+  // ── intro copy — sits above the calculator, explains what this page is ──────
+  createP(
+    "The Art of Counting turns numbers into shape and color — digits become rings, chains become belts, multiplications become bands. Type an expression below, or hit random, to see it drawn and make it your own.",
+  )
+    .class("panel-intro")
+    .parent(panel);
+
   // ── calculator section (shared across all three modes) ──────────────────────
+  // Same accordion shell as Numbers/Operations/Multiplication, but not
+  // mode-tied — it's how the mode even gets picked in the first place — so
+  // it's forced permanently open/clickable instead of going through
+  // _dropdowns/_syncDropdowns (which only ever greys out the inactive mode
+  // dropdowns).
+  const { wrapper: calcWrapper, content: calcContent } = _buildDropdownShell("Calculator");
+  calcWrapper.elt.classList.add("panel-dropdown--open");
+  _updateDropdownArrow(calcWrapper.elt);
   const customSection = createDiv("").class("custom-section calculator");
-  customSection.parent(panel);
+  customSection.parent(calcContent);
 
   display = createElement("input").class("calc-display");
   display.attribute("type", "text");
@@ -981,23 +1006,22 @@ function createPanel() {
     swatch.input(() => onChange(swatch.value()));
   }
 
-  // ── collapsible "Technical variables" dropdown, one per mode ─────────────────
-  // Which mode's dropdown is active is decided entirely by what the
-  // calculator input resolves to (_detectMode → setActiveMode); the other
-  // two stay greyed out and un-clickable (see
-  // .panel-dropdown:not(.panel-dropdown--open) in panel.css). The active
-  // one can still be clicked to collapse/expand its own sliders.
-  function addDropdown(mode, title) {
+  // ── shared accordion shell — same markup/classes for every dropdown,
+  // whether it's mode-tied (Numbers/Operations/Multiplication) or always-on
+  // (Calculator) ────────────────────────────────────────────────────────────
+  function _buildDropdownShell(title) {
     const wrapper = createDiv("").class("panel-dropdown");
     wrapper.parent(panel);
 
     const toggle = createDiv("").class("panel-section panel-dropdown-toggle");
     toggle.parent(wrapper);
     createSpan(title).class("panel-section-title").parent(toggle);
-    createSpan("⌄").class("panel-dropdown-arrow").parent(toggle);
+    const arrow = createSpan("+").class("panel-dropdown-arrow").parent(toggle);
+    wrapper.elt._arrowEl = arrow.elt;
     toggle.elt.addEventListener("click", () => {
       if (wrapper.elt.classList.contains("panel-dropdown--open")) {
         wrapper.elt.classList.toggle("panel-dropdown--collapsed");
+        _updateDropdownArrow(wrapper.elt);
       }
     });
 
@@ -1006,6 +1030,17 @@ function createPanel() {
     const content = createDiv("").class("panel-dropdown-content-inner");
     content.parent(contentOuter);
 
+    return { wrapper, content };
+  }
+
+  // ── collapsible "Technical variables" dropdown, one per mode ─────────────────
+  // Which mode's dropdown is active is decided entirely by what the
+  // calculator input resolves to (_detectMode → setActiveMode); the other
+  // two stay greyed out and un-clickable (see
+  // .panel-dropdown:not(.panel-dropdown--open) in panel.css). The active
+  // one can still be clicked to collapse/expand its own sliders.
+  function addDropdown(mode, title) {
+    const { wrapper, content } = _buildDropdownShell(title);
     _dropdowns[mode] = { wrapper, content };
     return content;
   }
@@ -1182,6 +1217,7 @@ function _syncDropdowns() {
     // switching into a mode always expands it, even if the user had
     // collapsed it manually before switching away
     if (isOpen) wrapperElt.classList.remove("panel-dropdown--collapsed");
+    _updateDropdownArrow(wrapperElt);
   }
 }
 
@@ -1220,6 +1256,16 @@ function _gridPx(varName) {
 }
 
 function _getCanvasRegion() {
+  // Below panel.css's mobile breakpoint, the side panel becomes a bottom
+  // sheet instead of a left column — nothing reserves columns 1–2 anymore,
+  // so the canvas should use the full viewport width there, and its height
+  // is shrunk by the actual rendered panel height so the composition sits
+  // entirely above the sheet instead of being half-hidden behind it.
+  if (window.innerWidth <= 768) {
+    const panelEl = document.querySelector(".side-panel");
+    const panelH = panelEl ? panelEl.getBoundingClientRect().height : 0;
+    return { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight - panelH };
+  }
   const marginX = _gridPx("--grid-margin-x");
   const colWidth = _gridPx("--grid-col-width");
   const gap = _gridPx("--grid-gap");
@@ -1244,8 +1290,14 @@ function setup() {
   _canvasEl = createCanvas(region.w, region.h);
   _canvasEl.position(region.x, region.y, "fixed");
   buildPalette();
-  generateGrain();
   createPanel();
+  // On mobile, _getCanvasRegion() shrinks canvas height by the panel's own
+  // rendered height — but the panel didn't exist in the DOM yet when the
+  // region above was first measured, so redo it now that createPanel() has
+  // actually added it (before generateGrain(), which sizes its texture off
+  // the canvas's current width/height).
+  _applyCanvasRegion();
+  generateGrain();
   generateCompositionData(); // default: numbers mode, random composition
   loop();
 }
