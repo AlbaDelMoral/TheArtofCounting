@@ -826,7 +826,7 @@ function createPanel() {
 
   // ── intro copy — sits above the calculator, explains what this page is ──────
   createP(
-    "The Art of Counting turns numbers into shape and color — digits become rings, chains become belts, multiplications become bands. Type an expression below, or hit random, to see it drawn and make it your own.",
+    "The Art of Counting turns numbers into shape and color — rings, belts, and bands built from their own digits.<br><strong>Type an expression below, or hit random, to see it drawn.</strong>",
   )
     .class("panel-intro")
     .parent(panel);
@@ -1264,11 +1264,11 @@ function _getCanvasRegion() {
   if (window.innerWidth <= 768) {
     const panelEl = document.querySelector(".side-panel");
     const panelH = panelEl ? panelEl.getBoundingClientRect().height : 0;
-    // panel.css caps the sheet at 50vh, so this normally never kicks in —
-    // kept as a hard floor so the canvas can never drop below half the
+    // panel.css caps the sheet at 30vh, so this normally never kicks in —
+    // kept as a hard floor so the canvas can never drop below 70% of the
     // screen even if the panel somehow renders taller (e.g. a very short
-    // landscape viewport where its own min-height exceeds 50vh).
-    const h = Math.max(window.innerHeight - panelH, window.innerHeight * 0.5);
+    // landscape viewport where its own min-height exceeds 30vh).
+    const h = Math.max(window.innerHeight - panelH, window.innerHeight * 0.7);
     return { x: 0, y: 0, w: window.innerWidth, h };
   }
   const marginX = _gridPx("--grid-margin-x");
