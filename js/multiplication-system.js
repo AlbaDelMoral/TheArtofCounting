@@ -319,22 +319,23 @@ function _multSquareSize(parsed) {
 }
 
 // Looks up a digit's (1–9) color from palette2.csv, same source the number
-// circles use — same tier convention as the Numbers page: units=light
-// (1-10), tens=mid (10-100), hundreds+=dark (100-1000+). Falls back to
-// MUL_COL when the digit has no entry (e.g. 0).
+// circles use — same tier convention as the Numbers page: units=1-10,
+// tens=10-100, hundreds+=100-1000. Falls back to MUL_COL when the digit has
+// no entry (e.g. 0).
 function _digitBandColor(digit, tier) {
   const t = NUMBER_COLORS[digit] && NUMBER_COLORS[digit][tier];
   return t ? color(t.H, t.S, t.B) : null;
 }
 
 // Integer section index g (0 = most significant) → place-value tier, mirroring
-// number-system.js's "units=light, tens=mid, hundreds+=dark". Decimal sections
-// (g >= nIntSecs) always get 'mid' — place value below the decimal point
-// isn't part of this convention.
+// number-system.js's repeating "units=1-10, tens=10-100, hundreds=100-1000"
+// sequence (TIER_NAMES[placeFromEnd % 3], so a thousands place reuses 1-10
+// same as units). Decimal sections (g >= nIntSecs) always get '10-100' —
+// place value below the decimal point isn't part of this convention.
 function _placeTier(g, nIntSecs) {
-  if (g >= nIntSecs) return 'mid';
+  if (g >= nIntSecs) return '10-100';
   const placeFromEnd = nIntSecs - 1 - g;
-  return placeFromEnd === 0 ? 'light' : placeFromEnd === 1 ? 'mid' : 'dark';
+  return TIER_NAMES[placeFromEnd % 3];
 }
 
 // ─── main draw ────────────────────────────────────────────────────────────────

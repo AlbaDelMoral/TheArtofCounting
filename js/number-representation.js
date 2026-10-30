@@ -28,9 +28,10 @@ const NUMBER_REPRESENTATION = {
   ringStyle: "ticks", // "ticks" (original) or "outline" (thin circle per digit ring)
   ringOutlineWeightRatio: 0.0, // outline thickness, only used when ringStyle === "outline"
   tickLengthRatio: 0.06, // only used when ringStyle === "ticks"
-  tickStrokeWeightRatio: 0.006, // scales with outerR, so ticks don't look thick on small numbers
+  tickStrokeWeightRatio: 0.004, // scales with outerR, so ticks don't look thick on small numbers
   tickOpacity: 255,
   tickColor: COLORS.tickMarks, // see js/colors.js
+  tickMinRadius: 28, // below this circle radius (px) the tick marks are hidden entirely — too small to read as dashes
 
   // ── decimal ring ──────────────────────────────────────────────────────────────
   decimalStrokeRatio: 0.05,

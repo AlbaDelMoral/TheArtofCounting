@@ -4,8 +4,11 @@
 
 // ─── digit color palette (loaded from palette2.csv + palette3.csv) ────────────
 // Populated by buildPalette() — do not use before setup() runs.
-let NUMBER_COLORS    = {};   // { 1: { dark, mid, light }, … }  HSB values
+let NUMBER_COLORS    = {};   // { 1: { '1-10', '10-100', '100-1000' }, … }  HSB values
 let NUMBER_BG_COLORS = {};   // { 1: p5color, 2: p5color, … } — one bg per digit
+// Place-value tier sequence — index by (ring position % 3) so it repeats
+// for any digit count instead of capping out at '100-1000'.
+const TIER_NAMES = ['1-10', '10-100', '100-1000'];
 // ─── font table ───────────────────────────────────────────────────────────────
 const FONTS = [
   { family: "KMRWaldenburg", weight: "900",  style: "normal" },
@@ -180,6 +183,10 @@ function annularWedge(cx, cy, r1, r2, a1, a2, col, outlined, outerR) {
 // ─── tick marks ───────────────────────────────────────────────────────────────
 function drawTicks(cx, cy, r, localW, outerR) {
   if (CONFIG.showTicks === false) return;
+  // Below this radius the tick marks are too small to read as distinct
+  // dashes — just noise — so skip them entirely instead of drawing a ring
+  // of illegible marks.
+  if (outerR < CONFIG.tickMinRadius) return;
   push();
   if (CONFIG.tickColor) {
     stroke(CONFIG.tickColor[0], CONFIG.tickColor[1], CONFIG.tickColor[2], CONFIG.tickOpacity);
@@ -280,8 +287,11 @@ function drawNumber(numStr, cx, cy, outerR) {
     if (digit === 0) continue;
     const r1  = i === 0 ? 0 : bdry[i - 1];
     const r2  = bdry[i];
-    // Tier depends on positional weight: units=light(unidades), tens=mid(decenas), hundreds+=dark(centenas)
-    const tier = i === 0 ? 'light' : i === 1 ? 'mid' : 'dark';
+    // Tier depends on positional weight: units=1-10 (unidades), tens=10-100
+    // (decenas), hundreds=100-1000 (centenas) — then the sequence repeats
+    // for thousands and beyond, so a 4-digit number's thousands digit is
+    // colored from the same 1-10 palette as any units digit.
+    const tier = TIER_NAMES[i % 3];
     const t   = NUMBER_COLORS[digit][tier];
     const col = color(t.H, t.S, t.B);
     if (isNegative) {

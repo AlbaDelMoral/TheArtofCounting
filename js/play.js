@@ -8,9 +8,9 @@
 // Each mode keeps its own settings; the shared NUMBER_REPRESENTATION slice
 // (ring/tick/decimal-ring look) is identical in all three, same as before.
 const CONFIG_NUMBERS = {
-  numCircles: 10,
-  compScale: 0.12,
-  sizeVariation: 0.5,
+  numCircles: 6, // mid of the count slider's 1–10 range
+  compScale: 0.5, // mid of the size slider's 0–100 range
+  sizeVariation: 0.475, // mid of the spread slider's 0–95 range
   overlapFactor: 0,
   ...NUMBER_REPRESENTATION,
   bokeh: 0,
@@ -20,13 +20,14 @@ const CONFIG_NUMBERS = {
 
 const CONFIG_OPERATIONS = {
   numOps: 1,
-  numChainNums: 3,
-  compScale: 0.09,
-  sizeVariation: 0.9,
-  chainSpacing: 0.5,
+  numChainNums: 4, // mid of the length slider's 2–6 range
+  compScale: 0.5, // mid of the size slider's 0–100 range
+  sizeVariation: 0.475, // mid of the spread slider's 0–95 range
+  chainSpacing: 0.275, // mid of the spacing slider's -95–150 range
   valueSizeInfluence: 0.9,
   beltMarginRatio: 0.05, // fixed — no longer user-adjustable
   beltStrokeRatio: 0.02, // thinner than multiplication's own 0.04 — these pills get much bigger
+  beltStrokeMax: 1, // px cap — ratio alone keeps growing with a bigger pill, which looked too thick at large sizes
   ...NUMBER_REPRESENTATION,
   bokeh: 0,
   grainAmount: 0,
@@ -34,12 +35,12 @@ const CONFIG_OPERATIONS = {
 };
 
 const CONFIG_MULTIPLICATION = {
-  bw: 2.5,
-  oh: 20,
-  lgap: 8,
-  dgap: 50,
+  bw: 5.5, // mid of the thickness slider's 1–10 range
+  oh: 10, // mid of the overhang slider's 0–20 range
+  lgap: 5.5, // mid of the line gap slider's 1–10 range
+  dgap: 50, // mid of the digit gap slider's 0–100 range
   decExt: 45,
-  obw: 32,
+  obw: 10, // close to bw's default so a sum operand's band isn't wildly thicker than a digit band
   circleScale: 0.85,
   bandMargin: 0,
   beltMarginRatio: 0.05, // same fixed ratio as Addition/Subtraction
@@ -338,7 +339,11 @@ function _layoutChainTerms(data, m, fitW, fitH) {
       const naturalFull = naturalHalf + embeddedConfig.oh;
       CONFIG = prevConfig;
       node.stepOffsets = offsets;
-      node.squareScale = naturalFull > 0 ? node.r / naturalFull : 1;
+      // Shrunk by ringMarginRatio first — the same margin a plain number's
+      // ring leaves against its own bg circle edge — so the multiplication
+      // squares don't sit flush against the belt wall either.
+      const targetFull = node.r * (1 - CONFIG_OPERATIONS.ringMarginRatio);
+      node.squareScale = naturalFull > 0 ? targetFull / naturalFull : 1;
     } else if (term.kind === "chain") {
       // Lay out the nested chain at its own natural size first (uncon-
       // strained — fitW/fitH = Infinity — so its circles are never squeezed
@@ -895,7 +900,7 @@ function createPanel() {
   [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].forEach((d) => {
     const btn = createElement("button", String(d)).class("calc-digit-btn");
     btn.parent(digitRow);
-    const tier = NUMBER_COLORS[d] && NUMBER_COLORS[d].mid;
+    const tier = NUMBER_COLORS[d] && NUMBER_COLORS[d]["10-100"];
     const hex = tier ? color(tier.H, tier.S, tier.B).toString("#rrggbb") : "#606369";
     btn.elt.style.setProperty("--calc-digit-color", hex);
     btn.mousePressed(() => display.value(display.value() + d));
@@ -1290,14 +1295,21 @@ function draw() {
     for (let c = 0; c < chains.length; c++) {
       const chain = chains[c];
       const data = chainData[c];
-      const shapeAlpha = 1 - CONFIG_OPERATIONS.reality / 100;
-      const textAlpha = CONFIG_OPERATIONS.reality / 100;
+      // Same piecewise crossfade as Numbers: the shape stays fully opaque
+      // until the halfway point, then fades out; the text ramps in up to
+      // the halfway point, then stays fully opaque — so at exactly 50 both
+      // are shown at full opacity, instead of both sitting at 50%.
+      const _rOps = CONFIG_OPERATIONS.reality;
+      const shapeAlpha = _rOps < 50 ? 1 : 1 - (_rOps - 50) / 50;
+      const textAlpha = _rOps > 50 ? 1 : _rOps / 50;
       _drawChainNodes(chain.circles, chain.belts, data, shapeAlpha, textAlpha);
     }
     randomSeed();
   } else if (activeMode === "multiplication") {
-    const shapeAlpha = 1 - CONFIG_MULTIPLICATION.reality / 100;
-    const textAlpha = CONFIG_MULTIPLICATION.reality / 100;
+    // Same piecewise crossfade as Numbers — see the Operations branch above.
+    const _rMul = CONFIG_MULTIPLICATION.reality;
+    const shapeAlpha = _rMul < 50 ? 1 : 1 - (_rMul - 50) / 50;
+    const textAlpha = _rMul > 50 ? 1 : _rMul / 50;
 
     push();
     translate(_panX, _panY);

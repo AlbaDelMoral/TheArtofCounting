@@ -7,11 +7,10 @@
 
 const COLORS = {
   // Numbers page — background circle behind every number (null = use digit-based palette3.csv color)
-  bgCircle: [0, 0, 98],
-  //bgCircle: [50, 2, 98],//
+  bgCircle: [40, 1, 93], // #eeedeb
 
   // Numbers page — tick marks around each ring (null = use the ticks swatch from palette.csv)
-  tickMarks: [0, 0, 25],
+  tickMarks: [0, 0, 55],
 
   // Numbers page — outline of the bg circle (null = no outline)
   bgCircleOutline: null,

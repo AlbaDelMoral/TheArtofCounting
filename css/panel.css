@@ -17,7 +17,8 @@ canvas {
   --panel-font-size: 8px; /* label + value size (both always equal)  */
   --panel-font-weight: 500; /* KMRWaldenburg Medium (lighter than Bold) */
   --panel-label-opacity: 1; /* opacity of the parameter name           */
-  --panel-value-opacity: 0.38; /* opacity of the number on the right      */
+  /* was 0.38 — now the 3º colour itself carries the lighter weight, not opacity */
+  --panel-value-opacity: 1;
   --panel-letter-spacing: 0.045em; /* tracking for labels — matches section titles */
 
   /* ── row spacing ─────────────────────────────────────────────────────────── */
@@ -35,15 +36,15 @@ canvas {
   /* thinner than the thumb now, so the circle overflows above/below it
      instead of sitting flush inside it */
   --panel-track-height: 2px;
-  --panel-track-color: rgb(234, 234, 234);
+  --panel-track-color: var(--grey-4);
 
   /* ── slider thumb ────────────────────────────────────────────────────────── */
   --panel-thumb-size: 6px; /* diameter of the circle                  */
-  --panel-thumb-color: #606369;
+  --panel-thumb-color: var(--grey-2); /* 2º — same level as the variable name */
 
   /* ── section headers (Technical / Artistic) ─────────────────────────────── */
-  --panel-section-line-color: #1e1e1c; /* the two divider lines            */
-  --panel-disabled-color: #c4c4c4; /* inactive dropdown title + its lines  */
+  --panel-section-line-color: var(--grey-1); /* the two divider lines     */
+  --panel-disabled-color: var(--grey-4); /* inactive dropdown title + its lines */
   --panel-section-pad-y: 1px; /* space between the lines and the title   */
   --panel-section-margin-top: 25px; /* gap above the section            */
   --panel-section-font-size: 9px;
@@ -112,7 +113,7 @@ canvas {
   left: calc(var(--grid-margin-x) + var(--panel-width));
   width: 0.5px;
   height: 100vh;
-  background: #e0e0e0;
+  background: var(--grey-4);
   pointer-events: none;
   z-index: 50;
 }
@@ -124,7 +125,7 @@ canvas {
   padding-bottom: 14px;
   margin-bottom: 2px;
   margin-top: 10px;
-  border-bottom: 1px dashed #e0e0e0;
+  border-bottom: 1px dashed var(--grey-4);
 }
 
 /* calculator section (numbers page) — no dashed divider underneath */
@@ -135,7 +136,7 @@ canvas {
 
 .custom-label {
   display: block;
-  color: #444444;
+  color: var(--grey-2);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 10px;
@@ -144,23 +145,24 @@ canvas {
 .custom-input {
   width: 100%;
   border: none;
-  border-bottom: 0.5px solid #606369;
+  border-bottom: 0.5px solid var(--grey-2);
   background: transparent;
   font-family: "KMRWaldenburg", sans-serif;
   font-size: 12px;
   font-weight: 500;
   padding: 4px 0;
   outline: none;
-  color: #606369;
+  color: var(--grey-2);
 }
 
+/* the default example text shown before the user types anything */
 .custom-input::placeholder {
-  color: #ccc;
+  color: var(--grey-4);
 }
 
 .custom-input-hint {
   margin-top: 8px;
-  color: #bbb;
+  color: var(--grey-4);
   line-height: 1.8;
   font-size: 9px;
   letter-spacing: 0.04em;
@@ -173,18 +175,19 @@ canvas {
   width: 100%;
   text-align: right;
   border: none;
-  border-bottom: 0.5px solid #606369;
+  border-bottom: 0.5px solid var(--grey-2);
   background: transparent;
   font-family: "KMRWaldenburg", sans-serif;
   font-size: 11px;
   font-weight: 500;
   padding: 4px 0 2px;
   outline: none;
-  color: #1e1e1c;
+  color: var(--grey-1);
 }
 
+/* the default example text shown before the user types anything */
 .calc-display::placeholder {
-  color: #ccc;
+  color: var(--grey-4);
 }
 
 .calc-digit-row {
@@ -199,7 +202,7 @@ canvas {
 }
 
 .calc-digit-btn {
-  --calc-digit-color: #606369;
+  --calc-digit-color: var(--grey-2); /* 2º — calc buttons */
   /* equal share of the row's width, width always == height (aspect-ratio),
      so it scales up/down with the viewport without ever deforming into an
      oval — no max-width cap, so "0" always reaches the row's own right edge */
@@ -239,19 +242,19 @@ canvas {
 
 .calc-btn {
   background: transparent;
-  border: 0.5px solid #717172;
+  border: 0.5px solid var(--grey-2);
   border-radius: 2px;
   padding: 2px 4px;
   font-family: "KMRWaldenburg", sans-serif;
   font-size: 9px;
   font-weight: 500;
-  color: #717172;
+  color: var(--grey-2);
   text-align: center;
   cursor: pointer;
 }
 
 .calc-btn:hover {
-  background: #717172;
+  background: var(--grey-2);
   color: #fff;
 }
 
@@ -278,12 +281,12 @@ canvas {
 
 .calc-random-btn {
   background: transparent;
-  border: 0.5px solid #717172;
-  color: #717172;
+  border: 0.5px solid var(--grey-2);
+  color: var(--grey-2);
 }
 
 .calc-random-btn:hover {
-  background: #606369;
+  background: var(--grey-2);
   color: #fff;
 }
 
@@ -425,7 +428,7 @@ canvas {
 }
 
 .slider-label {
-  color: #323232;
+  color: var(--grey-2); /* 2º — variable name */
   font-family: "KMRWaldenburg", sans-serif;
   font-size: var(--panel-font-size);
   font-weight: var(--panel-font-weight);
@@ -434,7 +437,7 @@ canvas {
 }
 
 .slider-value {
-  color: #323232;
+  color: var(--grey-3); /* 3º — measure, same level as the track */
   font-family: "KMRWaldenburg", sans-serif;
   font-size: var(--panel-font-size); /* same as label — always in sync */
   font-weight: var(--panel-font-weight);
@@ -454,7 +457,7 @@ canvas {
 .color-swatch {
   width: 32px;
   height: 14px;
-  border: 0.5px solid #606369;
+  border: 0.5px solid var(--grey-2);
   padding: 0;
   cursor: pointer;
   background: none;
@@ -553,8 +556,8 @@ canvas {
   margin-top: 10px;
   padding: 6px 8px;
   background: transparent;
-  border: 0.5px solid #606369;
-  color: #606369;
+  border: 0.5px solid var(--grey-2);
+  color: var(--grey-2);
   font-family: "KMRWaldenburg", sans-serif;
   font-size: var(--panel-font-size);
   font-weight: 500;
@@ -567,7 +570,7 @@ canvas {
 }
 
 .panel-btn:hover {
-  background: #606369;
+  background: var(--grey-2);
   color: #ffffff;
 }
 
@@ -578,7 +581,7 @@ canvas {
   width: 100%;
   margin-top: 16px;
   padding: 7px 0;
-  background: #1a1a1a;
+  background: var(--grey-1);
   color: #ffffff;
   border: none;
   font-family: "KMRWaldenburg", sans-serif;
@@ -590,12 +593,12 @@ canvas {
 }
 
 .panel-random-btn:hover {
-  background: #333;
+  background: var(--grey-2);
 }
 
 .panel-hint {
   margin-top: 8px;
-  color: #bbb;
+  color: var(--grey-4);
   line-height: 2;
   padding-top: 8px;
   font-size: 9px;
@@ -623,7 +626,7 @@ canvas {
     max-height: 300px;
 
     /* Add top border (bottom-sheet layout — no side divider needed) */
-    border-top: 0.5px solid #e0e0e0;
+    border-top: 0.5px solid var(--grey-4);
 
     /* Override the nav-height top padding — panel is no longer at the top */
     padding: 10px var(--panel-padding-h) 16px;

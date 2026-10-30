@@ -41,9 +41,12 @@ function drawBelt(x1, y1, R1, x2, y2, R2, resultPositive, cssColor) {
   } else {
     ctx.strokeStyle = cssColor;
     // Floored so a negative belt's outline stays readable once it gets
-    // small — larger belts are unaffected since the ratio alone already
-    // clears this floor there.
-    ctx.lineWidth   = Math.max(0.4, Math.max(R1, R2) * CONFIG.beltStrokeRatio);
+    // small, and capped (beltStrokeMax, when the mode defines one) so it
+    // doesn't keep thickening past that once the pill gets big.
+    ctx.lineWidth   = Math.min(
+      CONFIG.beltStrokeMax ?? Infinity,
+      Math.max(0.4, Math.max(R1, R2) * CONFIG.beltStrokeRatio),
+    );
     ctx.stroke();
   }
 }
@@ -197,7 +200,10 @@ function drawBeltToSquare(ccx, ccy, R, sqx, sqy, H, resultPositive, cssColor) {
     ctx.fill();
   } else {
     ctx.strokeStyle = cssColor;
-    ctx.lineWidth   = Math.max(0.4, Math.max(R, H) * CONFIG.beltStrokeRatio);
+    ctx.lineWidth   = Math.min(
+      CONFIG.beltStrokeMax ?? Infinity,
+      Math.max(0.4, Math.max(R, H) * CONFIG.beltStrokeRatio),
+    );
     ctx.stroke();
   }
 }
@@ -231,7 +237,10 @@ function drawBeltSquareToSquare(x1, y1, H1, x2, y2, H2, resultPositive, cssColor
     ctx.fill();
   } else {
     ctx.strokeStyle = cssColor;
-    ctx.lineWidth   = Math.max(0.4, Math.max(H1, H2) * CONFIG.beltStrokeRatio);
+    ctx.lineWidth   = Math.min(
+      CONFIG.beltStrokeMax ?? Infinity,
+      Math.max(0.4, Math.max(H1, H2) * CONFIG.beltStrokeRatio),
+    );
     ctx.stroke();
   }
 }
