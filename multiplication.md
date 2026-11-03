@@ -145,7 +145,7 @@ belt(2, 8):    2+8=10  → positive → FILLED
 belt(8, -15):  8+(-15)=-7 → negative → OUTLINED
 ```
 
-**Operation band thickness**: controlled by the **Op band thickness** slider (separate from basic band thickness).
+**Operation band thickness**: internal (`obw`), not its own slider on the unified panel anymore — kept close to the **Thickness** slider's own value (`bw`) via a fixed ratio captured at panel build time, specifically so a sum operand's band isn't dramatically thicker than a plain digit band. See `PARAMETERS.md` Part 4.
 
 **All operation bands have the same total length** as basic bands — they span from `bandLeft + CR` to `bandRight - CR` where CR = circle radius, so circle edges align with band endpoints.
 
@@ -262,6 +262,8 @@ Parser rules:
 
 ## Part 9: Visual Sliders Reference
 
+> This table is the internal geometry model — every value below is still a real `CONFIG_MULTIPLICATION` / `NUMBER_REPRESENTATION` field and still drives the drawing exactly as described. On the unified `play.html` panel, though, only **Thickness**, **Digit gap**, **Gap within digit group**, and **Overhang beyond square** are actually exposed as sliders (Multiplication dropdown); everything else here — Op Chain Bands, Number Circle, Decimal Ring — is a fixed internal value now, not slider-bound. See `PARAMETERS.md` Part 4 for the slider set as it actually exists in the UI today.
+
 ### Basic Bands
 
 | Slider                         | Effect                                                                              |
@@ -300,9 +302,9 @@ Parser rules:
 
 ## Part 10: Color System
 
-**Basic bands (simple numbers) are colored by digit value, not randomly.** Each digit-group's bands use that digit's own color (1–9) from the same palette the number circles use (`data/palette2.csv`, `mid` tier) — digit `4` is always the same color everywhere on the page, digit `7` is always another fixed color, and so on. This applies per digit-group independently: a 3-digit operand like `456` draws its `4`-section, `5`-section, and `6`-section each in their own digit color, not one uniform color for the whole operand. A digit of `0` draws no bands, so it needs no color. Pressing **Space** (shuffle) no longer changes these band colors, since they're now deterministic — it still reshuffles everything else below.
+**Basic bands (simple numbers) are colored by digit value AND place value, not randomly.** Each digit-group's bands use that digit's own color (1–9) from the same palette the number circles use (`data/palette2.csv`), looked up by **place-value tier**: the units place reads from the `1-10` tier, tens from `10-100`, hundreds from `100-1000` — then the sequence repeats for thousands and beyond (`_placeTier()` / `TIER_NAMES[i % 3]` in `multiplication-system.js` / `number-system.js`), mirroring how a number circle's own rings are colored. So a 3-digit operand like `456` draws its `4`-section (hundreds → `100-1000` tier), `5`-section (tens → `10-100` tier), and `6`-section (units → `1-10` tier) each in both their own digit color *and* their own place-value shade, not one flat color for the whole operand. `palette2.csv` itself is laid out as 3 contiguous blocks (all 9 digits' `1-10` rows, then all 9 `10-100`, then all 9 `100-1000`) rather than interleaved by digit, specifically so each range reads as "one palette" in the file. A digit of `0` draws no bands, so it needs no color. Pressing **Space** (shuffle) no longer changes these band colors, since they're now deterministic — it still reshuffles everything else below.
 
-Everything else is still randomly assigned from a curated palette of 24 HSB color swatches on every shuffle:
+Everything else is still randomly assigned from a curated palette of HSB color swatches (`data/palette.csv`) on every shuffle:
 
 - `colCircle` — background fill color of number circles in operation chains
 - `colChain0..3` — belt colors for operation chains (one per adjacent pair, cycling)
@@ -461,10 +463,10 @@ Because every step moves by an equal amount on both axes, the bounding box aroun
 
 ### 14.4 Debug outlines
 
-Two optional outlines help verify the above visually, both on by default:
+Two optional outlines help verify the above visually, both **off** by default now (`CONFIG_MULTIPLICATION.showSquareOutline: false`, `showChainOutline: false`) — flip either to `true` to turn it back on:
 
-- **Per-step outline** — a thin (1px) black stroke around each step's own square, drawn inside `drawMultiplication`. Toggle: `CONFIG.showSquareOutline = false`.
-- **Whole-chain outline** — a red stroke around the entire staircase's bounding box, drawn once per frame in the main draw loop after all steps. Toggle: `CONFIG.showChainOutline = false`.
+- **Per-step outline** — a thin (1px) black stroke around each step's own square, drawn inside `drawMultiplication`. Toggle: `CONFIG.showSquareOutline`.
+- **Whole-chain outline** — a red stroke around the entire staircase's bounding box, drawn once per frame in the main draw loop after all steps. Toggle: `CONFIG.showChainOutline`.
 
 ### 14.5 Open question: band-width inheritance
 
@@ -508,17 +510,21 @@ if (multIdx !== -1) {
 
 The multiplication's own target half-size (`node.r`) is then whatever the normal magnitude-based circle-sizing formula produces for its value — it's just that every sibling operand copies it instead of computing their own.
 
-### 15.3 The embedded square always fills its target size exactly
+### 15.3 The embedded square fills its target size minus a small margin
 
-A multiplication term's `squareScale` is computed so its **full visible extent** — the chain's bounding square (always a true square; see Part 14.3) plus overhang — lands exactly on `node.r`:
+A multiplication term's `squareScale` is computed so its **full visible extent** — the chain's bounding square (always a true square; see Part 14.3) plus overhang — lands on `node.r`, shrunk first by `ringMarginRatio`:
 
 ```js
 const { offsets, half: naturalHalf } = _computeStepOffsets(term.steps); // CONFIG = CONFIG_MULTIPLICATION while this runs
 const naturalFull = naturalHalf + embeddedConfig.oh;
-node.squareScale = naturalFull > 0 ? node.r / naturalFull : 1;
+// Shrunk by ringMarginRatio first — the same margin a plain number's ring
+// leaves against its own bg circle edge — so the squares don't sit flush
+// against the belt wall either.
+const targetFull = node.r * (1 - CONFIG_OPERATIONS.ringMarginRatio);
+node.squareScale = naturalFull > 0 ? targetFull / naturalFull : 1;
 ```
 
-This mirrors how a plain circle's own radius already equals `node.r` — both shapes fill the exact same footprint, so the belt around them (see 15.5) wraps both with the same proportional margin rather than one of them sitting flush against the belt's wall. `_computeStepOffsets` is the pure (non-global-state) version of `_computeOffsets` (Part 14.2) — it returns `{ offsets, half }` instead of writing into the page's own `_stepOffsets`, so measuring/drawing an embedded chain never disturbs multiplication mode's own standalone chain.
+`ringMarginRatio` (0.06, from `NUMBER_REPRESENTATION`, shared with every plain number circle's own ring-to-bg-circle gap) is reused here deliberately — the same proportional breathing room a digit's rings leave inside their background circle now also separates the multiplication square(s) from the belt that wraps them, instead of the squares touching the belt's inner wall exactly. This mirrors how a plain circle's own radius already equals `node.r`, just with that same margin baked in — every top-level operand (circle, embedded square, or nested pill) fills the identical footprint, so the belt around them (see 15.5) wraps all of them with the same proportional margin rather than one sitting flush against the belt's wall. `_computeStepOffsets` is the pure (non-global-state) version of `_computeOffsets` (Part 14.2) — it returns `{ offsets, half }` instead of writing into the page's own `_stepOffsets`, so measuring/drawing an embedded chain never disturbs multiplication mode's own standalone chain.
 
 **Overhang is forced to 0** for an embedded multiplication specifically, via `_embeddedMultConfig()` — a shallow clone of `CONFIG_MULTIPLICATION` with `oh: 0` — used instead of `CONFIG_MULTIPLICATION` directly whenever sizing or drawing an embedded square. The live Multiplication overhang slider therefore has no effect on embedded squares; this was a deliberate call for now (the overhang amount is tuned for multiplication mode's own full-canvas chain, and reads as excessive once the whole thing is also shrunk down into a belt).
 
@@ -548,14 +554,17 @@ All belt margin math (`node.r * (1 + beltMarginRatio)`) is identical for every s
 
 The belt's own fill (filled = positive, outlined = negative) still follows the sum of the two connected operands' signed `value`s, same rule as any other belt. Independently, **the square's own fill** (its bands — filled vs. outlined) follows its *own* effective value: if the chain-level sign negates an otherwise-positive product (e.g. `-(3×4)+20`), only the **last** step's `result` is sign-flipped for rendering (`effStep = { ...step, result: -step.result }`) — earlier steps in a multi-step chain keep their own natural sign, same as they would on the multiplication page itself. Digit decomposition is unaffected either way, since it's always derived from each side's own magnitude, never from `result`'s sign.
 
-The belt's stroke weight when outlined (negative) uses `CONFIG_OPERATIONS.beltStrokeRatio` (0.02) rather than multiplication's own `CONFIG_MULTIPLICATION.beltStrokeRatio` (0.04) — these belts tend to be much larger than a typical op-chain belt inside a multiplication square, so a thinner ratio keeps the outline from reading as too heavy.
+The belt's stroke weight when outlined (negative) uses `CONFIG_OPERATIONS.beltStrokeRatio` (0.02) rather than multiplication's own `CONFIG_MULTIPLICATION.beltStrokeRatio` (0.04) — these belts tend to be much larger than a typical op-chain belt inside a multiplication square, so a thinner ratio keeps the outline from reading as too heavy. That weight is additionally capped at `CONFIG_OPERATIONS.beltStrokeMax` (1.5px) so a very large pill's outline doesn't keep growing past a certain thickness — see `PARAMETERS.md` Part 3.
 
 ### 15.6 The Multiplication panel stays live
 
-Normally only the active mode's dropdown (Numbers / Addition and Subtraction / Multiplication) is open and interactive — the other two are greyed out (see `system-numbers.md` / the panel CSS). Since an embedded multiplication's geometry is directly controlled by the Multiplication sliders (thickness, digit gap, line gap, overhang), `_syncDropdowns()` also opens the Multiplication dropdown whenever the current Operations chain contains a `mult` term:
+Normally only the active mode's dropdown (Numbers / Addition / Multiplication) is open and interactive — the other two are greyed out (see `system-numbers.md` / the panel CSS). Since an embedded multiplication's geometry is directly controlled by the Multiplication sliders (thickness, digit gap, line gap, overhang), `_syncDropdowns()` also opens the Multiplication dropdown whenever the current Operations chain contains a `mult` term, at *any* nesting depth — a `mult` term can sit directly in the top-level chain or inside a nested chain's own terms (Part 16), so the check recurses:
 
 ```js
-const opsHasMult = activeMode === "operations" && customOps.some((chain) => chain.some((t) => t.kind === "mult"));
+function _termsHaveMult(terms) {
+  return terms.some((t) => t.kind === "mult" || (t.kind === "chain" && _termsHaveMult(t.terms)));
+}
+const opsHasMult = activeMode === "operations" && customOps.some(_termsHaveMult);
 const isOpen = mode === activeMode || (mode === "multiplication" && opsHasMult);
 ```
 

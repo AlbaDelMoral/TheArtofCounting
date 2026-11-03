@@ -27,7 +27,7 @@ const CONFIG_OPERATIONS = {
   valueSizeInfluence: 0.9,
   beltMarginRatio: 0.05, // fixed — no longer user-adjustable
   beltStrokeRatio: 0.02, // thinner than multiplication's own 0.04 — these pills get much bigger
-  beltStrokeMax: 1, // px cap — ratio alone keeps growing with a bigger pill, which looked too thick at large sizes
+  beltStrokeMax: 1.5, // px cap — ratio alone keeps growing with a bigger pill, which looked too thick at large sizes
   ...NUMBER_REPRESENTATION,
   bokeh: 0,
   grainAmount: 0,
@@ -173,6 +173,19 @@ let customOps = [];
 function _makeNumTerm(str) {
   const value = parseFloat(str);
   return { kind: "num", sign: value < 0 ? -1 : 1, value, str: String(Math.abs(value)) };
+}
+
+// Renders one chain's terms back into the same expression syntax the
+// calculator input accepts — used so the random button's own result shows
+// up typed out in the display, not just drawn, same as it already did for
+// multiplication's own random expression.
+function _formatChainTerms(terms) {
+  return terms
+    .map((t, i) => {
+      const s = t.kind === "num" ? t.str : t.exprStr ? `(${t.exprStr})` : "";
+      return i === 0 ? (t.sign < 0 ? "-" : "") + s : (t.sign < 0 ? " - " : " + ") + s;
+    })
+    .join("");
 }
 
 // CONFIG used to size/draw a multiplication embedded as an addition operand
@@ -495,7 +508,17 @@ function _drawChainNodes(nodes, belts, data, shapeAlpha, textAlpha) {
       push();
       translate(circle.x, circle.y);
       scale(circle.chainScale);
+      // beltStrokeMax is a flat LOCAL stroke-width cap — left as-is here,
+      // the scale(chainScale) above (usually well under 1, since a nested
+      // pill is squeezed to match a sibling) would shrink an already-thin
+      // negative belt's outline even further once rendered, down to
+      // barely visible. Lift the cap for this nested draw so a negative
+      // belt inside a nested chain falls back to plain ratio+floor sizing
+      // instead, same as it did before the cap existed.
+      const prevBeltStrokeMax = CONFIG.beltStrokeMax;
+      CONFIG.beltStrokeMax = undefined;
       _drawChainNodes(circle.nestedLayout.nodes, circle.nestedLayout.belts, circle.nestedData, shapeAlpha, textAlpha);
+      CONFIG.beltStrokeMax = prevBeltStrokeMax;
       pop();
       continue;
     }
@@ -941,19 +964,23 @@ function createPanel() {
     redraw();
   }
 
+  // Clearing means "nothing typed yet" — an empty canvas, not a fresh
+  // random composition (that's what the random button is for) or the old
+  // "14x15" placeholder example.
   function clearInput() {
+    display.value("");
     if (activeMode === "numbers") {
-      display.value("");
       customNums = [];
-      generateCompositionData();
+      compositionData = [];
+      composition = [];
     } else if (activeMode === "operations") {
-      display.value("");
       customOps = [];
-      generateChainData();
+      chainData = [];
+      chains = [];
       _syncDropdowns(); // clears any mult term, so Multiplication may need to close again
     } else {
-      display.value("14x15");
-      applyMultiplication("14x15");
+      parsedSteps = null;
+      currentExpr = "";
     }
     redraw();
   }
@@ -966,12 +993,12 @@ function createPanel() {
     if (activeMode === "numbers") {
       customNums = [];
       generateCompositionData();
-      display.value("");
+      display.value(compositionData.map((d) => d.numStr).join(", "));
     } else if (activeMode === "operations") {
       customOps = [];
       generateChainData();
       _syncDropdowns(); // random chains never include a mult term
-      display.value("");
+      display.value(chainData.map((d) => _formatChainTerms(d.terms)).join(" | "));
     } else {
       const expr = _randomMultExpr();
       display.value(expr);
@@ -1236,10 +1263,8 @@ function createPanel() {
   });
 
   // ── Artistic variables — shared across all three modes ───────────────────────
-  // Same dropdown shell as Calculator (always open-able, not mode-tied), but
-  // its arrow/click-to-collapse only actually does anything on mobile (see
-  // .panel-dropdown--standalone in panel.css) — desktop keeps its exact old
-  // look: a plain, always-expanded, non-interactive section title.
+  // Same dropdown shell as Calculator — always open-able, not mode-tied —
+  // and a real collapsible accordion everywhere, desktop included.
   const { wrapper: artWrapper, content: artContent } = _buildDropdownShell("Artistic variables");
   artWrapper.elt.classList.add("panel-dropdown--standalone");
   _initStandaloneDropdown(artWrapper.elt);
@@ -1281,10 +1306,12 @@ function createPanel() {
     },
   );
 
+  // Outside the Artistic Variables dropdown (not artContent) — always
+  // visible underneath it instead of disappearing when it's collapsed.
   const exportBtn = createElement("button", "export").class(
     "calc-btn calc-random-btn panel-export-btn",
   );
-  exportBtn.parent(artContent);
+  exportBtn.parent(panel);
   exportBtn.mousePressed(() => saveHQ(false));
 
   updateValues();

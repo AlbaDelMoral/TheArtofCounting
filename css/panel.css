@@ -255,7 +255,7 @@ canvas {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   row-gap: 4px;
-  column-gap: 2px;
+  column-gap: 4px;
   margin-top: 16px;
 }
 
@@ -263,7 +263,7 @@ canvas {
   background: transparent;
   border: 0.5px solid var(--grey-2);
   border-radius: 2px;
-  padding: 2px 4px;
+  padding: 6px 4px;
   font-family: "KMRWaldenburg", sans-serif;
   font-size: 9px;
   font-weight: 500;
@@ -403,22 +403,10 @@ canvas {
   color: var(--panel-section-line-color);
 }
 
-/* "Artistic variables" — built from the same dropdown shell so it can
-   become a real accordion on mobile, but on desktop it must look and act
-   exactly like the plain, always-expanded, non-interactive section it was
-   before: no arrow, title not clickable. Mobile restores both — see the
-   override inside the mobile media query below. */
-.panel-dropdown--standalone .panel-dropdown-arrow {
-  display: none;
-}
-
-.panel-dropdown--standalone .panel-dropdown-toggle {
-  pointer-events: none;
-  cursor: default;
-}
-
-/* keeps the same extra breathing room above "Artistic variables" it had
-   back when it was a plain, non-dropdown .panel-section */
+/* "Artistic variables" — built from the same dropdown shell as Calculator,
+   a real collapsible accordion everywhere (desktop included), just not
+   tied to a mode. Keeps the extra breathing room above it that it had
+   back when it was a plain, non-dropdown .panel-section. */
 .panel-dropdown--standalone {
   margin-top: var(--panel-section-margin-top);
 }
@@ -724,20 +712,8 @@ canvas {
     display: none; /* vertical divider only makes sense in the desktop sidebar layout */
   }
 
-  /* "Artistic variables" becomes a real dropdown here too — arrow back,
-     title clickable (see .panel-dropdown--standalone's desktop-only hiding
-     above), and sitting in the stacked list like any other dropdown
-     instead of set apart with its old extra top margin — a section like
-     any other, no special-casing. */
-  .panel-dropdown--standalone .panel-dropdown-arrow {
-    display: inline-block;
-  }
-
-  .panel-dropdown--standalone .panel-dropdown-toggle {
-    pointer-events: auto;
-    cursor: pointer;
-  }
-
+  /* On mobile, "Artistic variables" sits in the stacked list like any
+     other dropdown instead of set apart with its old extra top margin. */
   .panel-dropdown--standalone {
     margin-top: 0;
   }
