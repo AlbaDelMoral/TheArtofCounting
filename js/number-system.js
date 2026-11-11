@@ -90,45 +90,14 @@ function reshuffleColors() {
 }
 
 // ─── usable canvas area ───────────────────────────────────────────────────────
-// Returns the drawing area, automatically excluding whichever side the panel is on.
-// Desktop: panel is on the left  → exclude left strip.
-// Mobile:  panel is at the bottom → exclude bottom strip.
+// The canvas occupies the whole viewport width — the side panel floats on
+// top of it (semi-transparent until hovered) rather than reserving its own
+// strip, so compositions always center on the full viewport, panel or not.
 function getPanelArea() {
-  const pad     = 24;
-  const panelEl = document.querySelector('.side-panel');
-  const navEl   = document.querySelector('.site-nav');
-  const navH    = navEl ? navEl.offsetHeight : 0;
-
-  if (!panelEl) {
-    return { areaX: pad, areaY: navH + pad, areaW: width - 2 * pad, areaH: height - navH - 2 * pad };
-  }
-
-  const rect     = panelEl.getBoundingClientRect();
-  const isBottom = rect.top > height * 0.5; // panel sits below mid-screen → bottom sheet
-
-  if (isBottom) {
-    return {
-      areaX: pad,
-      areaY: navH + pad,
-      areaW: width - 2 * pad,
-      areaH: rect.top - navH - 2 * pad,
-    };
-  }
-
-  // Panel offset in CANVAS-local coordinates — the canvas may itself start
-  // partway across the viewport (e.g. confined to the grid's columns 3+ on
-  // the unified Play page), so measure the overlap relative to the canvas's
-  // own left edge rather than assuming canvas-local (0,0) is viewport (0,0).
-  const canvasEl    = document.querySelector("canvas");
-  const canvasLeft  = canvasEl ? canvasEl.getBoundingClientRect().left : 0;
-  const panelOverlap = Math.max(0, rect.right - canvasLeft);
-
-  return {
-    areaX: panelOverlap + pad,
-    areaY: navH + pad,
-    areaW: width - panelOverlap - 2 * pad,
-    areaH: height - navH - 2 * pad,
-  };
+  const pad  = 24;
+  const navEl = document.querySelector('.site-nav');
+  const navH  = navEl ? navEl.offsetHeight : 0;
+  return { areaX: pad, areaY: navH + pad, areaW: width - 2 * pad, areaH: height - navH - 2 * pad };
 }
 
 // ─── digit extraction ─────────────────────────────────────────────────────────

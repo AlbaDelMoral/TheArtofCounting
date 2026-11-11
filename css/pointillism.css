@@ -1,0 +1,50 @@
+/* pointillism.css — page-specific styling for the image→circles tool
+   (gallery.html / js/pointillism.js). Panel itself reuses panel.css's
+   .side-panel / .calc-btn / .slider-row system as-is for consistency with
+   the other tool pages. */
+
+/* p5's createFileInput — real native <input type="file">, kept in the DOM
+   (for its click()/change behavior) but never shown; the panel's "choose
+   image" button and the drop zone both trigger it programmatically. */
+.pointillism-file-input {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pointillism-dropzone {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(70vw, 520px);
+  height: min(40vh, 320px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  border: 1.5px dashed var(--grey-4);
+  border-radius: 12px;
+  color: var(--grey-3);
+  font-family: "KMRWaldenburg", sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  z-index: 10;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.pointillism-dropzone:hover,
+.pointillism-dropzone--over {
+  border-color: var(--grey-2);
+  color: var(--grey-1);
+  background: rgba(230, 230, 230, 0.2);
+}
+
+.pointillism-dropzone--hidden {
+  display: none;
+}

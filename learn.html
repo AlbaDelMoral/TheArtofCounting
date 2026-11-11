@@ -4,14 +4,228 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Learn — The Art of Counting</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    />
     <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/learn.css" />
     <link rel="stylesheet" href="css/layout.css" />
     <link rel="stylesheet" href="css/sections.css" />
     <link rel="stylesheet" href="css/grid-overlay.css" />
     <script src="js/nav.js" defer></script>
     <script src="js/grid-overlay.js" defer></script>
+    <script src="js/learn.js" defer></script>
   </head>
   <body>
+    <section class="intro-section">
+      <div class="intro-shape intro-shape--circle"></div>
+      <div class="intro-shape intro-shape--line"></div>
+      <div class="intro-shape intro-shape--square"></div>
+      <p class="intro-text">Learn this new visual system</p>
+    </section>
+
+    <div class="numbers-wrap" id="numbers">
+      <div class="point-line-plane-wrap">
+        <div class="point-line-plane">
+          <p>Numbers</p>
+          <p>Addition</p>
+          <p>Multiplication</p>
+          <p>Complex Operations</p>
+        </div>
+      </div>
+
+      <!-- visual-only copy of learn2.html's anchor nav — links aren't
+           functional, just here to preview the look/animations in col 3 -->
+      <nav class="learn-nav">
+        <div class="learn-nav-group">
+          <a href="#" class="learn-nav-main"
+            ><span class="learn-nav-num">1</span></a
+          >
+          <div class="learn-nav-subs">
+            <div class="learn-nav-line"></div>
+            <div class="learn-nav-subs-inner">
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">1</span><br />The circle is born</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">2</span><br />Powers of Ten</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">3</span><br />Specific Digits</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">4</span><br />Negative Numbers</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">5</span><br />Decimals</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="learn-nav-group">
+          <a href="#" class="learn-nav-main"
+            ><span class="learn-nav-num">2</span></a
+          >
+          <div class="learn-nav-subs">
+            <div class="learn-nav-line"></div>
+            <div class="learn-nav-subs-inner">
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">1</span><br />Into the line</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">2</span><br />Subtraction</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">3</span><br />Parenthesis</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="learn-nav-group">
+          <a href="#" class="learn-nav-main"
+            ><span class="learn-nav-num">3</span></a
+          >
+          <div class="learn-nav-subs">
+            <div class="learn-nav-line"></div>
+            <div class="learn-nav-subs-inner">
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">1</span><br />Expanding the Plane</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">2</span><br />Horizontal Bands</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">3</span><br />Vertical Bands</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">4</span><br />The Imaginary
+                Square</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">5</span><br />Series of
+                Multiplications</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="learn-nav-group">
+          <a href="#" class="learn-nav-main"
+            ><span class="learn-nav-num">4</span></a
+          >
+          <div class="learn-nav-subs">
+            <div class="learn-nav-line"></div>
+            <div class="learn-nav-subs-inner">
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">1</span><br />Multiplication
+                Inside Addition</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">2</span><br />Nested Chains</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">3</span><br />Order of
+                Magnitude</a
+              >
+              <a href="#" class="learn-nav-sub"
+                ><span class="learn-nav-num">4</span><br />Everything
+                Together</a
+              >
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <section class="gifs-section">
+        <div class="gif-col" id="circle-intro">
+          <span class="gif-section-num">1.1</span>
+          <div class="gif-header-row">
+            <p class="gif-subtitle">The Circle as a Unit</p>
+          </div>
+          <p class="gif-caption">
+            One of the key moments came from exploring the definition of the
+            <strong>circle</strong> as a set of points
+            <strong>equidistant</strong> from a center. This led to
+            understanding the <strong>circumference</strong> as a number line
+            wrapped around itself, making it the <strong>base unit</strong> of
+            the system.
+            <br /><br />
+            The point and the circle are also fundamental forms in
+            <strong>data visualization</strong>, used in pie charts and
+            scatter plots. Their ability to represent multiple layers of
+            information visually made them ideal for displaying numbers.
+            <br /><br />
+            A key conceptual reference is Wassily Kandinsky's
+            <strong>Point and Line to Plane</strong> (1926), where the point
+            is described as the smallest unit of visual expression. Following
+            this idea, numbers in the system are represented by
+            <strong>circles</strong>.
+          </p>
+          <div class="gif-item gif-item--circle"></div>
+        </div>
+        <div class="gif-col" id="powers-of-ten">
+          <span class="gif-section-num">1.2</span>
+          <div class="gif-header-row">
+            <p class="gif-subtitle">Powers of Ten in Rings</p>
+          </div>
+          <p class="gif-caption">
+            Every number is drawn as a set of
+            <strong>concentric circles</strong> — one ring for each
+            <strong>power of ten</strong> it needs. The more rings you see,
+            the larger the number. They read from the inside out: the
+            innermost ring is the <strong>units</strong>, the next is the
+            <strong>tens</strong>, then the <strong>hundreds</strong>, and so
+            on.
+          </p>
+          <div class="gif-item gif-frame">
+            <img
+              class="gif-frame-img"
+              src="assets/images/learn/powersoften.gif"
+              alt="Powers of Ten animation"
+            />
+          </div>
+        </div>
+        <div class="gif-col gif-col--side" id="specific-digits">
+          <span class="gif-section-num">1.3</span>
+          <div class="gif-header-row">
+            <p class="gif-subtitle">Reading Specific Digits</p>
+          </div>
+          <p class="gif-caption">
+            Each ring is split into ten equal portions, one for every
+            <strong>digit</strong> from 0 to 9. A <strong>tick mark</strong>
+            fills in up to the digit's own value, so you can read exactly
+            which number that ring holds.
+          </p>
+          <div class="gif-item gif-frame">
+            <img
+              class="gif-frame-img"
+              src="assets/images/learn/1-9.1.gif"
+              alt="Specific Digits animation"
+            />
+          </div>
+        </div>
+        <div class="gif-col" id="negative-numbers">
+          <span class="gif-section-num">1.4</span>
+          <div class="gif-header-row">
+            <p class="gif-subtitle">Negative Numbers</p>
+          </div>
+          <p class="gif-caption">
+            A <strong>negative number</strong> is drawn the same way as its
+            positive counterpart, but its outermost ring turns into a
+            <strong>dashed line</strong>. The dash marks the number as
+            sitting on the other side of <strong>zero</strong>, while the
+            minus sign at the center confirms it.
+          </p>
+          <img
+            class="gif-item"
+            src="assets/images/learn/negative-numbers.svg"
+            alt="Negative Numbers diagram"
+          />
+        </div>
+      </section>
+    </div>
   </body>
 </html>

@@ -14,7 +14,7 @@
 //
 // Positive result: filled, no stroke.  Negative result: stroke only, no fill.
 
-function drawBelt(x1, y1, R1, x2, y2, R2, resultPositive, cssColor) {
+function drawBelt(x1, y1, R1, x2, y2, R2, resultPositive, cssColor, outline) {
   const dx = x2 - x1, dy = y2 - y1;
   const d  = Math.sqrt(dx * dx + dy * dy);
   if (d <= Math.abs(R1 - R2) + 0.5) return; // one circle contains the other
@@ -34,6 +34,15 @@ function drawBelt(x1, y1, R1, x2, y2, R2, resultPositive, cssColor) {
   ctx.lineTo(x2 + R2 * Math.cos(tB_bot), y2 + R2 * Math.sin(tB_bot));
   ctx.arc(x2, y2, R2, tB_bot, tB_top, true); // CCW — far side of right circle
   ctx.closePath();
+
+  // reality mode: just the bare pill outline, regardless of the actual
+  // fill/stroke the result's sign would otherwise call for
+  if (outline) {
+    ctx.strokeStyle = REALITY_OUTLINE_COLOR;
+    ctx.lineWidth   = outline;
+    ctx.stroke();
+    return;
+  }
 
   if (resultPositive) {
     ctx.fillStyle = cssColor;
@@ -170,7 +179,7 @@ function _tokenizeChainSegment(seg) {
 // close with a flat cap there, so the belt fully encloses the square — the
 // same margin shows on every side of it, not just the side facing the
 // circle (matching a circle, which the belt already wraps completely).
-function drawBeltToSquare(ccx, ccy, R, sqx, sqy, H, resultPositive, cssColor) {
+function drawBeltToSquare(ccx, ccy, R, sqx, sqy, H, resultPositive, cssColor, outline) {
   const dx = sqx - ccx, dy = sqy - ccy;
   const d  = Math.sqrt(dx * dx + dy * dy);
   if (d <= Math.abs(R - H) + 0.5) return;
@@ -195,6 +204,13 @@ function drawBeltToSquare(ccx, ccy, R, sqx, sqy, H, resultPositive, cssColor) {
   ctx.lineTo(edgeTopX, edgeTopY); // the flat cap beyond the square
   ctx.closePath();
 
+  if (outline) {
+    ctx.strokeStyle = REALITY_OUTLINE_COLOR;
+    ctx.lineWidth   = outline;
+    ctx.stroke();
+    return;
+  }
+
   if (resultPositive) {
     ctx.fillStyle = cssColor;
     ctx.fill();
@@ -213,7 +229,7 @@ function drawBeltToSquare(ccx, ccy, R, sqx, sqy, H, resultPositive, cssColor) {
 // plain quad whose flat caps sit beyond EACH square's own far side (mirrors
 // drawBeltToSquare's single flat cap, just on both ends), so both squares
 // end up fully enclosed with the same margin as a circle would get.
-function drawBeltSquareToSquare(x1, y1, H1, x2, y2, H2, resultPositive, cssColor) {
+function drawBeltSquareToSquare(x1, y1, H1, x2, y2, H2, resultPositive, cssColor, outline) {
   const dx = x2 - x1, dy = y2 - y1;
   const d  = Math.sqrt(dx * dx + dy * dy);
   if (d <= 0.5) return;
@@ -231,6 +247,13 @@ function drawBeltSquareToSquare(x1, y1, H1, x2, y2, H2, resultPositive, cssColor
   ctx.lineTo(far2X - edgeDx * H2, far2Y - edgeDy * H2);
   ctx.lineTo(far1X - edgeDx * H1, far1Y - edgeDy * H1);
   ctx.closePath();
+
+  if (outline) {
+    ctx.strokeStyle = REALITY_OUTLINE_COLOR;
+    ctx.lineWidth   = outline;
+    ctx.stroke();
+    return;
+  }
 
   if (resultPositive) {
     ctx.fillStyle = cssColor;

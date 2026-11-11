@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_2" data-name="Capa 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3826.2 537.95">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #d9d9d9;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #000;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-3 {
+        font-family: AeonikCondensedTRIAL-Bold, 'Aeonik Condensed TRIAL';
+        font-size: 50px;
+        font-weight: 700;
+      }
+    </style>
+  </defs>
+  <g id="Capa_1-2" data-name="Capa 1">
+    <text class="cls-3" transform="translate(205.59 510.09)"><tspan x="0" y="0">1</tspan></text>
+    <text class="cls-3" transform="translate(625.63 510.09)"><tspan x="0" y="0">2</tspan></text>
+    <text class="cls-3" transform="translate(1050.4309 510.0864)"><tspan x="0" y="0">3</tspan></text>
+    <text class="cls-3" transform="translate(1474.6794 510.0864)"><tspan x="0" y="0">4</tspan></text>
+    <text class="cls-3" transform="translate(1901.2807 510.0864)"><tspan x="0" y="0">5</tspan></text>
+    <text class="cls-3" transform="translate(2326.9815 510.0864)"><tspan x="0" y="0">6</tspan></text>
+    <text class="cls-3" transform="translate(2751.5713 510.0864)"><tspan x="0" y="0">7</tspan></text>
+    <text class="cls-3" transform="translate(3174.8909 510.0864)"><tspan x="0" y="0">8</tspan></text>
+    <text class="cls-3" transform="translate(3599.6912 510.0864)"><tspan x="0" y="0">9</tspan></text>
+    <circle class="cls-2" cx="638.04" cy="213.01" r="212.51"/>
+    <circle class="cls-2" cx="1063.06" cy="213.01" r="212.51"/>
+    <circle class="cls-2" cx="1488.08" cy="213.01" r="212.51"/>
+    <circle class="cls-2" cx="1913.1" cy="213.01" r="212.51"/>
+    <circle class="cls-2" cx="2338.12" cy="213.01" r="212.51"/>
+    <circle class="cls-2" cx="2763.15" cy="213.01" r="212.51"/>
+    <circle class="cls-2" cx="3188.17" cy="213.01" r="212.51"/>
+    <circle class="cls-2" cx="3613.19" cy="213.01" r="212.51"/>
+    <path class="cls-1" d="M828.41,155.13l-190.38,61.88V16.91c43.92,0,84.58,14.15,117.63,38.22,33.79,24.6,59.55,59.45,72.75,99.99Z"/>
+    <path class="cls-1" d="M1262.8,213.81c0,21.56-3.38,42.37-9.82,61.92l-190.41-61.92V13.57c43.96,0,84.64,14.16,117.71,38.25,33.81,24.62,59.59,59.49,72.7,100.06,6.44,19.44,9.82,40.26,9.82,61.92Z"/>
+    <path class="cls-1" d="M1687.56,213.06c0,21.48-3.37,42.21-9.79,61.69-13.06,40.42-38.74,75.16-72.43,99.69l-117.27-161.38V13.57c43.9,0,84.43,14.11,117.27,38.11,33.69,24.42,59.37,59.27,72.53,99.69,6.32,19.37,9.68,40.11,9.68,61.69Z"/>
+    <path class="cls-1" d="M2113.72,213.01c0,21.47-3.37,42.2-9.79,61.67-13.05,40.41-38.73,75.15-72.41,99.67-32.94,24-73.46,38.1-117.24,38.1V13.57c43.78,0,84.3,14.1,117.24,38.1,33.68,24.52,59.36,59.25,72.51,99.67,6.32,19.37,9.68,40.1,9.68,61.67Z"/>
+    <path class="cls-1" d="M2539.53,213.01c0,21.47-3.37,42.2-9.79,61.67-13.05,40.41-38.73,75.15-72.41,99.67-32.84,24-73.36,38.1-117.24,38.1-43.89,0-84.3-14.1-117.24-38.1l117.24-161.34V13.57c43.89,0,84.41,14.1,117.24,38.1,33.68,24.42,59.36,59.25,72.51,99.67,6.32,19.37,9.68,40.1,9.68,61.67Z"/>
+    <path class="cls-1" d="M2962.6,213.01c0,21.47-3.37,42.2-9.78,61.67-13.05,40.41-38.73,75.15-72.41,99.67-32.95,24-73.47,38.1-117.24,38.1-43.78,0-84.3-14.1-117.24-38.1-33.68-24.52-59.36-59.25-72.41-99.67l189.65-61.67V13.57c43.78,0,84.3,14.1,117.24,38.1,33.68,24.52,59.35,59.25,72.51,99.67,6.32,19.37,9.68,40.1,9.68,61.67Z"/>
+    <path class="cls-1" d="M3387.6,213.01c0,21.47-3.37,42.2-9.78,61.67-13.05,40.41-38.73,75.15-72.41,99.67-32.94,24-73.46,38.1-117.24,38.1-43.78,0-84.3-14.1-117.24-38.1-33.68-24.52-59.36-59.25-72.41-99.67-6.42-19.47-9.79-40.2-9.79-61.67,0-21.58,3.37-42.31,9.68-61.67l189.76,61.67V13.57c43.78,0,84.3,14.1,117.24,38.1,33.68,24.52,59.36,59.25,72.41,99.67,6.42,19.37,9.78,40.1,9.78,61.67Z"/>
+    <path class="cls-1" d="M3812.63,213.01c0,21.47-3.37,42.2-9.79,61.67-13.05,40.41-38.73,75.15-72.41,99.67-32.84,24-73.35,38.1-117.24,38.1-43.78,0-84.3-14.1-117.24-38.1-33.68-24.52-59.36-59.25-72.41-99.67-6.42-19.47-9.78-40.2-9.78-61.67,0-21.58,3.37-42.31,9.78-61.67,13.05-40.41,38.73-75.14,72.41-99.67l117.24,161.34V13.57c43.89,0,84.41,14.1,117.24,38.1,33.68,24.42,59.36,59.25,72.51,99.67,6.32,19.37,9.68,40.1,9.68,61.67Z"/>
+    <circle class="cls-2" cx="213.01" cy="213.01" r="212.51"/>
+    <path class="cls-1" d="M329.73,55.14l-117.63,161.87V16.91c43.93,0,84.58,14.15,117.63,38.22Z"/>
+    <g>
+      <g id="_Repetición_radial_" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="212.1" y1="416.45" x2="212.1" y2="405.42"/>
+      </g>
+      <g id="_Repetición_radial_-2" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="94.87" y1="378.36" x2="101.35" y2="369.44"/>
+      </g>
+      <g id="_Repetición_radial_-3" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="22.42" y1="278.64" x2="32.91" y2="275.23"/>
+      </g>
+      <g id="_Repetición_radial_-4" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="22.42" y1="155.38" x2="32.91" y2="158.78"/>
+      </g>
+      <g id="_Repetición_radial_-5" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="94.87" y1="55.66" x2="101.35" y2="64.58"/>
+      </g>
+      <g id="_Repetición_radial_-6" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="212.1" y1="17.57" x2="212.1" y2="28.59"/>
+      </g>
+      <g id="_Repetición_radial_-7" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="329.33" y1="55.66" x2="322.85" y2="64.58"/>
+      </g>
+      <g id="_Repetición_radial_-8" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="401.78" y1="155.38" x2="391.29" y2="158.78"/>
+      </g>
+      <g id="_Repetición_radial_-9" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="401.78" y1="278.64" x2="391.29" y2="275.23"/>
+      </g>
+      <g id="_Repetición_radial_-10" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="329.33" y1="378.36" x2="322.85" y2="369.44"/>
+      </g>
+    </g>
+    <g>
+      <g id="_Repetición_radial_-11" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="638.04" y1="416.45" x2="638.04" y2="405.38"/>
+      </g>
+      <g id="_Repetición_radial_-12" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="520.81" y1="378.36" x2="527.31" y2="369.41"/>
+      </g>
+      <g id="_Repetición_radial_-13" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="448.36" y1="278.64" x2="458.88" y2="275.22"/>
+      </g>
+      <g id="_Repetición_radial_-14" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="448.36" y1="155.38" x2="458.88" y2="158.8"/>
+      </g>
+      <g id="_Repetición_radial_-15" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="520.81" y1="55.66" x2="527.31" y2="64.61"/>
+      </g>
+      <g id="_Repetición_radial_-16" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="638.04" y1="17.57" x2="638.04" y2="28.63"/>
+      </g>
+      <g id="_Repetición_radial_-17" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="755.26" y1="55.66" x2="748.76" y2="64.61"/>
+      </g>
+      <g id="_Repetición_radial_-18" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="827.71" y1="155.38" x2="817.19" y2="158.8"/>
+      </g>
+      <g id="_Repetición_radial_-19" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="827.71" y1="278.64" x2="817.19" y2="275.22"/>
+      </g>
+      <g id="_Repetición_radial_-20" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="755.26" y1="378.36" x2="748.76" y2="369.41"/>
+      </g>
+    </g>
+    <g>
+      <g id="_Repetición_radial_-21" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1063.36" y1="412.45" x2="1063.36" y2="401.35"/>
+      </g>
+      <g id="_Repetición_radial_-22" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="946.13" y1="374.36" x2="952.65" y2="365.38"/>
+      </g>
+      <g id="_Repetición_radial_-23" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="873.68" y1="274.64" x2="884.23" y2="271.21"/>
+      </g>
+      <g id="_Repetición_radial_-24" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="873.68" y1="151.38" x2="884.23" y2="154.81"/>
+      </g>
+      <g id="_Repetición_radial_-25" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="946.13" y1="51.66" x2="952.65" y2="60.64"/>
+      </g>
+      <g id="_Repetición_radial_-26" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1063.36" y1="13.57" x2="1063.36" y2="24.67"/>
+      </g>
+      <g id="_Repetición_radial_-27" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1180.58" y1="51.66" x2="1174.06" y2="60.64"/>
+      </g>
+      <g id="_Repetición_radial_-28" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1253.03" y1="151.38" x2="1242.48" y2="154.81"/>
+      </g>
+      <g id="_Repetición_radial_-29" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1253.03" y1="274.64" x2="1242.48" y2="271.21"/>
+      </g>
+      <g id="_Repetición_radial_-30" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1180.58" y1="374.36" x2="1174.06" y2="365.38"/>
+      </g>
+    </g>
+    <g>
+      <g id="_Repetición_radial_-31" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1488.11" y1="412.45" x2="1488.11" y2="401.42"/>
+      </g>
+      <g id="_Repetición_radial_-32" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1370.88" y1="374.36" x2="1377.36" y2="365.44"/>
+      </g>
+      <g id="_Repetición_radial_-33" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1298.43" y1="274.64" x2="1308.92" y2="271.23"/>
+      </g>
+      <g id="_Repetición_radial_-34" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1298.43" y1="151.38" x2="1308.92" y2="154.79"/>
+      </g>
+      <g id="_Repetición_radial_-35" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1370.88" y1="51.66" x2="1377.36" y2="60.59"/>
+      </g>
+      <g id="_Repetición_radial_-36" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1488.11" y1="13.57" x2="1488.11" y2="24.6"/>
+      </g>
+      <g id="_Repetición_radial_-37" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1605.33" y1="51.66" x2="1598.85" y2="60.59"/>
+      </g>
+      <g id="_Repetición_radial_-38" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1677.78" y1="151.38" x2="1667.29" y2="154.79"/>
+      </g>
+      <g id="_Repetición_radial_-39" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1677.78" y1="274.64" x2="1667.29" y2="271.23"/>
+      </g>
+      <g id="_Repetición_radial_-40" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1605.33" y1="374.36" x2="1598.85" y2="365.44"/>
+      </g>
+    </g>
+    <g>
+      <g id="_Repetición_radial_-41" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1914.28" y1="412.45" x2="1914.28" y2="401.38"/>
+      </g>
+      <g id="_Repetición_radial_-42" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1797.05" y1="374.36" x2="1803.56" y2="365.4"/>
+      </g>
+      <g id="_Repetición_radial_-43" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1724.6" y1="274.64" x2="1735.14" y2="271.22"/>
+      </g>
+      <g id="_Repetición_radial_-44" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1724.6" y1="151.38" x2="1735.14" y2="154.81"/>
+      </g>
+      <g id="_Repetición_radial_-45" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1797.05" y1="51.66" x2="1803.56" y2="60.62"/>
+      </g>
+      <g id="_Repetición_radial_-46" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="1914.28" y1="13.57" x2="1914.28" y2="24.65"/>
+      </g>
+      <g id="_Repetición_radial_-47" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2031.51" y1="51.66" x2="2025" y2="60.62"/>
+      </g>
+      <g id="_Repetición_radial_-48" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2103.96" y1="151.38" x2="2093.42" y2="154.8"/>
+      </g>
+      <g id="_Repetición_radial_-49" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2103.96" y1="274.64" x2="2093.42" y2="271.22"/>
+      </g>
+      <g id="_Repetición_radial_-50" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2031.51" y1="374.36" x2="2025" y2="365.4"/>
+      </g>
+    </g>
+    <g>
+      <g id="_Repetición_radial_-51" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2340.09" y1="412.45" x2="2340.09" y2="401.45"/>
+      </g>
+      <g id="_Repetición_radial_-52" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2222.86" y1="374.36" x2="2229.33" y2="365.46"/>
+      </g>
+      <g id="_Repetición_radial_-53" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2150.41" y1="274.64" x2="2160.88" y2="271.24"/>
+      </g>
+      <g id="_Repetición_radial_-54" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2150.41" y1="151.38" x2="2160.88" y2="154.78"/>
+      </g>
+      <g id="_Repetición_radial_-55" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2222.86" y1="51.66" x2="2229.33" y2="60.56"/>
+      </g>
+      <g id="_Repetición_radial_-56" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2340.09" y1="13.57" x2="2340.09" y2="24.58"/>
+      </g>
+      <g id="_Repetición_radial_-57" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2457.32" y1="51.66" x2="2450.85" y2="60.56"/>
+      </g>
+      <g id="_Repetición_radial_-58" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2529.77" y1="151.38" x2="2519.3" y2="154.78"/>
+      </g>
+      <g id="_Repetición_radial_-59" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2529.77" y1="274.64" x2="2519.3" y2="271.24"/>
+      </g>
+      <g id="_Repetición_radial_-60" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2457.32" y1="374.36" x2="2450.85" y2="365.46"/>
+      </g>
+    </g>
+    <g>
+      <g id="_Repetición_radial_-61" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2763.15" y1="412.45" x2="2763.15" y2="401.4"/>
+      </g>
+      <g id="_Repetición_radial_-62" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2645.92" y1="374.36" x2="2652.41" y2="365.42"/>
+      </g>
+      <g id="_Repetición_radial_-63" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2573.47" y1="274.64" x2="2583.98" y2="271.23"/>
+      </g>
+      <g id="_Repetición_radial_-64" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2573.47" y1="151.38" x2="2583.98" y2="154.8"/>
+      </g>
+      <g id="_Repetición_radial_-65" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2645.92" y1="51.66" x2="2652.41" y2="60.6"/>
+      </g>
+      <g id="_Repetición_radial_-66" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2763.15" y1="13.57" x2="2763.15" y2="24.62"/>
+      </g>
+      <g id="_Repetición_radial_-67" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2880.37" y1="51.66" x2="2873.88" y2="60.6"/>
+      </g>
+      <g id="_Repetición_radial_-68" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2952.82" y1="151.38" x2="2942.31" y2="154.8"/>
+      </g>
+      <g id="_Repetición_radial_-69" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2952.82" y1="274.64" x2="2942.32" y2="271.23"/>
+      </g>
+      <g id="_Repetición_radial_-70" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2880.37" y1="374.36" x2="2873.88" y2="365.42"/>
+      </g>
+    </g>
+    <g>
+      <g id="_Repetición_radial_-71" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3188.17" y1="412.45" x2="3188.17" y2="401.47"/>
+      </g>
+      <g id="_Repetición_radial_-72" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3070.94" y1="374.36" x2="3077.4" y2="365.47"/>
+      </g>
+      <g id="_Repetición_radial_-73" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2998.49" y1="274.64" x2="3008.94" y2="271.25"/>
+      </g>
+      <g id="_Repetición_radial_-74" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="2998.49" y1="151.38" x2="3008.94" y2="154.78"/>
+      </g>
+      <g id="_Repetición_radial_-75" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3070.94" y1="51.66" x2="3077.4" y2="60.55"/>
+      </g>
+      <g id="_Repetición_radial_-76" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3188.17" y1="13.57" x2="3188.17" y2="24.56"/>
+      </g>
+      <g id="_Repetición_radial_-77" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3305.4" y1="51.66" x2="3298.94" y2="60.55"/>
+      </g>
+      <g id="_Repetición_radial_-78" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3377.85" y1="151.38" x2="3367.4" y2="154.78"/>
+      </g>
+      <g id="_Repetición_radial_-79" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3377.85" y1="274.64" x2="3367.4" y2="271.25"/>
+      </g>
+      <g id="_Repetición_radial_-80" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3305.4" y1="374.36" x2="3298.94" y2="365.47"/>
+      </g>
+    </g>
+    <g>
+      <g id="_Repetición_radial_-81" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3613.19" y1="412.45" x2="3613.19" y2="400.35"/>
+      </g>
+      <g id="_Repetición_radial_-82" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3495.97" y1="374.36" x2="3503.08" y2="364.57"/>
+      </g>
+      <g id="_Repetición_radial_-83" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3423.52" y1="274.64" x2="3435.02" y2="270.9"/>
+      </g>
+      <g id="_Repetición_radial_-84" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3423.52" y1="151.38" x2="3435.02" y2="155.12"/>
+      </g>
+      <g id="_Repetición_radial_-85" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3495.97" y1="51.66" x2="3503.08" y2="61.45"/>
+      </g>
+      <g id="_Repetición_radial_-86" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3613.19" y1="13.57" x2="3613.19" y2="25.67"/>
+      </g>
+      <g id="_Repetición_radial_-87" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3730.42" y1="51.66" x2="3723.31" y2="61.45"/>
+      </g>
+      <g id="_Repetición_radial_-88" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3802.87" y1="151.38" x2="3791.36" y2="155.12"/>
+      </g>
+      <g id="_Repetición_radial_-89" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3802.87" y1="274.64" x2="3791.37" y2="270.9"/>
+      </g>
+      <g id="_Repetición_radial_-90" data-name="&amp;lt;Repetición radial&amp;gt;">
+        <line class="cls-2" x1="3730.42" y1="374.36" x2="3723.31" y2="364.57"/>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -26,6 +26,14 @@
 
 @font-face {
   font-family: "KMRWaldenburg";
+  src: url("../assets/fonts/KMRWaldenburg-Thin.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "KMRWaldenburg";
   src: url("../assets/fonts/KMRWaldenburg-Light.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
@@ -139,6 +147,7 @@
   --text-lg: 28px;
   --text-xl: 40px;
   --text-2xl: 64px;
+  --text-3xl: 88px;
 
   /* typography — weight */
   --weight-regular: 400;

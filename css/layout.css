@@ -10,6 +10,7 @@
   align-items: stretch;
   z-index: 100;
   overflow: visible;
+  border-bottom: 0.5px solid var(--grey-1);
 }
 
 /* logo — fixed to the page's top-left corner, aligned to the grid margins */
@@ -39,9 +40,8 @@
 
 /* three links — Learn/Play/About. Each item's box spans from the PRECEDING
    column's right edge through the gap to its OWN column (Learn: col 7,
-   Play: col 8, About: col 9): number sits INSIDE the previous column, flush
-   at its right edge (not in the gap); dash centered in the gap; label at the
-   box's own column (left edge = previous-column-right-edge + one gap).
+   Play: col 8, About: col 9): label at the box's own column (left edge =
+   previous-column-right-edge + one gap).
    Vertically, everything is bottom-aligned with the logo's own bottom edge
    (logo height: 20px, see .nav-logo-img). */
 .nav-links {
@@ -57,7 +57,7 @@
   font-weight: 400;
   font-size: var(--text-xs);
   color: var(--color-main);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   text-decoration: none;
   line-height: 1;
   transition: color var(--duration-fast) var(--ease);
@@ -71,13 +71,6 @@
 }
 .nav-link-about {
   left: calc(var(--grid-margin-x) + 8 * var(--grid-col-width) + 7 * var(--grid-gap));
-}
-
-.nav-num {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  transform: translateX(-100%); /* right edge flush with the box's left = previous column's right edge */
 }
 
 .nav-label {

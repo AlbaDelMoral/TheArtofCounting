@@ -80,6 +80,52 @@ function setActiveMode(mode) {
 let canvasBgHex = "#ffffff";
 let _exportTransparent = false;
 
+// draws a "reality" number label (centered on x,y in the current transform)
+// as light grey Waldenburg Thin text, shrunk to fit within maxWidth so it
+// always stays inside its own circle/square — no blur, no backdrop.
+function _drawRealityLabel(label, x, y, alpha, fontSize, maxWidth) {
+  let size = fontSize;
+  drawingContext.font = `100 normal ${size}px KMRWaldenburg, sans-serif`;
+  const w = drawingContext.measureText(label).width;
+  if (w > maxWidth) {
+    size = size * (maxWidth / w);
+    drawingContext.font = `100 normal ${size}px KMRWaldenburg, sans-serif`;
+  }
+  drawingContext.textAlign = "center";
+  drawingContext.textBaseline = "middle";
+  drawingContext.globalAlpha = alpha;
+  drawingContext.fillStyle = "#bfbfbf";
+  drawingContext.fillText(label, x, y);
+}
+
+// stroke color/width for the reality-mode shape "exoskeleton" (circle/square
+// outlines + belt/pill outlines) — level-1 grey, scaled to the shape's own
+// size (same ratio+floor pattern as the belts' own negative-result stroke)
+// instead of one flat weight that looked the same on a tiny circle and a
+// huge pill.
+const REALITY_OUTLINE_COLOR = "#2e2d2c";
+const REALITY_OUTLINE_RATIO = 0.01;
+const REALITY_OUTLINE_MIN_WIDTH = 0.4;
+function _realityStrokeWidth(r) {
+  return Math.max(REALITY_OUTLINE_MIN_WIDTH, r * REALITY_OUTLINE_RATIO);
+}
+
+// Biggest node in a whole operations chain, recursing into nested chain
+// terms (scaled back up by their own chainScale so it's comparable to the
+// top level) — used to pick ONE outline width for the whole operation
+// instead of every circle/square/belt sizing its own.
+function _maxChainR(nodes, scaleAcc = 1) {
+  let m = 0;
+  for (const n of nodes) {
+    if (n.kind === "chain") {
+      m = Math.max(m, _maxChainR(n.nestedLayout.nodes, scaleAcc * n.chainScale));
+    } else {
+      m = Math.max(m, n.r * scaleAcc);
+    }
+  }
+  return m;
+}
+
 // ─── numbers-mode state ─────────────────────────────────────────────────────
 let compositionData = [];
 let composition = [];
@@ -99,7 +145,11 @@ function generateCompositionData() {
       fontIdx: floor(random(FONTS.length)),
     });
   }
-  computeNumbersPositions();
+  // honor the current size slider exactly, same as dragging it directly —
+  // otherwise a random re-roll can look like it reset "size" back down
+  // whenever the new composition's total width would otherwise get
+  // auto-shrunk to fit the panel area.
+  computeNumbersPositions(true);
 }
 
 function computeNumbersPositions(allowOverflow = false) {
@@ -463,7 +513,12 @@ function reshuffleOperationsColors() {
 // its own node's position and calls back into this same function.
 // `data` is the prepared-data object (angles/rotSpeeds/fontIdxs) parallel
 // to `nodes` — chainData[c] at the top level, node.nestedData when nested.
-function _drawChainNodes(nodes, belts, data, shapeAlpha, textAlpha) {
+// `outlineWidth` is the reality-mode stroke width for every outline this
+// whole operation draws (computed once, from the operation's biggest shape,
+// by the caller) — passed through as-is so every circle/square/belt in the
+// operation, nested terms included, shares one thickness instead of each
+// shape sizing its own.
+function _drawChainNodes(nodes, belts, data, shapeAlpha, textAlpha, outlineWidth) {
   for (let i = 0; i < data.angles.length; i++) data.angles[i] += data.rotSpeeds[i];
 
   blendMode(BLEND);
@@ -492,6 +547,28 @@ function _drawChainNodes(nodes, belts, data, shapeAlpha, textAlpha) {
     }
   }
 
+  // reality mode: the belts' own bare pill outline — the "exoskeleton" that
+  // shows how the numbers are grouped once the filled shapes above have
+  // faded out.
+  if (textAlpha > 0) {
+    drawingContext.globalAlpha = textAlpha;
+    for (let i = 0; i < belts.length; i++) {
+      const cA = nodes[i];
+      const cB = nodes[i + 1];
+      const RA = cA.r * (1 + CONFIG_OPERATIONS.beltMarginRatio);
+      const RB = cB.r * (1 + CONFIG_OPERATIONS.beltMarginRatio);
+      if (cA.kind === "mult" && cB.kind === "mult") {
+        drawBeltSquareToSquare(cA.x, cA.y, RA, cB.x, cB.y, RB, true, null, outlineWidth);
+      } else if (cA.kind === "mult") {
+        drawBeltToSquare(cB.x, cB.y, RB, cA.x, cA.y, RA, true, null, outlineWidth);
+      } else if (cB.kind === "mult") {
+        drawBeltToSquare(cA.x, cA.y, RA, cB.x, cB.y, RB, true, null, outlineWidth);
+      } else {
+        drawBelt(cA.x, cA.y, RA, cB.x, cB.y, RB, true, null, outlineWidth);
+      }
+    }
+  }
+
   drawingContext.globalAlpha = 1;
   for (let i = 0; i < nodes.length; i++) {
     const circle = nodes[i];
@@ -517,7 +594,10 @@ function _drawChainNodes(nodes, belts, data, shapeAlpha, textAlpha) {
       // instead, same as it did before the cap existed.
       const prevBeltStrokeMax = CONFIG.beltStrokeMax;
       CONFIG.beltStrokeMax = undefined;
-      _drawChainNodes(circle.nestedLayout.nodes, circle.nestedLayout.belts, circle.nestedData, shapeAlpha, textAlpha);
+      // divide out this nested pill's own scale(chainScale) above, so the
+      // stroke renders at the SAME on-screen width as everything outside
+      // it, not that width shrunk again by the nesting.
+      _drawChainNodes(circle.nestedLayout.nodes, circle.nestedLayout.belts, circle.nestedData, shapeAlpha, textAlpha, outlineWidth / circle.chainScale);
       CONFIG.beltStrokeMax = prevBeltStrokeMax;
       pop();
       continue;
@@ -538,6 +618,11 @@ function _drawChainNodes(nodes, belts, data, shapeAlpha, textAlpha) {
         // drawNumber paints that over this same erase step. Painting it
         // here directly keeps the square's gaps the same grey instead of
         // staying this erase fill's own color (previously plain white).
+        // Faded by shapeAlpha too — left fully opaque, it used to sit there
+        // as a solid grey square after the bands on top of it had already
+        // faded away, then pop out abruptly once shapeAlpha hit 0 instead
+        // of fading out along with everything else.
+        drawingContext.globalAlpha = shapeAlpha;
         fill(CONFIG_OPERATIONS.bgColor[0], CONFIG_OPERATIONS.bgColor[1], CONFIG_OPERATIONS.bgColor[2]);
         rectMode(CENTER);
         rect(circle.x, circle.y, eraseHalf * 2, eraseHalf * 2);
@@ -576,16 +661,14 @@ function _drawChainNodes(nodes, belts, data, shapeAlpha, textAlpha) {
       if (textAlpha > 0) {
         push();
         translate(circle.x, circle.y);
-        const fs = Math.round(circle.r * 0.5);
         drawingContext.globalAlpha = textAlpha;
-        drawingContext.font = `${f.style} ${f.weight} ${fs}px ${f.family}, sans-serif`;
-        drawingContext.textAlign = "center";
-        drawingContext.textBaseline = "middle";
-        drawingContext.fillStyle = "#111111";
-        const lastResult = circle.steps[circle.steps.length - 1].result;
-        const shownResult = circle.sign < 0 ? -lastResult : lastResult;
-        const label = (circle.sign < 0 ? "-(" : "") + circle.exprStr + (circle.sign < 0 ? ")" : "") + " = " + shownResult;
-        drawingContext.fillText(label, 0, 0);
+        noFill();
+        stroke(REALITY_OUTLINE_COLOR);
+        strokeWeight(outlineWidth);
+        rectMode(CENTER);
+        rect(0, 0, eraseHalf * 2, eraseHalf * 2);
+        const label = (circle.sign < 0 ? "-(" : "") + circle.exprStr + (circle.sign < 0 ? ")" : "");
+        _drawRealityLabel(label, 0, 0, textAlpha, circle.r * 0.5, circle.r * 1.6);
         pop();
       }
       continue;
@@ -612,14 +695,13 @@ function _drawChainNodes(nodes, belts, data, shapeAlpha, textAlpha) {
     if (textAlpha > 0) {
       push();
       translate(circle.x, circle.y);
-      rotate(data.angles[i]);
-      const fs = Math.round(circle.r * 0.65);
       drawingContext.globalAlpha = textAlpha;
-      drawingContext.font = `${f.style} ${f.weight} ${fs}px ${f.family}, sans-serif`;
-      drawingContext.textAlign = "center";
-      drawingContext.textBaseline = "middle";
-      drawingContext.fillStyle = "#111111";
-      drawingContext.fillText(circle.numStr, 0, 0);
+      noFill();
+      stroke(REALITY_OUTLINE_COLOR);
+      strokeWeight(outlineWidth);
+      ellipse(0, 0, circle.r * 2, circle.r * 2);
+      rotate(data.angles[i]);
+      _drawRealityLabel(circle.numStr, 0, 0, textAlpha, circle.r * 0.65, circle.r * 1.6);
       pop();
     }
   }
@@ -1314,6 +1396,12 @@ function createPanel() {
   exportBtn.parent(panel);
   exportBtn.mousePressed(() => saveHQ(false));
 
+  const exportSvgBtn = createElement("button", "export svg").class(
+    "calc-btn calc-random-btn panel-export-btn panel-export-svg-btn",
+  );
+  exportSvgBtn.parent(panel);
+  exportSvgBtn.mousePressed(() => exportSVG());
+
   updateValues();
   _syncDropdowns();
 }
@@ -1363,36 +1451,14 @@ function updateValues() {
   if (valSpans.reality) valSpans.reality.html(CONFIG_NUMBERS.reality);
 }
 
-// ─── canvas region — confined to columns 3 through the right margin ───────
-// The slider panel occupies columns 1–2 (through their trailing gap); the
-// visualization canvas is hard-limited to column 3 onward, so nothing drawn
-// or panned can ever appear to the left of it. Reads the grid's own CSS vars
-// (same ones panel.css / grid-overlay.css use) via a throwaway measuring div.
-function _gridPx(varName) {
-  const el = document.createElement("div");
-  el.style.cssText = `position:fixed; width:var(${varName}); visibility:hidden;`;
-  document.body.appendChild(el);
-  const w = el.getBoundingClientRect().width;
-  el.remove();
-  return w;
-}
-
+// ─── canvas region — full-bleed, edge to edge ──────────────────────────────
+// The slider panel floats on top with its own transparent/blurred hover
+// state (see panel.css), so the canvas now draws underneath it too —
+// otherwise there'd be nothing but blank page background to see through it.
+// Page margins no longer inset it: it always spans the full viewport, same
+// as the mobile layer below panel.css's breakpoint.
 function _getCanvasRegion() {
-  // Below panel.css's mobile breakpoint, the canvas is a true full-screen
-  // background layer — the panel is a floating overlay on top of it (see
-  // .mobile-fab / .side-panel--menu-open), not something that shares the
-  // viewport with it, so opening/closing or resizing the panel never
-  // resizes or repositions the canvas.
-  if (window.innerWidth <= 768) {
-    return { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight };
-  }
-  const marginX = _gridPx("--grid-margin-x");
-  const colWidth = _gridPx("--grid-col-width");
-  const gap = _gridPx("--grid-gap");
-  const col3Left = marginX + 2 * (colWidth + gap); // left edge of column 3
-  const x = col3Left;
-  const w = Math.max(100, window.innerWidth - marginX - col3Left);
-  return { x, y: 0, w, h: window.innerHeight };
+  return { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight };
 }
 
 let _canvasEl; // the p5.Element wrapping our <canvas>, kept positioned to the region above
@@ -1457,13 +1523,13 @@ function draw() {
       drawNumber(item.numStr, 0, 0, item.r);
 
       if (CONFIG_NUMBERS.reality > 0) {
-        const fontSize = Math.round(item.r * 0.65);
-        drawingContext.globalAlpha = _r > 50 ? 1 : _r / 50;
-        drawingContext.font = `${f.style} ${f.weight} ${fontSize}px ${f.family}, sans-serif`;
-        drawingContext.textAlign = "center";
-        drawingContext.textBaseline = "middle";
-        drawingContext.fillStyle = "#111111";
-        drawingContext.fillText(item.numStr, 0, 0);
+        const labelAlpha = _r > 50 ? 1 : _r / 50;
+        drawingContext.globalAlpha = labelAlpha;
+        noFill();
+        stroke(REALITY_OUTLINE_COLOR);
+        strokeWeight(_realityStrokeWidth(item.r));
+        ellipse(0, 0, item.r * 2, item.r * 2);
+        _drawRealityLabel(item.numStr, 0, 0, labelAlpha, item.r * 0.65, item.r * 1.6);
       }
 
       drawingContext.globalAlpha = 1;
@@ -1486,7 +1552,11 @@ function draw() {
       const _rOps = CONFIG_OPERATIONS.reality;
       const shapeAlpha = _rOps < 50 ? 1 : 1 - (_rOps - 50) / 50;
       const textAlpha = _rOps > 50 ? 1 : _rOps / 50;
-      _drawChainNodes(chain.circles, chain.belts, data, shapeAlpha, textAlpha);
+      // one outline width for the whole chain, sized off its biggest shape,
+      // so every circle/square/belt in it — nested terms included — reads
+      // as the same thickness instead of each sizing its own.
+      const outlineWidth = _realityStrokeWidth(_maxChainR(chain.circles));
+      _drawChainNodes(chain.circles, chain.belts, data, shapeAlpha, textAlpha, outlineWidth);
     }
     randomSeed();
     pop();
@@ -1516,15 +1586,20 @@ function draw() {
         // Reality text for THIS step only, centered in THIS step's own
         // square — not one combined label in the middle of the canvas.
         if (textAlpha > 0) {
-          const step = parsedSteps[i];
-          const label = _fmtMultSide(step.sideA) + " × " + _fmtMultSide(step.sideB) + " = " + step.result;
-          const fontSize = constrain(off.half * 0.36, 8, 80);
           drawingContext.globalAlpha = textAlpha;
-          drawingContext.font = `900 normal ${fontSize}px KMRWaldenburg, sans-serif`;
-          drawingContext.textAlign = "center";
-          drawingContext.textBaseline = "middle";
-          drawingContext.fillStyle = "#111111";
-          drawingContext.fillText(label, width / 2, height / 2);
+          noFill();
+          stroke(REALITY_OUTLINE_COLOR);
+          strokeWeight(_realityStrokeWidth(off.half));
+          rectMode(CENTER);
+          rect(width / 2, height / 2, off.half * 2, off.half * 2);
+
+          const step = parsedSteps[i];
+          const label = _fmtMultSide(step.sideA) + " × " + _fmtMultSide(step.sideB);
+          // uncapped — scales with the square exactly like a number circle's
+          // own label does with its radius, relying on _drawRealityLabel's
+          // own shrink-to-fit for when the text would otherwise overflow
+          const fontSize = off.half * 0.36;
+          _drawRealityLabel(label, width / 2, height / 2, textAlpha, fontSize, off.half * 1.7);
         }
         pop();
       }
@@ -1547,20 +1622,6 @@ function draw() {
     }
     pop();
     drawingContext.globalAlpha = 1;
-
-    if (parsedSteps && parsedSteps.length) {
-      push();
-      fill(0, 0, 55);
-      noStroke();
-      textSize(11);
-      textAlign(CENTER);
-      text(
-        currentExpr + "  =  " + parsedSteps[parsedSteps.length - 1].result,
-        width / 2,
-        height - 20,
-      );
-      pop();
-    }
   }
 
   if (CONFIG.bokeh > 0) {
@@ -1623,6 +1684,7 @@ function windowResized() {
   generateGrain();
   if (activeMode === "numbers") computeNumbersPositions();
   else if (activeMode === "operations") computeOperationsPositions();
+  else if (activeMode === "multiplication") _fitMultiplicationView();
   redraw();
 }
 

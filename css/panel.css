@@ -76,19 +76,27 @@ canvas {
    ═══════════════════════════════════════════════════════════════════════════ */
 .side-panel {
   position: fixed;
+  /* reaches the very top edge of the page, behind the (transparent) navbar */
   top: 0;
-  left: var(--grid-margin-x, 1.875rem);
-  width: var(--panel-width);
+  /* box reaches the true left edge of the page, not column 1 — the grid
+     margin is added back as left padding below so the content itself still
+     lines up at column 1 like before */
+  left: 0;
+  width: calc(var(--panel-width) + var(--grid-margin-x, 1.875rem));
   min-width: var(--panel-min-width);
   max-width: var(--panel-max-width);
   height: 100vh;
+  border-radius: 0;
   background: var(--panel-bg);
   backdrop-filter: blur(0px);
   -webkit-backdrop-filter: blur(0px);
   /* right padding reserves the trailing gap so slider content stops at the
      content edge (column 2's end) while the box/background behind it
-     still reaches the divider */
-  padding: calc(var(--nav-height) + 40px) var(--grid-gap) 24px 0;
+     still reaches the divider; left padding restores the grid margin so
+     content still starts at column 1 even though the box itself starts
+     at the page edge */
+  padding: calc(var(--nav-height) + 40px) var(--grid-gap) 24px
+    var(--grid-margin-x, 1.875rem);
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -106,6 +114,37 @@ canvas {
 
 .side-panel::-webkit-scrollbar {
   display: none;
+}
+
+/* ── frosted hover reveal (same behaviour as .learn-nav:hover) — on
+   hover-capable devices the panel sits dimmed and transparent until the
+   cursor is actually over it, then tints grey and blurs the canvas behind
+   it. Scoped to (hover: hover) so touch devices keep the plain always-on
+   panel from the mobile rules below. ───────────────────────────────────── */
+@media (hover: hover) {
+  .side-panel {
+    /* background + blur are held CONSTANT between idle and hover (same
+       values in both rules below) and only opacity moves. Animating
+       `background`/`backdrop-filter` themselves is what caused the
+       stutter/flicker — filter and color interpolation over a live,
+       constantly-redrawing canvas is glitchy, and gets worse if the
+       transition reverses mid-flight (quick in/out). opacity is the one
+       property that fades perfectly smoothly even when reversed, so
+       everything now changes together simply because only one thing is
+       changing. */
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    opacity: 0.35;
+    will-change: opacity;
+    transition: opacity 0.3s var(--ease) 0.2s;
+  }
+
+  .side-panel:hover {
+    opacity: 1;
+    /* no delay going IN — should brighten immediately on hover */
+    transition: opacity 0.3s var(--ease);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -296,6 +335,10 @@ canvas {
 
 .panel-export-btn {
   margin-top: 12px;
+}
+
+.panel-export-svg-btn {
+  margin-top: 6px;
 }
 
 .calc-random-btn {
@@ -807,4 +850,8 @@ canvas {
   .calc-display {
     font-size: 22px;
   }
+}
+
+.site-nav {
+  border-bottom: none !important;
 }

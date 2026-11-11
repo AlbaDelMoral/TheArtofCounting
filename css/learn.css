@@ -1,0 +1,425 @@
+.intro-section {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 100vh;
+  background: #ff8fc7;
+}
+
+.intro-shape {
+  position: absolute;
+  bottom: 0;
+  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
+}
+
+/* circle, cols 1-3 */
+.intro-shape--circle {
+  position: absolute;
+  left: var(--grid-margin-x, 1.875rem);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: var(--grey-3);
+}
+
+/* line as long as 3 columns, cols 4-6, rotated 45deg on itself —
+   lengthened by sqrt(2) and re-centered so it still reaches the column
+   edges once rotated, crossing at the same height as the circle/square
+   centers */
+.intro-shape--line {
+  bottom: calc(
+    (3 * var(--grid-col-width) + 2 * var(--grid-gap)) / 2
+  );
+  left: calc(
+    var(--grid-margin-x, 1.875rem) + 3 * var(--grid-col-width) + 3 *
+      var(--grid-gap) -
+      (3 * var(--grid-col-width) + 2 * var(--grid-gap)) * 0.20710678
+  );
+  width: calc(
+    (3 * var(--grid-col-width) + 2 * var(--grid-gap)) * 1.41421356
+  );
+  height: 4px;
+  margin-bottom: -2px;
+  background: var(--grey-3);
+  transform: rotate(45deg);
+}
+
+/* square, cols 7-9 */
+.intro-shape--square {
+  position: absolute;
+  left: calc(
+    var(--grid-margin-x, 1.875rem) + 6 * var(--grid-col-width) + 6 *
+      var(--grid-gap)
+  );
+  aspect-ratio: 1 / 1;
+  background: var(--grey-3);
+}
+
+.intro-text {
+  display: none;
+}
+
+.numbers-wrap {
+  position: relative;
+}
+
+/* zero-height so the sticky title block inside doesn't push .gifs-section
+   down by its own height — it only needs to render, not occupy flow space */
+.point-line-plane-wrap {
+  position: relative;
+  height: 0;
+  overflow: visible;
+  z-index: 2;
+}
+
+/* ── visual-only copy of learn2.html's anchor nav, pinned to col 3 instead
+   of col 1 — links go nowhere, this is just to preview the look/animations */
+.learn-nav {
+  position: fixed;
+  top: 50%;
+  left: calc(
+    var(--grid-margin-x, 1.875rem) + 2 * var(--grid-col-width) + 2 *
+      var(--grid-gap)
+  );
+  transform: translateY(-50%);
+  width: var(--grid-col-width);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 13px 5px;
+  border-radius: 3px;
+  transition: background 0.3s var(--ease);
+}
+
+.learn-nav:hover {
+  background: rgba(230, 230, 230, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.learn-nav-group:hover .learn-nav-subs {
+  grid-template-rows: 1fr;
+}
+
+.learn-nav-group {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 36px;
+}
+
+.learn-nav-group + .learn-nav-group {
+  padding-top: 8px;
+}
+
+.learn-nav-group + .learn-nav-group::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(20px + 36px - var(--grid-gap));
+  height: 1px;
+  background: var(--grey-1);
+}
+
+.learn-nav-main {
+  flex: 0 0 20px;
+  width: 20px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--grey-2);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.learn-nav-subs {
+  position: relative;
+  flex: 1;
+  min-height: calc(var(--text-xs) * var(--leading-tight));
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease);
+}
+
+.learn-nav-group.is-active .learn-nav-subs {
+  grid-template-rows: 1fr;
+}
+
+.learn-nav-subs-inner {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  margin-left: calc(-1 * var(--grid-gap));
+  padding-left: var(--grid-gap);
+}
+
+.learn-nav-line {
+  position: absolute;
+  left: calc(-1 * var(--grid-gap));
+  top: -8px;
+  bottom: -17px;
+  width: 1px;
+  border-radius: 1px;
+  background: var(--grey-1);
+}
+
+.learn-nav-group:last-child .learn-nav-line {
+  bottom: -8px;
+}
+
+.learn-nav-sub {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  color: #fff;
+  text-decoration: none;
+  line-height: var(--leading-normal);
+  letter-spacing: 0.03em;
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.learn-nav-sub::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--grid-gap));
+  top: calc(var(--text-xs) * var(--leading-normal) / 2);
+  width: calc(var(--grid-gap) - 4px);
+  height: 1px;
+  background: var(--grey-1);
+}
+
+.learn-nav-num {
+  font-weight: 700;
+}
+
+.learn-nav-main .learn-nav-num {
+  color: var(--grey-1);
+}
+
+.learn-nav-main.is-active,
+.learn-nav-sub.is-active {
+  color: var(--grey-1);
+}
+
+/* "Point / Line / Plane", stacked, cols 1-2 — stays fixed once scrolled
+   to, while the gifs-section (cols 3-9) keeps scrolling past it */
+.point-line-plane {
+  position: sticky;
+  top: calc(var(--nav-height, 42px) + 40px);
+  margin-left: var(--grid-margin-x, 1.875rem);
+  width: calc(2 * var(--grid-col-width) + var(--grid-gap));
+}
+
+.point-line-plane p {
+  margin: 0 0 12px;
+  font-family: "Aeonik TRIAL";
+  font-weight: 200;
+  font-size: 55px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--grey-1);
+}
+
+.point-line-plane p:last-child {
+  margin-bottom: 0;
+}
+
+/* sticks at the same height as the "tac" logo once scrolled past it.
+   deliberately no z-index here — it would create a new stacking context
+   and stop mix-blend-mode from seeing the content scrolling underneath */
+.numbers-heading-group {
+  position: sticky;
+  top: var(--grid-margin-top, 1.25rem);
+  margin-top: 60px;
+  /* establishes a new block formatting context so children's margins don't
+     collapse through it — needed for .numbers-heading--index's absolute
+     offset to match .numbers-heading's actual (margin-collapsed) position */
+  overflow: hidden;
+}
+
+.numbers-heading {
+  text-align: left;
+  margin-top: 0;
+  margin-left: calc(
+    var(--grid-margin-x, 1.875rem) + 2 * var(--grid-col-width) + 2 *
+      var(--grid-gap)
+  );
+  width: calc(5 * var(--grid-col-width) + 4 * var(--grid-gap));
+  font-family: "Aeonik TRIAL";
+  font-weight: 200;
+  font-size: var(--text-3xl);
+  letter-spacing: -0.05em;
+  color: #ff695c;
+  mix-blend-mode: multiply;
+}
+
+/* "1" on col 2, same complete style as "Numbers", same line height */
+.numbers-heading--index {
+  position: absolute;
+  top: 0;
+  margin-top: 0;
+  margin-left: calc(
+    var(--grid-margin-x, 1.875rem) + var(--grid-col-width) + var(--grid-gap)
+  );
+  width: var(--grid-col-width);
+}
+
+.gifs-section {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  margin-top: 8px;
+  margin-bottom: 60px;
+  margin-left: calc(
+    var(--grid-margin-x, 1.875rem) + 6 * var(--grid-col-width) + 6 *
+      var(--grid-gap)
+  );
+  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
+}
+
+.gif-col {
+  position: relative;
+  width: 100%;
+}
+
+/* section number sits above the line, col 3 */
+.gif-section-num {
+  position: absolute;
+  top: 0;
+  left: calc(-3 * var(--grid-col-width) - 3 * var(--grid-gap));
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--grey-1);
+}
+
+/* header row holds subtitle (col 3) + caption (cols 4-6), between the lines */
+.gif-header-row {
+  position: relative;
+  margin-top: 39px;
+  margin-bottom: 6px;
+  padding-top: 7px;
+  padding-bottom: 40px;
+}
+
+/* line spans cols 3-9, above the row */
+.gif-header-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(-3 * var(--grid-col-width) - 3 * var(--grid-gap));
+  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
+  height: 1px;
+  background: #000;
+}
+
+/* subtitle sits at cols 4-6, in normal flow so the row grows to fit it */
+.gif-subtitle {
+  position: relative;
+  font-family: "Aeonik TRIAL";
+  font-weight: 200;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--grey-1);
+  margin-left: calc(-3 * var(--grid-col-width) - 3 * var(--grid-gap));
+  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
+}
+
+.gif-caption {
+  position: relative;
+  font-size: 9pt;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  color: var(--grey-1);
+  margin-bottom: 12px;
+}
+
+/* caption sits at cols 4-6 */
+.gif-col:not(.gif-col--side) .gif-caption,
+.gif-col--side .gif-caption {
+  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
+  margin-left: calc(-3 * var(--grid-col-width) - 3 * var(--grid-gap));
+}
+
+.gif-caption strong {
+  font-family: var(--font-display);
+  font-weight: 1000;
+  color: var(--grey-1);
+}
+
+.gif-item {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* gifs sit at cols 4-6 */
+.gif-col:not(.gif-col--side) .gif-item,
+.gif-col--side .gif-item {
+  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
+  margin-left: calc(-3 * var(--grid-col-width) - 3 * var(--grid-gap));
+}
+
+/* crops a bit of the gif's own whitespace so the content reads bigger,
+   while the frame itself stays within its usual column box */
+.gif-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.gif-frame-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 118%;
+  height: 118%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+}
+
+.gif-media-row {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* plain circle for 1.1 — fills the same square slot the gifs sit in */
+.gif-item--circle {
+  background: var(--grey-3);
+  border-radius: 50%;
+}
+
+/* Kandinsky cover — cols 7-9, the gifs-section's own default position */
+.cover-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+}
+
+/* digits strip sits below the second gif, spanning cols 4-9 (gif's own
+   cols 4-6 plus the empty cols 7-9 beside it), a wide horizontal row */
+.digits-strip {
+  display: block;
+  margin-top: 24px;
+  margin-left: calc(-3 * var(--grid-col-width) - 3 * var(--grid-gap));
+  width: calc(6 * var(--grid-col-width) + 5 * var(--grid-gap));
+  aspect-ratio: 3826.2 / 537.95;
+}
+
+.site-nav {
+  border-bottom: none !important;
+}

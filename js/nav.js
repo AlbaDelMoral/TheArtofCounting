@@ -34,13 +34,11 @@ const DEBUG_GRID = false;
         </svg>
       </a>
 
-      <!-- desktop links — each item spans from the previous column's right edge
-           (where the number sits) through the gap (dash, centered) to its own
-           column's left edge (label) -->
+      <!-- desktop links — each item's label sits at its own column's left edge -->
       <div class="nav-links">
-        <a href="learn.html" class="nav-link-item nav-link-learn${activeClass("learn.html")}"><span class="nav-num">1</span><span class="nav-label">Learn</span></a>
-        <a href="play.html" class="nav-link-item nav-link-play${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-num">2</span><span class="nav-label">Play</span></a>
-        <a href="gallery.html" class="nav-link-item nav-link-about${activeClass("gallery.html")}"><span class="nav-num">3</span><span class="nav-label">About</span></a>
+        <a href="learn.html" class="nav-link-item nav-link-learn${activeClass("learn.html")}"><span class="nav-label">Learn</span></a>
+        <a href="play.html" class="nav-link-item nav-link-play${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-label">Play</span></a>
+        <a href="gallery.html" class="nav-link-item nav-link-about${activeClass("gallery.html")}"><span class="nav-label">About</span></a>
       </div>
 
       <!-- mobile hamburger button -->

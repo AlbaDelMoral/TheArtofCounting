@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "number-camera",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8979", "--directory", "/Users/dev2020/Desktop/TFG/P5Ç/number-camera"],
+      "port": 8979
+    },
+    {
+      "name": "website",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["/Users/dev2020/Desktop/TFG/P5Ç/website/.claude/static-server.js"],
+      "port": 8980
+    }
+  ]
+}

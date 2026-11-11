@@ -1,0 +1,334 @@
+/* body is the real scroll container on this page (base.css gives html/body
+   height:100% + overflow-x:hidden, which forces overflow-y:auto on both) —
+   scroll-snap goes on body, not html, for the same reason */
+body {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+#intro {
+  /* symmetric top/bottom padding so the centering math isn't skewed */
+  padding: 60px 0;
+  scroll-snap-align: center;
+}
+
+/* fades a section in as it becomes the centered one, out as it leaves */
+.learn-sub,
+#intro {
+  opacity: 0.25;
+  transition: opacity 0.5s var(--ease);
+}
+
+.learn-sub.is-centered,
+#intro.is-centered {
+  opacity: 1;
+}
+
+.learn-intro {
+  font-family: "Aeonik TRIAL";
+  font-weight: 200;
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  color: var(--color-main);
+}
+
+/* ── anchor-nav learning layout ──────────────────────────────────────────── */
+.learn-layout {
+  margin: calc(var(--nav-height) + 40px) var(--grid-margin-x) 0;
+}
+
+.learn-content {
+  transition: opacity 0.25s var(--ease);
+}
+
+/* clicking a nav link fades the section's content (gif + text) out/in
+   around the jump, without touching the fixed anchor nav */
+body.is-nav-fading .learn-content {
+  opacity: 0;
+}
+
+/* -- floating anchor nav — pinned to exactly the 1st grid column -- */
+.learn-nav {
+  position: fixed;
+  top: 50%;
+  left: var(--grid-margin-x);
+  transform: translateY(-50%);
+  width: var(--grid-col-width);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* 8px clears the first/last line's own overshoot, +5px beyond that so the
+     bg keeps a clean 5px gap past the line's tip */
+  padding: 13px 5px;
+  border-radius: 3px;
+  transition: background 0.3s var(--ease);
+}
+
+.learn-nav:hover {
+  background: rgba(230, 230, 230, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* collapsed state disabled for now — nav stays fully open so it's easy to
+   find; re-enable by restoring the :not(:hover) rules below
+.learn-nav:not(:hover) .learn-nav-group:not(.is-active) {
+  display: none;
+}
+
+.learn-nav:not(:hover) .learn-nav-group {
+  border-top: none;
+  padding-top: 0;
+}
+
+.learn-nav:not(:hover) .learn-nav-sub:not(.is-active) {
+  display: none;
+}
+*/
+
+/* hovering a specific number opens that group's line/subtitles, independent
+   of which section is currently scrolled to */
+.learn-nav-group:hover .learn-nav-subs {
+  grid-template-rows: 1fr;
+}
+
+.learn-nav-group {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 36px;
+}
+
+.learn-nav-group + .learn-nav-group {
+  padding-top: 8px;
+}
+
+/* horizontal divider stops exactly at the vertical line's x position
+   (main's fixed 20px width + the 36px group gap - the line's own 12px
+   pull-back), instead of spanning the subtitle column too */
+.learn-nav-group + .learn-nav-group::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(20px + 36px - var(--grid-gap));
+  height: 1px;
+  background: var(--grey-1);
+}
+
+.learn-nav-main {
+  flex: 0 0 20px;
+  width: 20px;
+
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--grey-2);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.learn-nav-subs {
+  position: relative;
+  flex: 1;
+  min-height: calc(var(--text-xs) * var(--leading-tight));
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease);
+}
+
+.learn-nav-group.is-active .learn-nav-subs {
+  grid-template-rows: 1fr;
+}
+
+.learn-nav-subs-inner {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  /* bleeds the clip box left so the tick marks (which sit left of each
+     subtitle) aren't cut off by overflow:hidden; padding cancels the margin
+     so the subtitle text itself stays in its original position */
+  margin-left: calc(-1 * var(--grid-gap));
+  padding-left: var(--grid-gap);
+}
+
+.learn-nav-line {
+  position: absolute;
+  left: calc(-1 * var(--grid-gap));
+  /* extends 8px above the number, matching the 8px gap below it before the
+     divider — the number sits centered between the two */
+  top: -8px;
+  /* reaches past this group's own box, exactly far enough to touch the next
+     group's line (flex gap 8px + divider 1px + padding-top 8px = 17px), so
+     consecutive lines read as one continuous vertical line */
+  bottom: -17px;
+  width: 1px;
+  border-radius: 1px;
+  background: var(--grey-1);
+}
+
+/* last group has no next line to touch — stop 8px past its own number
+   instead, symmetric with the 8px gap above it from the divider */
+.learn-nav-group:last-child .learn-nav-line {
+  bottom: -8px;
+}
+
+.learn-nav-sub {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  color: var(--grey-3);
+  text-decoration: none;
+  line-height: var(--leading-normal);
+  letter-spacing: 0.03em;
+  transition: color var(--duration-fast) var(--ease);
+}
+
+/* tick mark branching off the vertical line to each subtitle, like a ruler */
+.learn-nav-sub::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--grid-gap));
+  top: calc(var(--text-xs) * var(--leading-normal) / 2);
+  width: calc(var(--grid-gap) - 4px);
+  height: 1px;
+  background: var(--grey-1);
+}
+
+.learn-nav-num {
+  font-weight: 700;
+}
+
+.learn-nav-main .learn-nav-num {
+  color: var(--grey-1);
+}
+
+.learn-nav-main.is-active,
+.learn-nav-sub.is-active {
+  color: var(--grey-1);
+}
+
+/* -- right: scrolling content -- */
+.learn-main {
+  padding-bottom: 60px;
+}
+
+.learn-main-title {
+  font-family: "Aeonik TRIAL";
+  font-weight: 200;
+  font-size: var(--text-xl);
+  line-height: var(--leading-tight);
+  color: var(--color-main);
+  margin-bottom: 48px;
+}
+
+.learn-sub {
+  display: grid;
+  /* col 1 left empty (anchor nav sits there), title = cols 2-3, gif = cols
+     4-7, text = cols 8-9 — fixed, so everything lands on the same columns
+     no matter how long the title is */
+  grid-template-columns:
+    var(--grid-col-width)
+    calc(2 * var(--grid-col-width) + var(--grid-gap))
+    calc(4 * var(--grid-col-width) + 3 * var(--grid-gap))
+    calc(2 * var(--grid-col-width) + var(--grid-gap));
+  column-gap: var(--grid-gap);
+  align-items: center;
+  /* symmetric top/bottom spacing — asymmetric padding/margin would offset
+     where the browser calculates "center" for scroll-snap-align */
+  margin: 48px 0;
+  scroll-snap-align: center;
+}
+
+.learn-sub-title {
+  grid-column: 2;
+  font-family: "Aeonik TRIAL";
+  font-weight: 200;
+  font-size: var(--text-xl);
+  color: var(--color-main);
+}
+
+.learn-media {
+  position: relative;
+  grid-column: 3;
+  width: calc(4 * var(--grid-col-width) + 3 * var(--grid-gap));
+  /* matches the source gifs' native 1920x1920 square, so object-fit:contain
+     doesn't letterbox them smaller than the column width */
+  aspect-ratio: 1 / 1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.learn-media:empty {
+  border: 1px dashed var(--grey-3);
+}
+
+/* colored circle behind the gif, same proportion (90% of the box, centered)
+   as the plain circle drawn for "The circle is born" */
+.learn-media:not(:empty)::before {
+  content: "";
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  background: #4ac7b2;
+}
+
+.learn-media img,
+.learn-media svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.learn-text {
+  grid-column: 4;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-second);
+}
+
+@media (max-width: 768px) {
+  .learn-layout {
+    grid-template-columns: 1fr;
+    margin-top: 48px;
+  }
+
+  .learn-nav {
+    position: static;
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    margin-bottom: 48px;
+  }
+
+  .learn-nav-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .learn-nav-main {
+    flex: none;
+    width: auto;
+  }
+
+  .learn-nav-subs-inner {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+}
