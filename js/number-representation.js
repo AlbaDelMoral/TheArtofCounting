@@ -15,6 +15,7 @@ const NUMBER_REPRESENTATION = {
   ringGrowth: 1.4,
 
   // ── outer circle ─────────────────────────────────────────────────────────────
+  showBgCircle: true, // set to false to hide the filled circle behind the rings
   outerStrokeRatio: 0.006, // outline thickness, only used when bgStrokeColor is set
   bgColor: COLORS.bgCircle, // see js/colors.js
   bgStrokeColor: COLORS.bgCircleOutline, // see js/colors.js (null = no outline)
@@ -27,8 +28,12 @@ const NUMBER_REPRESENTATION = {
   showTicks: true, // set to false to hide tick marks/outline entirely
   ringStyle: "ticks", // "ticks" (original) or "outline" (thin circle per digit ring)
   ringOutlineWeightRatio: 0.0, // outline thickness, only used when ringStyle === "outline"
-  tickLengthRatio: 0.06, // only used when ringStyle === "ticks"
-  tickStrokeWeightRatio: 0.004, // scales with outerR, so ticks don't look thick on small numbers
+  tickLengthRatio: 0.1, // only used when ringStyle === "ticks"
+  tickStrokeWeightRatio: 0.005, // scales with outerR, so ticks don't look thick on small numbers
+  tickStrokeDecayRatio: 0.7, // 1 = all rings the same thickness; <1 makes each ring
+  // outward from the units ring thinner by this factor (e.g. 0.7 → ring i's
+  // weight is tickStrokeWeightRatio * 0.7^i, so 1-10 is thickest, 10-100 a bit
+  // thinner, 100-1000 thinner still, and so on).
   tickOpacity: 255,
   tickColor: COLORS.tickMarks, // see js/colors.js
   tickMinRadius: 28, // below this circle radius (px) the tick marks are hidden entirely — too small to read as dashes

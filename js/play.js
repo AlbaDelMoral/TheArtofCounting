@@ -35,6 +35,7 @@ const CONFIG_OPERATIONS = {
 };
 
 const CONFIG_MULTIPLICATION = {
+  compScale: 0.5, // mid of the size slider's 0–100 range — scales the auto-fit zoom
   bw: 5.5, // mid of the thickness slider's 1–10 range
   oh: 10, // mid of the overhang slider's 0–20 range
   lgap: 5.5, // mid of the line gap slider's 1–10 range
@@ -871,7 +872,11 @@ function _fitMultiplicationView() {
   const pad = 60;
   const availW = Math.max(50, width - pad * 2);
   const availH = Math.max(50, height - pad * 2);
-  _zoom = constrain(Math.min(availW / bboxW, availH / bboxH), 0.02, 2.5);
+  // compScale 0.5 (slider mid) == the plain auto-fit zoom; 0–1 scales that
+  // fit down to 0x / up to 2x, same range feel as Numbers/Addition's own
+  // "size" slider.
+  const fitZoom = Math.min(availW / bboxW, availH / bboxH);
+  _zoom = constrain(fitZoom * (CONFIG_MULTIPLICATION.compScale * 2), 0.02, 2.5);
   _panX = (width / 2) * (1 - _zoom);
   _panY = (height / 2) * (1 - _zoom);
 }
@@ -1325,6 +1330,19 @@ function createPanel() {
   // proportional to bw, so the "thickness" slider also scales the
   // addition/subtraction bands whenever a parenthesized chain is a
   // multiplication operand.
+  addRow(
+    multContent,
+    "multSize",
+    "size",
+    0,
+    100,
+    CONFIG_MULTIPLICATION.compScale * 100,
+    1,
+    (v) => {
+      CONFIG_MULTIPLICATION.compScale = v / 100;
+      _fitMultiplicationView();
+    },
+  );
   const OBW_RATIO = CONFIG_MULTIPLICATION.obw / CONFIG_MULTIPLICATION.bw;
   addRow(multContent, "bw", "thickness", 1, 10, CONFIG_MULTIPLICATION.bw, 0.1, (v) => {
     CONFIG_MULTIPLICATION.bw = v;
@@ -1441,6 +1459,7 @@ function updateValues() {
   if (valSpans.opSpread) valSpans.opSpread.html(nf(CONFIG_OPERATIONS.sizeVariation, 1, 2));
   if (valSpans.spacing) valSpans.spacing.html(nf(CONFIG_OPERATIONS.chainSpacing, 1, 2));
 
+  if (valSpans.multSize) valSpans.multSize.html(nf(CONFIG_MULTIPLICATION.compScale, 1, 2));
   if (valSpans.bw) valSpans.bw.html(nf(CONFIG_MULTIPLICATION.bw, 1, 1) + "px");
   if (valSpans.dgap) valSpans.dgap.html(CONFIG_MULTIPLICATION.dgap + "px");
   if (valSpans.lgap) valSpans.lgap.html(nf(CONFIG_MULTIPLICATION.lgap, 1, 1) + "px");

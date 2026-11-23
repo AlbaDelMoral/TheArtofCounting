@@ -63,157 +63,21 @@
   position: relative;
 }
 
-/* zero-height so the sticky title block inside doesn't push .gifs-section
-   down by its own height — it only needs to render, not occupy flow space */
+/* absolutely positioned at full height of .numbers-wrap so it doesn't push
+   .gifs-section down, but still gives the sticky child inside it a real
+   range to stick within — a zero-height wrapper gives sticky no room to move */
 .point-line-plane-wrap {
-  position: relative;
-  height: 0;
+  position: absolute;
+  inset: 0;
   overflow: visible;
   z-index: 2;
-}
-
-/* ── visual-only copy of learn2.html's anchor nav, pinned to col 3 instead
-   of col 1 — links go nowhere, this is just to preview the look/animations */
-.learn-nav {
-  position: fixed;
-  top: 50%;
-  left: calc(
-    var(--grid-margin-x, 1.875rem) + 2 * var(--grid-col-width) + 2 *
-      var(--grid-gap)
-  );
-  transform: translateY(-50%);
-  width: var(--grid-col-width);
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 13px 5px;
-  border-radius: 3px;
-  transition: background 0.3s var(--ease);
-}
-
-.learn-nav:hover {
-  background: rgba(230, 230, 230, 0.3);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.learn-nav-group:hover .learn-nav-subs {
-  grid-template-rows: 1fr;
-}
-
-.learn-nav-group {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  gap: 36px;
-}
-
-.learn-nav-group + .learn-nav-group {
-  padding-top: 8px;
-}
-
-.learn-nav-group + .learn-nav-group::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: calc(20px + 36px - var(--grid-gap));
-  height: 1px;
-  background: var(--grey-1);
-}
-
-.learn-nav-main {
-  flex: 0 0 20px;
-  width: 20px;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: var(--text-xs);
-  line-height: var(--leading-tight);
-  font-variant-numeric: tabular-nums;
-  color: var(--grey-2);
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease);
-}
-
-.learn-nav-subs {
-  position: relative;
-  flex: 1;
-  min-height: calc(var(--text-xs) * var(--leading-tight));
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.4s var(--ease);
-}
-
-.learn-nav-group.is-active .learn-nav-subs {
-  grid-template-rows: 1fr;
-}
-
-.learn-nav-subs-inner {
-  min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-top: 10px;
-  margin-left: calc(-1 * var(--grid-gap));
-  padding-left: var(--grid-gap);
-}
-
-.learn-nav-line {
-  position: absolute;
-  left: calc(-1 * var(--grid-gap));
-  top: -8px;
-  bottom: -17px;
-  width: 1px;
-  border-radius: 1px;
-  background: var(--grey-1);
-}
-
-.learn-nav-group:last-child .learn-nav-line {
-  bottom: -8px;
-}
-
-.learn-nav-sub {
-  position: relative;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: var(--text-xs);
-  color: #fff;
-  text-decoration: none;
-  line-height: var(--leading-normal);
-  letter-spacing: 0.03em;
-  transition: color var(--duration-fast) var(--ease);
-}
-
-.learn-nav-sub::before {
-  content: "";
-  position: absolute;
-  left: calc(-1 * var(--grid-gap));
-  top: calc(var(--text-xs) * var(--leading-normal) / 2);
-  width: calc(var(--grid-gap) - 4px);
-  height: 1px;
-  background: var(--grey-1);
-}
-
-.learn-nav-num {
-  font-weight: 700;
-}
-
-.learn-nav-main .learn-nav-num {
-  color: var(--grey-1);
-}
-
-.learn-nav-main.is-active,
-.learn-nav-sub.is-active {
-  color: var(--grey-1);
 }
 
 /* "Point / Line / Plane", stacked, cols 1-2 — stays fixed once scrolled
    to, while the gifs-section (cols 3-9) keeps scrolling past it */
 .point-line-plane {
   position: sticky;
-  top: calc(var(--nav-height, 42px) + 40px);
+  top: calc(var(--nav-height, 42px) + 20px);
   margin-left: var(--grid-margin-x, 1.875rem);
   width: calc(2 * var(--grid-col-width) + var(--grid-gap));
 }
@@ -222,10 +86,17 @@
   margin: 0 0 12px;
   font-family: "Aeonik TRIAL";
   font-weight: 200;
-  font-size: 55px;
+  font-size: 42px;
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--grey-1);
+  opacity: 0.35;
+}
+
+/* the title of the section currently being scrolled through is full opacity,
+   same idea as the panel's active/disabled dropdown titles */
+.point-line-plane-title.is-active {
+  opacity: 1;
 }
 
 .point-line-plane p:last-child {
@@ -278,7 +149,7 @@
   display: flex;
   flex-direction: column;
   gap: 60px;
-  margin-top: 8px;
+  margin-top: 100px;
   margin-bottom: 60px;
   margin-left: calc(
     var(--grid-margin-x, 1.875rem) + 6 * var(--grid-col-width) + 6 *
@@ -286,6 +157,7 @@
   );
   width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
 }
+
 
 .gif-col {
   position: relative;
@@ -296,55 +168,35 @@
 .gif-section-num {
   position: absolute;
   top: 0;
-  left: calc(-3 * var(--grid-col-width) - 3 * var(--grid-gap));
+  left: calc(-4 * var(--grid-col-width) - 4 * var(--grid-gap));
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 32px;
-  line-height: 1;
-  color: var(--grey-1);
-}
-
-/* header row holds subtitle (col 3) + caption (cols 4-6), between the lines */
-.gif-header-row {
-  position: relative;
-  margin-top: 39px;
-  margin-bottom: 6px;
-  padding-top: 7px;
-  padding-bottom: 40px;
-}
-
-/* line spans cols 3-9, above the row */
-.gif-header-row::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: calc(-3 * var(--grid-col-width) - 3 * var(--grid-gap));
-  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
-  height: 1px;
-  background: #000;
-}
-
-/* subtitle sits at cols 4-6, in normal flow so the row grows to fit it */
-.gif-subtitle {
-  position: relative;
-  font-family: "Aeonik TRIAL";
-  font-weight: 200;
   font-size: 22px;
   line-height: 1;
-  letter-spacing: 0.04em;
   color: var(--grey-1);
-  margin-left: calc(-3 * var(--grid-col-width) - 3 * var(--grid-gap));
-  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
 }
 
 .gif-caption {
   position: relative;
-  font-size: 9pt;
+  margin-top: 26px;
+  padding-top: 4px;
+  font-size: 8pt;
   font-weight: 400;
   letter-spacing: 0.04em;
   line-height: 1.25;
   color: var(--grey-1);
   margin-bottom: 12px;
+}
+
+/* horizontal line spans cols 3-9, above the caption */
+.gif-caption::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(-1 * var(--grid-col-width) - 1 * var(--grid-gap));
+  width: calc(7 * var(--grid-col-width) + 6 * var(--grid-gap));
+  height: 1px;
+  background: var(--grey-3);
 }
 
 /* caption sits at cols 4-6 */
@@ -396,10 +248,28 @@
   align-items: flex-start;
 }
 
-/* plain circle for 1.1 — fills the same square slot the gifs sit in */
+/* plain circle for 1.1 — fills the same square slot the gifs sit in.
+   container-type lets the label scale with the circle's own width (cqw)
+   instead of the viewport, so it stays proportional at any breakpoint */
 .gif-item--circle {
+  margin-top: 40px;
   background: var(--grey-3);
   border-radius: 50%;
+  container-type: inline-size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gif-item-circle-text {
+  font-family: "Aeonik TRIAL";
+  font-weight: 200;
+  font-size: 28cqw;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #fff;
+  white-space: nowrap;
+  transform: rotate(-15deg);
 }
 
 /* Kandinsky cover — cols 7-9, the gifs-section's own default position */

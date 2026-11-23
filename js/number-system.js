@@ -150,7 +150,7 @@ function annularWedge(cx, cy, r1, r2, a1, a2, col, outlined, outerR) {
 }
 
 // ─── tick marks ───────────────────────────────────────────────────────────────
-function drawTicks(cx, cy, r, localW, outerR) {
+function drawTicks(cx, cy, r, localW, outerR, ringIndex = 0) {
   if (CONFIG.showTicks === false) return;
   // Below this radius the tick marks are too small to read as distinct
   // dashes — just noise — so skip them entirely instead of drawing a ring
@@ -162,7 +162,8 @@ function drawTicks(cx, cy, r, localW, outerR) {
   } else {
     stroke(hue(PAL.ticks), saturation(PAL.ticks), brightness(PAL.ticks), CONFIG.tickOpacity);
   }
-  strokeWeight(Math.max(0.25, outerR * CONFIG.tickStrokeWeightRatio));
+  const decay = Math.pow(CONFIG.tickStrokeDecayRatio ?? 1, ringIndex);
+  strokeWeight(Math.max(0.25, outerR * CONFIG.tickStrokeWeightRatio * decay));
   strokeCap(SQUARE);
   noFill();
   const tickLen = localW * CONFIG.tickLengthRatio;
@@ -231,21 +232,23 @@ function drawNumber(numStr, cx, cy, outerR) {
   const bdry     = computeRingBoundaries(numRings, innerR);
 
   blendMode(window[CONFIG.blendModeName] || BLEND);
-  // Background circle: fixed color if set, else keyed to most significant digit (palette3.csv)
-  const mostSigDigit = digits[numRings - 1];
-  const bgCol = CONFIG.bgColor
-    ? color(CONFIG.bgColor[0], CONFIG.bgColor[1], CONFIG.bgColor[2])
-    : (NUMBER_BG_COLORS[mostSigDigit] || color(0, 0, 90));
-  push();
-  fill(bgCol);
-  if (CONFIG.bgStrokeColor) {
-    stroke(CONFIG.bgStrokeColor[0], CONFIG.bgStrokeColor[1], CONFIG.bgStrokeColor[2]);
-    strokeWeight(outerR * CONFIG.outerStrokeRatio);
-  } else {
-    noStroke();
+  if (CONFIG.showBgCircle !== false) {
+    // Background circle: fixed color if set, else keyed to most significant digit (palette3.csv)
+    const mostSigDigit = digits[numRings - 1];
+    const bgCol = CONFIG.bgColor
+      ? color(CONFIG.bgColor[0], CONFIG.bgColor[1], CONFIG.bgColor[2])
+      : (NUMBER_BG_COLORS[mostSigDigit] || color(0, 0, 90));
+    push();
+    fill(bgCol);
+    if (CONFIG.bgStrokeColor) {
+      stroke(CONFIG.bgStrokeColor[0], CONFIG.bgStrokeColor[1], CONFIG.bgStrokeColor[2]);
+      strokeWeight(outerR * CONFIG.outerStrokeRatio);
+    } else {
+      noStroke();
+    }
+    ellipse(cx, cy, outerR * 2, outerR * 2);
+    pop();
   }
-  ellipse(cx, cy, outerR * 2, outerR * 2);
-  pop();
   blendMode(BLEND);
 
   const portionAngle = TWO_PI / 10;
@@ -288,7 +291,7 @@ function drawNumber(numStr, cx, cy, outerR) {
   for (let i = 0; i < numRings; i++) {
     const r1 = i === 0 ? 0 : bdry[i - 1];
     if (CONFIG.ringStyle === "outline") drawRingOutline(cx, cy, bdry[i], outerR);
-    else drawTicks(cx, cy, bdry[i], bdry[i] - r1, outerR);
+    else drawTicks(cx, cy, bdry[i], bdry[i] - r1, outerR, i);
   }
 
   if (decimalCount > 0)
