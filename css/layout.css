@@ -38,10 +38,10 @@
   pointer-events: none;
 }
 
-/* three links — Learn/Play/About. Each item's box spans from the PRECEDING
-   column's right edge through the gap to its OWN column (Learn: col 7,
-   Play: col 8, About: col 9): label at the box's own column (left edge =
-   previous-column-right-edge + one gap).
+/* two links — Learn/Play. Each item's box spans from the PRECEDING column's
+   right edge through the gap to its OWN column (Learn: col 8, Play: col 9):
+   label at the box's own column (left edge = previous-column-right-edge +
+   one gap).
    Vertically, everything is bottom-aligned with the logo's own bottom edge
    (logo height: 20px, see .nav-logo-img). */
 .nav-links {
@@ -64,12 +64,9 @@
 }
 
 .nav-link-learn {
-  left: calc(var(--grid-margin-x) + 6 * var(--grid-col-width) + 5 * var(--grid-gap));
-}
-.nav-link-play {
   left: calc(var(--grid-margin-x) + 7 * var(--grid-col-width) + 6 * var(--grid-gap));
 }
-.nav-link-about {
+.nav-link-play {
   left: calc(var(--grid-margin-x) + 8 * var(--grid-col-width) + 7 * var(--grid-gap));
 }
 

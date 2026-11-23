@@ -12,7 +12,22 @@ body {
   align-items: flex-end;
   width: 100%;
   height: 100vh;
-  background: #ff8fc7;
+  background: #f2f98a url("../assets/images/learn/intro-bg.webp") center/cover
+    no-repeat;
+}
+
+/* vertical line at the start of col 7, full height of the hero */
+.intro-section::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(
+    var(--grid-margin-x, 1.875rem) + 6 * var(--grid-col-width) + 6 *
+      var(--grid-gap)
+  );
+  width: 1px;
+  background: var(--grey-1);
 }
 
 .intro-shape {
@@ -64,7 +79,61 @@ body {
 }
 
 .intro-text {
-  display: none;
+  position: relative;
+  margin: 0 var(--grid-margin-x, 1.875rem) 60px;
+  font-family: "Aeonik TRIAL";
+  font-weight: 100;
+  font-size: clamp(48px, 8vw, 140px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--grey-1);
+}
+
+/* full-viewport-width line between the two text lines — em unit so it
+   tracks the responsive clamp()'d font-size, sitting exactly on the
+   boundary between the two lines (1 line-height down). left cancels out
+   intro-text's own left margin exactly, so it starts at the true
+   viewport edge instead of a 50vw trick that assumed a centered parent */
+.intro-text::before {
+  content: "";
+  position: absolute;
+  top: 1.05em;
+  left: calc(-1 * var(--grid-margin-x, 1.875rem));
+  width: 100vw;
+  height: 1px;
+  background: var(--grey-1);
+}
+
+/* number line below the horizontal line — its own x:0 lines up with the
+   vertical line (col 7), which starts at var(--grid-margin-x) from the
+   viewport edge same as .intro-text's own left margin, so the two cancel
+   out and 6*col+6*gap alone lands exactly on it */
+.intro-axis {
+  position: absolute;
+  top: calc(1.05em + 8px);
+  left: calc(6 * var(--grid-col-width) + 6 * var(--grid-gap));
+}
+
+/* each number centers on its own tick (--n), evenly spaced 32px apart;
+   "1"/"-1" sit the first tick out from the 0 point the axis itself marks */
+.intro-axis > span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateX(calc(var(--n) * 60px - 50%));
+  font-family: "KMRWaldenburg", sans-serif;
+  font-weight: 400;
+  font-size: 9pt;
+  /* intro-text's own letter-spacing is -0.02em of ITS (much bigger) font
+     size — that computed px value inherits as-is otherwise, cramming
+     these tiny digits together way out of proportion */
+  letter-spacing: normal;
+  color: var(--grey-1);
+  white-space: nowrap;
+}
+
+.intro-axis-minus {
+  margin-right: 2px;
 }
 
 /* wraps the nav AND all 4 main sections (Numbers/Addition/Multiplication/

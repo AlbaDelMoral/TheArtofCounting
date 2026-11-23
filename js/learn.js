@@ -76,3 +76,36 @@
   }
   remeasureDot();
 })();
+
+// intro number line — fills the ENTIRE width of the horizontal line with
+// ticks (not just a fixed -10..10), so it has to be generated from the
+// actual viewport width rather than hardcoded, and regenerated on resize
+(function () {
+  const axis = document.querySelector(".intro-axis");
+  if (!axis) return;
+
+  const TICK_SPACING = 60; // px — must match .intro-axis > span's transform in css/learn.css
+
+  function updateIntroAxis() {
+    const axisLeft = axis.getBoundingClientRect().left;
+    const rightCount = Math.ceil((window.innerWidth - axisLeft) / TICK_SPACING) + 1;
+    const leftCount = Math.ceil(axisLeft / TICK_SPACING) + 1;
+
+    let html = "";
+    for (let n = -leftCount; n <= rightCount; n++) {
+      if (n === 0) continue;
+      html +=
+        n < 0
+          ? `<span style="--n:${n}"><span class="intro-axis-minus">-</span>${-n}</span>`
+          : `<span style="--n:${n}">${n}</span>`;
+    }
+    axis.innerHTML = html;
+  }
+
+  window.addEventListener("load", updateIntroAxis);
+  window.addEventListener("resize", updateIntroAxis);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(updateIntroAxis);
+  }
+  updateIntroAxis();
+})();

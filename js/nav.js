@@ -38,7 +38,6 @@ const DEBUG_GRID = false;
       <div class="nav-links">
         <a href="learn.html" class="nav-link-item nav-link-learn${activeClass("learn.html")}"><span class="nav-label">Learn</span></a>
         <a href="play.html" class="nav-link-item nav-link-play${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-label">Play</span></a>
-        <a href="gallery.html" class="nav-link-item nav-link-about${activeClass("gallery.html")}"><span class="nav-label">About</span></a>
       </div>
 
       <!-- mobile hamburger button -->
@@ -50,7 +49,6 @@ const DEBUG_GRID = false;
       <div class="nav-mobile-menu">
         <a href="learn.html"${active("learn.html")}>Learn</a>
         <a href="play.html"${active("play.html")}>Play</a>
-        <a href="gallery.html"${active("gallery.html")}>About</a>
       </div>
     `;
 
