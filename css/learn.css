@@ -1,3 +1,11 @@
+/* base.css gives html AND body height:100%, which makes body (not the
+   viewport) the actual scrolling element here — scroll-behavior has to be
+   set on whichever element truly scrolls */
+html,
+body {
+  scroll-behavior: smooth;
+}
+
 .intro-section {
   position: relative;
   display: flex;
@@ -59,16 +67,25 @@
   display: none;
 }
 
-.numbers-wrap {
+/* wraps the nav AND all 4 main sections (Numbers/Addition/Multiplication/
+   Complex Operations), so the sticky nav has room to stick through the
+   whole page, not just the first section */
+.learn-content-wrap {
   position: relative;
+  /* padding, not margin, so it doesn't collapse through into the sticky
+     menu's own container (.point-line-plane-wrap, absolute inset:0 here) —
+     it only pushes the in-flow content down, same as a plain margin
+     would look, but without dragging the menu down with it */
+  padding-top: 140px;
 }
 
-/* absolutely positioned at full height of .numbers-wrap so it doesn't push
-   .gifs-section down, but still gives the sticky child inside it a real
+/* absolutely positioned at full height of .learn-content-wrap so it doesn't
+   push the sections down, but still gives the sticky child inside it a real
    range to stick within — a zero-height wrapper gives sticky no room to move */
 .point-line-plane-wrap {
   position: absolute;
   inset: 0;
+  margin-top: 80px;
   overflow: visible;
   z-index: 2;
 }
@@ -82,15 +99,24 @@
   width: calc(2 * var(--grid-col-width) + var(--grid-gap));
 }
 
-.point-line-plane p {
-  margin: 0 0 12px;
+.point-line-plane > p,
+.point-line-plane > a {
+  display: block;
+  margin: 0 0 5px;
   font-family: "Aeonik TRIAL";
   font-weight: 200;
   font-size: 42px;
-  line-height: 1.1;
+  line-height: 1;
   letter-spacing: -0.02em;
   color: var(--grey-1);
+  text-decoration: none;
   opacity: 0.35;
+}
+
+/* only titles with a real section to jump to are links — show that they're
+   clickable; the plain <p> titles (no section built yet) stay unclickable */
+.point-line-plane > a {
+  cursor: pointer;
 }
 
 /* the title of the section currently being scrolled through is full opacity,
@@ -99,8 +125,108 @@
   opacity: 1;
 }
 
-.point-line-plane p:last-child {
+.point-line-plane > p:last-child,
+.point-line-plane > a:last-child {
   margin-bottom: 0;
+}
+
+/* each main title's 4 subsection subtitles — an accordion: closed by
+   default (0fr row = 0 height), js/learn.js adds .is-open to whichever
+   title's dropdown matches the section currently scrolled into view, and
+   removes it from the other 3. grid-template-rows (not height) animates
+   cleanly to/from an unknown content height. */
+.point-line-plane-subtitles {
+  position: relative;
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.35s ease;
+}
+
+.point-line-plane-subtitles.is-open {
+  grid-template-rows: 1fr;
+  /* no top margin — the line (see .track below) now starts right at the
+     title's own edge instead of leaving a blank gap above it. bottom:
+     same 5px gap used between closed titles, the only blank stretch left */
+  margin: 0 0 5px;
+  opacity: 1;
+  transition:
+    grid-template-rows 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.4s ease 0.05s;
+}
+
+/* the grid item being animated by .is-open's 0fr/1fr track: this one has
+   to be able to shrink all the way to zero, so it carries NO padding of
+   its own (box-sizing:border-box can't compress a box below its own
+   padding, which would leave a leftover gap between titles even closed) */
+.point-line-plane-subtitles-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* the padding/line live on this child instead — -inner just clips it away
+   entirely when closed, so this box's own minimum size never matters */
+.point-line-plane-subtitles-track {
+  position: relative;
+  /* the line (bound to this box's own edges) now covers this padding on
+     both sides too, so it runs from right after the title down to right
+     before the next one, with the subtitle text inset within it */
+  padding: 22px 0;
+}
+
+/* tiny horizontal tick between the line and the numbers, moving to
+   whichever subtitle is currently active (scroll-spy, positioned by
+   js/learn.js) */
+.point-line-plane-dot {
+  position: absolute;
+  top: 0;
+  left: 7px;
+  width: 6px;
+  height: 1px;
+  background: var(--grey-1);
+  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* vertical line running the height of the subtitle list, left of the numbers */
+.point-line-plane-subtitles-track::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: var(--grey-3);
+}
+
+.point-line-plane-subtitles-track a {
+  display: block;
+  margin: 0 0 3px 32px;
+  font-family: "KMRWaldenburg", sans-serif;
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: var(--panel-letter-spacing, 0.045em);
+  color: var(--grey-1);
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.45;
+}
+
+/* the subsection currently in view (scroll-spy, set by js/learn.js) */
+.point-line-plane-subtitles-track a.is-active {
+  opacity: 1;
+}
+
+.point-line-plane-subtitles-track a:last-child {
+  margin-bottom: 0;
+}
+
+.point-line-plane-subtitle-num {
+  display: inline-block;
+  margin-right: 8px;
 }
 
 /* sticks at the same height as the "tac" logo once scrolled past it.
@@ -149,7 +275,7 @@
   display: flex;
   flex-direction: column;
   gap: 60px;
-  margin-top: 100px;
+  margin-top: 8px;
   margin-bottom: 60px;
   margin-left: calc(
     var(--grid-margin-x, 1.875rem) + 6 * var(--grid-col-width) + 6 *
@@ -162,6 +288,8 @@
 .gif-col {
   position: relative;
   width: 100%;
+  /* so a nav jump doesn't land the section flush under the fixed site nav */
+  scroll-margin-top: calc(var(--nav-height, 42px) + 20px);
 }
 
 /* section number sits above the line, col 3 */
@@ -169,7 +297,7 @@
   position: absolute;
   top: 0;
   left: calc(-4 * var(--grid-col-width) - 4 * var(--grid-gap));
-  font-family: var(--font-display);
+  font-family: "Aeonik TRIAL";
   font-weight: 400;
   font-size: 22px;
   line-height: 1;
@@ -180,12 +308,12 @@
   position: relative;
   margin-top: 26px;
   padding-top: 4px;
-  font-size: 8pt;
+  font-family: "EB Garamond";
+  font-size: 9pt;
   font-weight: 400;
-  letter-spacing: 0.04em;
   line-height: 1.25;
   color: var(--grey-1);
-  margin-bottom: 12px;
+  margin-bottom: 36px;
 }
 
 /* horizontal line spans cols 3-9, above the caption */
@@ -207,8 +335,8 @@
 }
 
 .gif-caption strong {
-  font-family: var(--font-display);
-  font-weight: 1000;
+  font-family: "EB Garamond";
+  font-weight: 700;
   color: var(--grey-1);
 }
 
@@ -263,13 +391,13 @@
 
 .gif-item-circle-text {
   font-family: "Aeonik TRIAL";
-  font-weight: 200;
+  font-weight: 100;
   font-size: 28cqw;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.06em;
   color: #fff;
   white-space: nowrap;
-  transform: rotate(-15deg);
+  transform: rotate(-15deg) translate(-4px, -5px);
 }
 
 /* Kandinsky cover — cols 7-9, the gifs-section's own default position */
