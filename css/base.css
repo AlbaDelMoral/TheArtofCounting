@@ -106,6 +106,91 @@
 }
 
 @font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-ThinItalic.otf") format("opentype");
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-Air.otf") format("opentype");
+  font-weight: 50;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-AirItalic.otf") format("opentype");
+  font-weight: 50;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-LightItalic.otf") format("opentype");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-RegularItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-MediumItalic.otf") format("opentype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-SemiBoldItalic.otf") format("opentype");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-BoldItalic.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Aeonik TRIAL";
+  src: url("../assets/fonts/AeonikTRIAL-BlackItalic.otf") format("opentype");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "EB Garamond";
   src: url("../assets/fonts/EBGaramond-Regular.ttf") format("truetype");
   font-weight: 400;
@@ -116,6 +201,77 @@
   font-family: "EB Garamond";
   src: url("../assets/fonts/EBGaramond-Bold.ttf") format("truetype");
   font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-ThinTrial.otf") format("opentype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-ThinItalicTrial.otf") format("opentype");
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-LightTrial.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-LightItalicTrial.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-RegularTrial.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-ItalicTrial.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-MediumTrial.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-MediumItalicTrial.otf") format("opentype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-BoldTrial.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rhetorik Serif TRIAL";
+  src: url("../assets/fonts/RhetorikSerif-BoldItalicTrial.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
   font-display: swap;
 }
 /* ── reset & box model ───────────────────────────────────────────────────── */

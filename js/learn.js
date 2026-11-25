@@ -84,7 +84,7 @@
   const axis = document.querySelector(".intro-axis");
   if (!axis) return;
 
-  const TICK_SPACING = 60; // px — must match .intro-axis > span's transform in css/learn.css
+  const TICK_SPACING = 80; // px — must match .intro-axis > span's transform in css/learn.css
 
   function updateIntroAxis() {
     const axisLeft = axis.getBoundingClientRect().left;

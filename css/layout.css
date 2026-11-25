@@ -44,46 +44,106 @@
    one gap).
    Vertically, everything is bottom-aligned with the logo's own bottom edge
    (logo height: 20px, see .nav-logo-img). */
+/* pill wrapping Learn + Play together, spanning cols 8-9 — slightly shorter
+   than the logo (19px vs 20px), top nudged down by that same 1px so its
+   bottom edge still lines up with the logo's own bottom edge exactly */
 .nav-links {
-  color: var(--color-main);
+  position: fixed;
+  top: calc(var(--grid-margin-top, 1.25rem) + 1px);
+  left: calc(var(--grid-margin-x) + 7 * var(--grid-col-width) + 6 * var(--grid-gap));
+  width: calc(2 * var(--grid-col-width) + var(--grid-gap));
+  height: 19px;
+  z-index: 101;
+  padding: 0 16px;
+  background: #f2f2f2;
+  border-radius: 999px;
+  color: var(--grey-1);
 }
 
 .nav-link-item {
-  position: fixed;
-  top: calc(var(--grid-margin-top, 1.25rem) + 20px);
-  width: calc(var(--grid-gap) + var(--grid-col-width));
-  z-index: 101;
-  font-family: var(--font-display);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: block;
+  font-family: "Aeonik TRIAL", var(--font-display);
   font-weight: 400;
   font-size: var(--text-xs);
-  color: var(--color-main);
-  letter-spacing: 0.03em;
+  color: var(--grey-1);
+  letter-spacing: 0.04em;
   text-decoration: none;
   line-height: 1;
   transition: color var(--duration-fast) var(--ease);
 }
 
+/* pinned to the pill's own padding — constant whether or not the dot is
+   showing, so the button itself never shifts position */
 .nav-link-learn {
-  left: calc(var(--grid-margin-x) + 7 * var(--grid-col-width) + 6 * var(--grid-gap));
-}
-.nav-link-play {
-  left: calc(var(--grid-margin-x) + 8 * var(--grid-col-width) + 7 * var(--grid-gap));
+  left: 25px;
 }
 
-.nav-label {
-  position: absolute;
-  left: var(--grid-gap);
-  bottom: 0;
-  white-space: nowrap;
+/* pinned exactly to col 9's own left edge (relative to the pill, which
+   starts at col 8), regardless of the pill's padding */
+.nav-link-play {
+  left: calc(var(--grid-col-width) + var(--grid-gap));
 }
 
 .nav-link-item:hover {
-  font-weight: 1000; /* Black — CSS font-weight maxes out at 1000 */
-  color: var(--color-main);
+  color: var(--grey-1);
 }
 
-.nav-link-item.active {
-  font-weight: 1000; /* Black */
+/* the page you're NOT on rests at 30% opacity; hover brings it to full */
+.nav-link-item:not(.active) {
+  opacity: 0.3;
+  transition: opacity var(--duration-fast) var(--ease);
+}
+
+.nav-link-item:not(.active):hover {
+  opacity: 1;
+}
+
+/* the dot is a pure overlay — absolutely positioned OUT of the text flow,
+   so its presence/position never shifts where "Learn"/"Play" itself sits.
+   left:-18px puts the dot's LEFT edge 7px from the pill's edge (since
+   Learn always starts 25px from the pill's edge: 7 + 11px dot + 7),
+   and its own width means its RIGHT edge then sits exactly 7px before
+   the label too — equal 7px gaps on both sides of the dot itself. */
+.nav-link-item.active::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -18px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: transparent;
+  transform: translateY(-50%) translateX(var(--dot-from-x, 0px));
+}
+
+/* ── cross-page transition — js/nav.js fakes continuity across the full
+   page reload: the page being left quickly fades its own active dot+label,
+   stashes which page that was, then the arriving page starts its own
+   active dot+label faded out, with the DOT additionally offset (via
+   --dot-from-x, measured by JS) to sit exactly where the OLD page's dot
+   was — then both animate back: the dot slides into its resting spot
+   while everything fades up to full opacity. The Learn/Play buttons
+   themselves never move — only the dot changes position. */
+.nav-link-item.active.nav-link-item--leaving {
+  opacity: 0.3;
+  transition: opacity 400ms ease;
+}
+
+.nav-link-item.active.nav-link-item--arriving {
+  opacity: 0.3;
+}
+
+.nav-link-item.active.nav-link-item--settling {
+  opacity: 1;
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link-item.active.nav-link-item--settling::before {
+  /* quicker off the mark, still a gentle ease-out landing */
+  transition: transform 950ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* ── hamburger — hidden on desktop ──────────────────────────────────────────── */
@@ -97,14 +157,17 @@
 
 /* ── mobile nav ──────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  /* Solid white so the open menu forms one seamless white block from top */
-  .site-nav {
-    background: #ffffff;
-  }
+  /* nav bar itself stays transparent at every breakpoint now — it used to
+     flip to solid white here so the dropdown "formed one seamless white
+     block from it", but that made the whole bar visibly flash white the
+     moment the viewport crossed 768px. The dropdown panel below already
+     carries its own white background, so the bar doesn't need to match it */
 
-  /* Logo fills the nav minus the hamburger button width */
+  /* Logo fills the nav minus roughly the menu toggle's width — the toggle
+     is label-sized now (not a fixed box), so this just needs to clear it
+     generously rather than match it exactly */
   .nav-logo-link {
-    width: calc(100% - 52px);
+    width: calc(100% - 130px);
   }
 
   /* Hide desktop link bar entirely */
@@ -112,41 +175,52 @@
     display: none;
   }
 
-  /* ── hamburger button ─────────────────────────────────────────────────── */
+  /* ── menu toggle — same pill recipe as the desktop Learn/Play pill
+     (.nav-links), and now positioned exactly the same way: fixed to the
+     same top offset and to the right-hand grid margin, mirroring how the
+     logo is fixed to the left margin. Using the same positioning
+     mechanism (not just the same look) at both breakpoints is what makes
+     crossing 768px a non-event instead of a visible jump. */
   .nav-hamburger {
+    position: fixed;
+    top: calc(var(--grid-margin-top, 1.25rem) + 1px);
+    /* the desktop pill's column math (margin-x + 7 cols + 6 gaps, width
+       2 cols + 1 gap) actually lands margin-x + ONE grid-gap from the
+       edge, not plain margin-x — matching that exact value here instead
+       of just var(--grid-margin-x) is what keeps the gap visually
+       identical across the breakpoint */
+    right: calc(var(--grid-margin-x, 1.875rem) + var(--grid-gap, 0.75rem));
+    /* occupies the last TWO columns (5-6) at this breakpoint — one column
+       alone isn't wide enough for the dot + label without cramping */
+    width: calc(2 * var(--grid-col-width) + var(--grid-gap));
+    z-index: 101;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    width: 52px;
-    flex-shrink: 0;
-    padding: 0 16px;
-    margin-left: auto;
-    background: none;
+    align-items: center;
+    /* 7px on both sides of the dot (pill-edge↔dot and dot↔label) — the
+       same gap the desktop Learn button uses (see .nav-link-learn and
+       .nav-link-item.active::before) */
+    gap: 7px;
+    height: 19px;
+    padding: 0 7px;
+    background: #f2f2f2;
     border: none;
+    border-radius: 999px;
     cursor: pointer;
-    align-self: stretch;
+    font-family: "Aeonik TRIAL", var(--font-display);
+    font-weight: 400;
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+    color: var(--grey-1);
   }
 
-  .nav-hamburger span {
+  .nav-hamburger-dot {
     display: block;
-    width: 18px;
-    height: 1.5px;
-    background: #4e4e4e;
-    transform-origin: center;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-  }
-
-  /* × state when open */
-  .nav-hamburger--open span:nth-child(1) {
-    transform: rotate(45deg) translate(4.5px, 4.5px);
-  }
-  .nav-hamburger--open span:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
-  }
-  .nav-hamburger--open span:nth-child(3) {
-    transform: rotate(-45deg) translate(4.5px, -4.5px);
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    background: transparent;
   }
 
   /* ── mobile dropdown menu ─────────────────────────────────────────────── */

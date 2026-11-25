@@ -1,14 +1,49 @@
 /* home-hero.css — homepage is just the logo, centered, full viewport width */
 .home-hero {
+  position: relative;
   width: 100%;
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: var(--grid-margin-top, 1.25rem);
+  overflow: hidden;
+  background: #000;
+}
+
+.home-hero-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 }
 
 .home-hero-logo {
+  position: relative;
+  z-index: 1;
   display: block;
-  width: 100%;
+  width: calc(7 * var(--grid-col-width) + 6 * var(--grid-gap));
   height: auto;
+  margin: 0 0 0 var(--grid-margin-x, 1.875rem);
+  /* original artwork is solid dark fill (#1e1f1d) on transparent bg —
+     brightness(0) forces pure black, invert(1) flips it to pure white */
+  filter: brightness(0) invert(1);
+}
+
+.home-hero-subtitle {
+  margin: 32px var(--grid-margin-x, 1.875rem) 0;
+  font-family: "Aeonik TRIAL";
+  font-weight: 200;
+  font-size: clamp(16px, 2vw, 24px);
+  text-align: center;
+  color: #fff;
+}
+
+/* homepage only — the shared nav's border-bottom reads as a stray line
+   over this full-bleed background image */
+body:has(.home-hero) .site-nav {
+  border-bottom: none;
 }

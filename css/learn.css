@@ -12,8 +12,7 @@ body {
   align-items: flex-end;
   width: 100%;
   height: 100vh;
-  background: #f2f98a url("../assets/images/learn/intro-bg.webp") center/cover
-    no-repeat;
+  background: #4db8ff;
 }
 
 /* vertical line at the start of col 7, full height of the hero */
@@ -78,6 +77,13 @@ body {
   background: var(--grey-3);
 }
 
+/* hidden for now (not removed) so .intro-text keeps its line-height box —
+   the horizontal rule and number axis below it are positioned in em units
+   off that box and would otherwise shift if it collapsed to 0 */
+.intro-text-words {
+  visibility: hidden;
+}
+
 .intro-text {
   position: relative;
   margin: 0 var(--grid-margin-x, 1.875rem) 60px;
@@ -110,7 +116,7 @@ body {
    out and 6*col+6*gap alone lands exactly on it */
 .intro-axis {
   position: absolute;
-  top: calc(1.05em + 8px);
+  top: calc(1.05em + 4px);
   left: calc(6 * var(--grid-col-width) + 6 * var(--grid-gap));
 }
 
@@ -120,9 +126,9 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  transform: translateX(calc(var(--n) * 60px - 50%));
-  font-family: "KMRWaldenburg", sans-serif;
-  font-weight: 400;
+  transform: translateX(calc(var(--n) * 80px - 50%));
+  font-family: "Rhetorik Serif TRIAL", serif;
+  font-weight: 100;
   font-size: 9pt;
   /* intro-text's own letter-spacing is -0.02em of ITS (much bigger) font
      size — that computed px value inherits as-is otherwise, cramming
@@ -145,7 +151,7 @@ body {
      menu's own container (.point-line-plane-wrap, absolute inset:0 here) —
      it only pushes the in-flow content down, same as a plain margin
      would look, but without dragging the menu down with it */
-  padding-top: 140px;
+  padding-top: 250px;
 }
 
 /* absolutely positioned at full height of .learn-content-wrap so it doesn't
@@ -159,11 +165,54 @@ body {
   z-index: 2;
 }
 
+/* cols 3-6, right where .learn-content-wrap starts — just below the hero
+   image. title + body text share this one positioned box so the body
+   naturally sits below the title in normal flow, instead of two separate
+   absolute offsets that would need re-syncing by hand */
+.intro-copy {
+  position: absolute;
+  top: 18px;
+  left: calc(
+    var(--grid-margin-x, 1.875rem) + 2 * var(--grid-col-width) + 2 *
+      var(--grid-gap)
+  );
+  width: calc(4 * var(--grid-col-width) + 3 * var(--grid-gap));
+}
+
+/* title itself only spans cols 3-5, inset within the wider cols 3-6 box */
+.intro-subtitle {
+  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
+  font-family: "Aeonik TRIAL";
+  font-weight: 200;
+  /* scales with the grid itself (not the viewport directly), so it tracks
+     the 3-column box's own width as it resizes */
+  font-size: clamp(22px, calc(var(--grid-col-width) * 0.38), 54px);
+  line-height: 1.1;
+  color: var(--grey-1);
+}
+
+.intro-copy-body {
+  display: none; /* taken out for now, not deleted */
+  margin-top: 170px;
+  font-family: "Rhetorik Serif TRIAL";
+  font-weight: 400;
+  font-size: 8pt;
+  text-transform: uppercase;
+  text-align: justify;
+  text-align-last: justify;
+  /* a single word has no spaces for ordinary justify to stretch — this
+     spreads the individual LETTERS instead, so "M" sits flush on col 3's
+     left edge and "S" flush on col 6's right edge, growing/shrinking the
+     letter-spacing (not the box) as the viewport resizes */
+  text-justify: inter-character;
+  color: var(--grey-3);
+}
+
 /* "Point / Line / Plane", stacked, cols 1-2 — stays fixed once scrolled
    to, while the gifs-section (cols 3-9) keeps scrolling past it */
 .point-line-plane {
   position: sticky;
-  top: calc(var(--nav-height, 42px) + 20px);
+  top: calc(var(--nav-height, 42px) + 50px);
   margin-left: var(--grid-margin-x, 1.875rem);
   width: calc(2 * var(--grid-col-width) + var(--grid-gap));
 }
@@ -173,10 +222,10 @@ body {
   display: block;
   margin: 0 0 5px;
   font-family: "Aeonik TRIAL";
-  font-weight: 200;
-  font-size: 42px;
+  font-weight: 500;
+  font-size: 9pt;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.03em;
   color: var(--grey-1);
   text-decoration: none;
   opacity: 0.35;
@@ -252,32 +301,21 @@ body {
 .point-line-plane-dot {
   position: absolute;
   top: 0;
-  left: 7px;
+  left: 0;
   width: 6px;
   height: 1px;
   background: var(--grey-1);
   transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* vertical line running the height of the subtitle list, left of the numbers */
-.point-line-plane-subtitles-track::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 1px;
-  background: var(--grey-3);
-}
-
 .point-line-plane-subtitles-track a {
   display: block;
-  margin: 0 0 3px 32px;
-  font-family: "KMRWaldenburg", sans-serif;
+  margin: 0 0 3px 18px;
+  font-family: "Aeonik TRIAL";
   font-weight: 400;
-  font-size: 11px;
+  font-size: 9pt;
   line-height: 1.2;
-  letter-spacing: var(--panel-letter-spacing, 0.045em);
+  letter-spacing: 0.03em;
   color: var(--grey-1);
   text-decoration: none;
   cursor: pointer;
@@ -296,6 +334,8 @@ body {
 .point-line-plane-subtitle-num {
   display: inline-block;
   margin-right: 8px;
+  font-family: "Aeonik TRIAL";
+  font-weight: 400;
 }
 
 /* sticks at the same height as the "tac" logo once scrolled past it.
@@ -377,9 +417,9 @@ body {
   position: relative;
   margin-top: 26px;
   padding-top: 4px;
-  font-family: "EB Garamond";
+  font-family: "Rhetorik Serif TRIAL";
   font-size: 9pt;
-  font-weight: 400;
+  font-weight: 300;
   line-height: 1.25;
   color: var(--grey-1);
   margin-bottom: 36px;
@@ -404,8 +444,8 @@ body {
 }
 
 .gif-caption strong {
-  font-family: "EB Garamond";
-  font-weight: 700;
+  font-family: "Rhetorik Serif TRIAL";
+  font-weight: 500;
   color: var(--grey-1);
 }
 
