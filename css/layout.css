@@ -184,15 +184,12 @@
   .nav-hamburger {
     position: fixed;
     top: calc(var(--grid-margin-top, 1.25rem) - 2px);
-    /* the desktop pill's column math (margin-x + 7 cols + 6 gaps, width
-       2 cols + 1 gap) actually lands margin-x + ONE grid-gap from the
-       edge, not plain margin-x — matching that exact value here instead
-       of just var(--grid-margin-x) is what keeps the gap visually
-       identical across the breakpoint */
-    right: calc(var(--grid-margin-x, 1.875rem) + var(--grid-gap, 0.75rem));
-    /* occupies the last TWO columns (5-6) at this breakpoint — one column
-       alone isn't wide enough for the dot + label without cramping */
-    width: calc(2 * var(--grid-col-width) + var(--grid-gap));
+    /* same right margin every other mobile content uses (see home-hero.css,
+       learn.css) — not the desktop pill's column math, which lands an
+       extra grid-gap further in than the page's actual margin */
+    right: var(--grid-margin-x, 1.875rem);
+    /* shrinks to fit the dot + label instead of locking to grid columns */
+    width: fit-content;
     z-index: 101;
     display: flex;
     align-items: center;

@@ -141,7 +141,7 @@ function generateCompositionData() {
       sizeT: random(1),
       numStr: nums ? nums[i] : randomNum(),
       colorSeed: floor(random(999983)),
-      angle: random(TWO_PI),
+      angle: 0,
       rotationSpeed: (random() < 0.5 ? -1 : 1) * random(0.003, 0.018),
       fontIdx: floor(random(FONTS.length)),
     });
@@ -1533,7 +1533,6 @@ function draw() {
     for (let i = 0; i < composition.length; i++) {
       const item = composition[i];
       const data = compositionData[i];
-      data.angle += data.rotationSpeed;
 
       randomSeed(item.colorSeed);
       reshuffleColors();
