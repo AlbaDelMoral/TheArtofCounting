@@ -12,7 +12,8 @@ body {
   align-items: flex-end;
   width: 100%;
   height: 100vh;
-  background: #4db8ff;
+  background: #4db8ff url("../assets/images/learn/intro-bg.webp") center / cover
+    no-repeat;
 }
 
 /* vertical line at the start of col 7, full height of the hero */

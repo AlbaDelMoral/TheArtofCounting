@@ -4,7 +4,9 @@
 :root {
   --grid-columns: 9;
   --grid-gap: 0.75rem; /* 12px */
-  --grid-margin-top: 0.9375rem; /* 15px */
+  /* 15px, plus the notch/status-bar safe area now that the page extends
+     fully behind it (viewport-fit=cover) — env() is 0 on devices without one */
+  --grid-margin-top: calc(0.9375rem + env(safe-area-inset-top, 0px));
   --grid-margin-x: 1.5625rem; /* 25px */
   --grid-line-color: rgba(0, 0, 0, 0);
 
