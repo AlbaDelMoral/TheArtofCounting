@@ -531,3 +531,155 @@ body {
 .site-nav {
   border-bottom: none !important;
 }
+
+/* mobile-only toggle — hidden on desktop, where the sidebar is always
+   fully expanded and needs no handle */
+.point-line-plane-handle {
+  display: none;
+}
+
+/* ── mobile ───────────────────────────────────────────────────────────────
+   The desktop layout reserves cols 1-2 for the sticky "Point / Line / Plane"
+   index and runs the gif sections off at cols 7-9 — neither makes sense on
+   a 6-column mobile grid. Here the index collapses to a dot handle docked
+   in col 1 (otherwise empty); tapping it expands the full list out to the
+   right, over part of the content below
+   so every content block below can use the full 5 of 6 columns instead of
+   sharing the width with a permanent sidebar. */
+@media (max-width: 768px) {
+  .learn-content-wrap {
+    padding-top: 140px;
+  }
+
+  /* no longer needs to span the whole content height to give its sticky
+     child room to stick (see the desktop comment above) — the index is
+     position:fixed below instead, so this wrapper just gets out of the way */
+  .point-line-plane-wrap {
+    position: static;
+    margin-top: 0;
+    height: 0;
+    overflow: visible;
+  }
+
+  /* collapsed state: a slim dot handle docked at col 1 (otherwise empty) —
+     fixed, not sticky, so it's always reachable regardless of scroll
+     position, same mechanism the nav pill itself uses */
+  .point-line-plane-handle {
+    position: fixed;
+    /* nav pill bottom sits at grid-margin-top + 20px (see .nav-mobile-pill
+       in css/layout.css) — a bit more clearance below that */
+    top: calc(var(--grid-margin-top, 1.25rem) + 30px);
+    left: var(--grid-margin-x, 1.875rem);
+    z-index: 91;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--grid-col-width) - var(--grid-gap));
+    height: 36px;
+    background: #f2f2f2;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .point-line-plane-handle-dot {
+    display: block;
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    background: transparent;
+    color: var(--grey-1);
+  }
+
+  /* expands out of the handle, to the right — col 1 (the handle's own
+     column) stays empty either way, the panel opens starting at col 2 */
+  .point-line-plane {
+    position: fixed;
+    top: calc(var(--grid-margin-top, 1.25rem) + 30px);
+    left: calc(
+      var(--grid-margin-x, 1.875rem) + var(--grid-col-width) + var(--grid-gap)
+    );
+    z-index: 90;
+    margin-left: 0;
+    width: 0;
+    max-height: 70vh;
+    padding: 0;
+    overflow: hidden;
+    background: #fff;
+    border-radius: 8px;
+    opacity: 0;
+    transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease,
+      padding 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .point-line-plane.is-expanded {
+    width: calc(4 * var(--grid-col-width) + 3 * var(--grid-gap));
+    padding: 10px 14px;
+    opacity: 1;
+    overflow-y: auto;
+    border: 0.5px solid var(--grey-4, #e0e0e0);
+  }
+
+  /* every title/subtitle is hidden until expanded — the dot handle is the
+     only thing visible while collapsed, no single active title peeking out */
+  .point-line-plane > .point-line-plane-title {
+    display: none;
+  }
+  .point-line-plane.is-expanded > .point-line-plane-title {
+    display: block;
+  }
+
+  .point-line-plane-subtitles {
+    display: none;
+  }
+  .point-line-plane.is-expanded .point-line-plane-subtitles {
+    display: grid;
+  }
+
+  /* ── content occupies cols 2-6 (col 1 stays empty) — the gifs-section no
+     longer sits in its own right-hand column block, and its children's
+     negative margins (which used to pull them back from col 7 to col 4)
+     are zeroed out */
+  .intro-copy {
+    left: calc(
+      var(--grid-margin-x, 1.875rem) + var(--grid-col-width) + var(--grid-gap)
+    );
+    width: calc(5 * var(--grid-col-width) + 4 * var(--grid-gap));
+  }
+
+  .gifs-section {
+    margin-left: calc(
+      var(--grid-margin-x, 1.875rem) + var(--grid-col-width) + var(--grid-gap)
+    );
+    width: calc(5 * var(--grid-col-width) + 4 * var(--grid-gap));
+  }
+
+  .gif-section-num {
+    left: 0;
+  }
+
+  /* the line stays at cols 2-6 (the gifs-section's own full width), even
+     though the caption text itself is now inset to col 3 */
+  .gif-caption::before {
+    left: calc(-1 * (var(--grid-col-width) + var(--grid-gap)));
+    width: calc(5 * var(--grid-col-width) + 4 * var(--grid-gap));
+  }
+
+  /* the gif/circle itself sits at cols 3-6 (1 column in from the
+     gifs-section's own col-2 start), narrower than the section it's in */
+  .gif-col:not(.gif-col--side) .gif-item,
+  .gif-col--side .gif-item {
+    width: calc(4 * var(--grid-col-width) + 3 * var(--grid-gap));
+    margin-left: calc(var(--grid-col-width) + var(--grid-gap));
+  }
+
+  /* the paragraph itself starts one column further in (col 3, not col 2) —
+     its own line stays put, only the text is indented */
+  .gif-col:not(.gif-col--side) .gif-caption,
+  .gif-col--side .gif-caption {
+    width: calc(4 * var(--grid-col-width) + 3 * var(--grid-gap));
+    margin-left: calc(var(--grid-col-width) + var(--grid-gap));
+  }
+}

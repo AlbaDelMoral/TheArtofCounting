@@ -109,3 +109,33 @@
   }
   updateIntroAxis();
 })();
+
+// mobile-only: the index collapses to a slim dot handle docked in col 1
+// (see css/learn.css); tapping it expands the full list out to the right.
+// Tapping any link while expanded lets it jump as normal, then collapses
+// the index back down to just the handle.
+(function () {
+  const plane = document.querySelector(".point-line-plane");
+  const handle = document.querySelector(".point-line-plane-handle");
+  if (!plane || !handle) return;
+
+  function setExpanded(isExpanded) {
+    plane.classList.toggle("is-expanded", isExpanded);
+    handle.setAttribute("aria-expanded", isExpanded);
+  }
+
+  handle.addEventListener("click", () => {
+    if (window.innerWidth > 768) return;
+    setExpanded(!plane.classList.contains("is-expanded"));
+  });
+
+  plane.addEventListener("click", (e) => {
+    if (window.innerWidth > 768) return;
+    if (e.target.closest("a")) setExpanded(false);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (window.innerWidth > 768) return;
+    if (!plane.contains(e.target) && !handle.contains(e.target)) setExpanded(false);
+  });
+})();
