@@ -67,7 +67,7 @@
   display: block;
   font-family: "Aeonik TRIAL", var(--font-display);
   font-weight: 400;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--grey-1);
   letter-spacing: 0.04em;
   text-decoration: none;
@@ -205,9 +205,22 @@
     cursor: pointer;
     font-family: "Aeonik TRIAL", var(--font-display);
     font-weight: 400;
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
     letter-spacing: 0.04em;
     color: var(--grey-1);
+  }
+
+  /* invisible hit-area expander — the visible pill stays 22px tall, but
+     taps register across a full 44px square (WCAG thumb-friendly target
+     size) centered on it, without changing how it looks */
+  .nav-hamburger::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: 44px;
+    transform: translate(-50%, -50%);
   }
 
   .nav-hamburger-dot {
