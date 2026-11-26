@@ -962,9 +962,15 @@ function _updateMobilePanelState() {
 // On mobile they still start collapsed so only the active mode's own
 // dropdown (Numbers, by default) is expanded at first paint — true "one
 // section open at a time" instead of two fighting for the same screen.
-function _initStandaloneDropdown(wrapperElt) {
+// startCollapsed forces that same collapsed-at-first-paint behavior on
+// desktop too — used for Artistic Variables, so only Calculator is open
+// when the page first loads, matching Numbers/Operations/Multiplication's
+// own "only the active one" rule instead of starting open everywhere.
+function _initStandaloneDropdown(wrapperElt, { startCollapsed = false } = {}) {
   wrapperElt.classList.add("panel-dropdown--open");
-  if (window.innerWidth <= 768) wrapperElt.classList.add("panel-dropdown--collapsed");
+  if (startCollapsed || window.innerWidth <= 768) {
+    wrapperElt.classList.add("panel-dropdown--collapsed");
+  }
   _updateDropdownArrow(wrapperElt);
 }
 
@@ -1367,7 +1373,7 @@ function createPanel() {
   // and a real collapsible accordion everywhere, desktop included.
   const { wrapper: artWrapper, content: artContent } = _buildDropdownShell("Artistic variables");
   artWrapper.elt.classList.add("panel-dropdown--standalone");
-  _initStandaloneDropdown(artWrapper.elt);
+  _initStandaloneDropdown(artWrapper.elt, { startCollapsed: true });
 
   addColorRow(artContent, "background", canvasBgHex, (hex) => {
     canvasBgHex = hex;

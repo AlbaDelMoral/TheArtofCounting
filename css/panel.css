@@ -88,8 +88,6 @@ canvas {
   height: 100vh;
   border-radius: 0;
   background: var(--panel-bg);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
   /* right padding reserves the trailing gap so slider content stops at the
      content edge (column 2's end) while the box/background behind it
      still reaches the divider; left padding restores the grid margin so
@@ -120,30 +118,59 @@ canvas {
    hover-capable devices the panel sits dimmed and transparent until the
    cursor is actually over it, then tints grey and blurs the canvas behind
    it. Scoped to (hover: hover) so touch devices keep the plain always-on
-   panel from the mobile rules below. ───────────────────────────────────── */
-@media (hover: hover) {
-  .side-panel {
-    /* bg alpha fades all the way to 0, but the panel's own opacity (which
-       multiplies on top of everything, text included) only fades to 0.3 —
-       so idle elements dim to a faint 0.3 instead of disappearing with the
-       background. Since 0 (bg alpha) * anything stays 0, the two together
-       still leave the background fully transparent at idle. */
-    background: rgba(255, 255, 255, 0);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    opacity: 0.4;
-    transition: background 0.3s var(--ease) 0.2s, opacity 0.3s var(--ease) 0.2s,
-      backdrop-filter 0.3s var(--ease) 0.2s, -webkit-backdrop-filter 0.3s var(--ease) 0.2s;
-  }
+   panel from the mobile rules below.
 
-  .side-panel:hover {
+   The frosted background (color + blur) lives on ::before, not on the
+   panel itself, and that pseudo's blur radius is CONSTANT — only its
+   opacity ever transitions. Animating backdrop-filter's blur radius
+   directly (even 0px→0.01px→24px) is what caused the glitch: browsers
+   don't interpolate a live backdrop-capture smoothly while its radius is
+   changing, especially when the transition gets interrupted mid-flight by
+   a quick mouse-out-then-back-in. Fading the opacity of an
+   already-fully-blurred layer is cheap, standard, and interrupts cleanly.
+   The panel's OWN opacity (dimming the text/controls, separate from the
+   frosted background) still transitions normally — opacity was never the
+   problem. ───────────────────────────────────────────────────────────── */
+@media (hover: hover) {
+  .side-panel::before {
+    content: "";
+    /* fixed, not absolute, and with the panel's own exact box geometry
+       duplicated (not inset:0) — .side-panel scrolls its own content
+       (overflow-y:auto), and an absolutely-positioned child would scroll
+       away with it instead of staying glued to the panel's fixed position
+       on screen */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: calc(var(--panel-width) + var(--grid-margin-x, 1.875rem));
+    min-width: var(--panel-min-width);
+    max-width: var(--panel-max-width);
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease) 0.2s;
+  }
+
+  .side-panel {
+    /* the panel's own opacity (which multiplies on top of everything, text
+       included) fades to 0.3 at idle instead of disappearing entirely */
+    opacity: 0.4;
+    transition: opacity 0.3s var(--ease) 0.2s;
+  }
+
+  .side-panel:hover::before {
     opacity: 1;
     /* no delay going IN — should brighten immediately on hover */
-    transition: background 0.3s var(--ease), opacity 0.3s var(--ease),
-      backdrop-filter 0.3s var(--ease), -webkit-backdrop-filter 0.3s var(--ease);
+    transition: opacity 0.3s var(--ease);
+  }
+
+  .side-panel:hover {
+    opacity: 1;
+    transition: opacity 0.3s var(--ease);
   }
 }
 
@@ -335,6 +362,16 @@ canvas {
 
 .panel-export-btn {
   margin-top: 12px;
+  border-radius: 999px;
+}
+
+/* a fixed gap rather than margin-top:auto — auto pushes these all the way
+   to the panel's bottom edge when content is short, but shrinks to ~0 (and
+   reads as cramped right under Artistic Variables' closing line) once the
+   dropdown is open and content fills the panel. A fixed gap stays
+   consistent in both cases. */
+.panel-export-btn:not(.panel-export-svg-btn) {
+  margin-top: 60px;
 }
 
 .panel-export-svg-btn {
@@ -452,6 +489,18 @@ canvas {
    back when it was a plain, non-dropdown .panel-section. */
 .panel-dropdown--standalone {
   margin-top: var(--panel-section-margin-top);
+}
+
+/* unlike Numbers/Operations/Multiplication, Artistic Variables can't rely
+   on borrowing the previous dropdown's border-bottom for its "line above" —
+   that previous dropdown is one of the three mode sections, which renders
+   its border in a muted disabled grey whenever it isn't the active mode
+   (see the :not(.panel-dropdown--open) rules above), making the borrowed
+   line nearly invisible most of the time. Giving it its own explicit,
+   always-correctly-colored top border (the same treatment the very first
+   dropdown, Calculator, already gets) fixes that. */
+.panel-dropdown--standalone .panel-dropdown-toggle {
+  border-top: 0.5px solid var(--panel-section-line-color);
 }
 
 .panel-dropdown-content {

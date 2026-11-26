@@ -44,15 +44,15 @@
    one gap).
    Vertically, everything is bottom-aligned with the logo's own bottom edge
    (logo height: 20px, see .nav-logo-img). */
-/* pill wrapping Learn + Play together, spanning cols 8-9 — slightly shorter
-   than the logo (19px vs 20px), top nudged down by that same 1px so its
-   bottom edge still lines up with the logo's own bottom edge exactly */
+/* pill wrapping Learn + Play together, spanning cols 8-9 — taller than the
+   logo (26px vs 20px), top nudged up so its bottom edge still lines up
+   with the logo's own bottom edge exactly */
 .nav-links {
   position: fixed;
-  top: calc(var(--grid-margin-top, 1.25rem) + 1px);
+  top: calc(var(--grid-margin-top, 1.25rem) - 2px);
   left: calc(var(--grid-margin-x) + 7 * var(--grid-col-width) + 6 * var(--grid-gap));
   width: calc(2 * var(--grid-col-width) + var(--grid-gap));
-  height: 19px;
+  height: 22px;
   z-index: 101;
   padding: 0 16px;
   background: #f2f2f2;
@@ -183,7 +183,7 @@
      crossing 768px a non-event instead of a visible jump. */
   .nav-hamburger {
     position: fixed;
-    top: calc(var(--grid-margin-top, 1.25rem) + 1px);
+    top: calc(var(--grid-margin-top, 1.25rem) - 2px);
     /* the desktop pill's column math (margin-x + 7 cols + 6 gaps, width
        2 cols + 1 gap) actually lands margin-x + ONE grid-gap from the
        edge, not plain margin-x — matching that exact value here instead
@@ -200,7 +200,7 @@
        same gap the desktop Learn button uses (see .nav-link-learn and
        .nav-link-item.active::before) */
     gap: 7px;
-    height: 19px;
+    height: 22px;
     padding: 0 7px;
     background: #f2f2f2;
     border: none;
