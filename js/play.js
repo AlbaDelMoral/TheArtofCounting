@@ -1010,7 +1010,7 @@ function createPanel() {
 
   // ── intro copy — sits above the calculator, explains what this page is ──────
   createP(
-    "The Art of Counting turns numbers into shape and color — rings, belts, and bands built from their own digits.<br><strong>Type an expression below, or hit random, to see it drawn.</strong>",
+    "On this page you can explore and play with this new visual system. <strong>Type your own expression or hit random and enjoy.</strong>",
   )
     .class("panel-intro")
     .parent(panel);
@@ -1758,7 +1758,9 @@ function _touchOnPanel(e) {
     e &&
     e.target &&
     e.target.closest &&
-    (e.target.closest(".side-panel") || e.target.closest(".mobile-fab"))
+    (e.target.closest(".side-panel") ||
+      e.target.closest(".mobile-fab") ||
+      e.target.closest(".site-nav"))
   );
 }
 

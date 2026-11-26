@@ -146,12 +146,8 @@
   transition: transform 950ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* ── hamburger — hidden on desktop ──────────────────────────────────────────── */
-.nav-hamburger {
-  display: none;
-}
-
-.nav-mobile-menu {
+/* ── mobile pill — hidden on desktop ──────────────────────────────────────── */
+.nav-mobile-pill {
   display: none;
 }
 
@@ -175,33 +171,55 @@
     display: none;
   }
 
-  /* ── menu toggle — same pill recipe as the desktop Learn/Play pill
-     (.nav-links), and now positioned exactly the same way: fixed to the
-     same top offset and to the right-hand grid margin, mirroring how the
-     logo is fixed to the left margin. Using the same positioning
-     mechanism (not just the same look) at both breakpoints is what makes
-     crossing 768px a non-event instead of a visible jump. */
-  .nav-hamburger {
+  /* ── mobile pill — same pill as the desktop Learn/Play one, positioned
+     exactly the same way: fixed to the same top offset and to the
+     right-hand grid margin, mirroring how the logo is fixed to the left
+     margin. Using the same positioning mechanism (not just the same look)
+     at both breakpoints is what makes crossing 768px a non-event instead
+     of a visible jump. Collapsed, it shows only the dot+"Menu" toggle;
+     tapping the toggle expands the pill LEFTWARD (right stays fixed) to
+     reveal Learn/Play — the toggle itself never moves. */
+  .nav-mobile-pill {
     position: fixed;
     top: calc(var(--grid-margin-top, 1.25rem) - 2px);
     /* same right margin every other mobile content uses (see home-hero.css,
        learn.css) — not the desktop pill's column math, which lands an
        extra grid-gap further in than the page's actual margin */
     right: var(--grid-margin-x, 1.875rem);
-    /* shrinks to fit the dot + label instead of locking to grid columns */
-    width: fit-content;
     z-index: 101;
     display: flex;
     align-items: center;
-    /* 7px on both sides of the dot (pill-edge↔dot and dot↔label) — the
-       same gap the desktop Learn button uses (see .nav-link-learn and
-       .nav-link-item.active::before) */
-    gap: 7px;
+    /* 0 while collapsed — Learn/Play have no width to gap against yet;
+       becomes 7px (same spacing the dot uses) once expanded, below */
+    gap: 0;
     height: 22px;
+    /* symmetric while collapsed, so the dot+"Menu" toggle sits dead
+       centered in the pill shape */
     padding: 0 7px;
     background: #f2f2f2;
-    border: none;
     border-radius: 999px;
+    overflow: hidden;
+    transition: gap 0.35s cubic-bezier(0.22, 1, 0.36, 1), padding 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .nav-mobile-pill--open {
+    /* left padding is a touch more than right once expanded — "Learn"'s
+       flat L sits almost flush with its own box edge while "Close"'s
+       rounded e leaves trailing whitespace, so equal CSS padding reads
+       as a tighter gap on the left; this optically balances the two */
+    padding-left: 11px;
+    gap: 30px;
+  }
+
+  .nav-hamburger {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    position: relative; /* containing block for the hit-area expander below */
+    gap: 7px;
+    border: none;
+    background: none;
+    padding: 0;
     cursor: pointer;
     font-family: "Aeonik TRIAL", var(--font-display);
     font-weight: 400;
@@ -212,7 +230,7 @@
 
   /* invisible hit-area expander — the visible pill stays 22px tall, but
      taps register across a full 44px square (WCAG thumb-friendly target
-     size) centered on it, without changing how it looks */
+     size) centered on the toggle, without changing how it looks */
   .nav-hamburger::before {
     content: "";
     position: absolute;
@@ -223,54 +241,87 @@
     transform: translate(-50%, -50%);
   }
 
-  .nav-hamburger-dot {
+  /* dot and X are stacked in the same 11x11 box and cross-fade: the dot
+     shrinks/rotates away as the pill opens, the X rotates in to replace
+     it, right as the label flips Menu->Close */
+  .nav-hamburger-icon {
+    position: relative;
     display: block;
     width: 11px;
     height: 11px;
     flex-shrink: 0;
+  }
+
+  .nav-hamburger-dot {
+    display: block;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     border: 1px solid currentColor;
     background: transparent;
+    transition: opacity 0.25s ease, transform 0.25s ease;
   }
 
-  /* ── mobile dropdown menu ─────────────────────────────────────────────── */
-  .nav-mobile-menu {
-    position: fixed;
-    top: var(--nav-height);
-    left: 0;
-    right: 0;
-    background: #ffffff;
-    border-bottom: 0.5px solid #e0e0e0;
-    flex-direction: column;
-    padding: 6px 0 14px;
-    z-index: 99;
-    animation: nav-menu-in 0.18s ease;
+  .nav-hamburger-x {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.5);
+    transition: opacity 0.25s ease, transform 0.25s ease;
   }
 
-  .nav-mobile-menu--open {
-    display: flex;
+  .nav-hamburger-x line {
+    stroke: currentColor;
+    stroke-width: 1;
   }
 
-  .nav-mobile-menu a {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: var(--text-xs);
-    color: var(--color-main);
-    letter-spacing: 0.02em;
-    text-decoration: none;
-    padding: 11px 20px;
-    display: block;
-    transition: color var(--duration-fast) var(--ease);
+  .nav-mobile-pill--open .nav-hamburger-dot {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.5);
   }
 
-  .nav-mobile-menu a:hover,
-  .nav-mobile-menu a.active {
-    font-weight: 1000;
-    color: #121212;
+  .nav-mobile-pill--open .nav-hamburger-x {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
   }
 
-  @keyframes nav-menu-in {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
+  /* Learn/Play — collapsed to zero width/opacity by default so only the
+     toggle shows; expanding uses a grid-template-columns 0fr→1fr animation
+     (not width/max-width) so the reveal tracks each label's own natural
+     width exactly, with no overshoot or guessed cap. */
+  .nav-link-item.nav-mobile-link {
+    position: static;
+    display: grid;
+    grid-template-columns: 0fr;
+    transform: none;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    flex-shrink: 0;
+    font-family: "Aeonik TRIAL", var(--font-display);
+    font-weight: 400;
+    font-size: var(--text-sm);
+    letter-spacing: 0.04em;
+    transition: grid-template-columns 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.25s ease;
+  }
+
+  .nav-mobile-link .nav-label {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .nav-mobile-pill--open .nav-link-item.nav-mobile-link {
+    grid-template-columns: 1fr;
+    pointer-events: auto;
+  }
+
+  .nav-mobile-pill--open .nav-link-item.nav-mobile-link.active {
+    opacity: 1;
+  }
+
+  .nav-mobile-pill--open .nav-link-item.nav-mobile-link:not(.active) {
+    opacity: 0.3;
   }
 }

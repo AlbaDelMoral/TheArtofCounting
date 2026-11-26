@@ -84,10 +84,6 @@ const DEBUG_GRID = false;
   function buildNav() {
     let page = location.pathname.split("/").pop() || "index.html";
 
-    function active(...pages) {
-      return pages.includes(page) ? ' class="active"' : "";
-    }
-
     // same check, but returns just the bare class name (for merging into an
     // element that already carries other classes, e.g. nav-link-item)
     function activeClass(...pages) {
@@ -115,17 +111,23 @@ const DEBUG_GRID = false;
         <a href="play.html" class="nav-link-item nav-link-play${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-label">Play</span></a>
       </div>
 
-      <!-- mobile menu toggle — the exact same pill as the desktop Learn/Play
-           one, just carrying a single "Menu" label + dot instead -->
-      <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false">
-        <span class="nav-hamburger-dot"></span>
-        <span class="nav-label">Menu</span>
-      </button>
-
-      <!-- mobile dropdown menu -->
-      <div class="nav-mobile-menu">
-        <a href="learn.html"${active("learn.html")}>Learn</a>
-        <a href="play.html"${active("play.html")}>Play</a>
+      <!-- mobile pill — same pill as the desktop Learn/Play one. Collapsed,
+           it shows just the dot + "Menu" toggle; tapping it expands the pill
+           leftward (the toggle itself never moves) to reveal Learn/Play,
+           and the toggle's own label flips to "Close". -->
+      <div class="nav-mobile-pill">
+        <a href="learn.html" class="nav-link-item nav-mobile-link${activeClass("learn.html")}"><span class="nav-label">Learn</span></a>
+        <a href="play.html" class="nav-link-item nav-mobile-link${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-label">Play</span></a>
+        <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false">
+          <span class="nav-hamburger-icon">
+            <span class="nav-hamburger-dot"></span>
+            <svg class="nav-hamburger-x" viewBox="0 0 11 11" aria-hidden="true">
+              <line x1="1" y1="1" x2="10" y2="10" />
+              <line x1="10" y1="1" x2="1" y2="10" />
+            </svg>
+          </span>
+          <span class="nav-label">Menu</span>
+        </button>
       </div>
     `;
 
@@ -146,10 +148,13 @@ const DEBUG_GRID = false;
       const LEAVE_FADE_MS = 400;
       const SETTLE_MS = 1000;
 
+      // href-based rather than class-based, so it works for both the
+      // desktop pill's links and the mobile pill's own Learn/Play copies
       function pageKeyFor(link) {
         if (!link) return null;
-        if (link.classList.contains("nav-link-learn")) return "learn";
-        if (link.classList.contains("nav-link-play")) return "play";
+        const p = pageNameFromUrl(link.getAttribute("href"));
+        if (p === "learn.html") return "learn";
+        if (p === "play.html") return "play";
         return null;
       }
 
@@ -236,11 +241,11 @@ const DEBUG_GRID = false;
         page = destPage;
         window.scrollTo(0, 0);
 
-        if (outgoingLink) outgoingLink.classList.remove("active", "nav-link-item--leaving");
-        incomingLink.classList.add("active");
-        nav.querySelectorAll(".nav-mobile-menu a").forEach((a) => {
-          const samePage = pageNameFromUrl(a.getAttribute("href")) === destPage;
-          a.classList.toggle("active", samePage);
+        if (outgoingLink) outgoingLink.classList.remove("nav-link-item--leaving");
+        // one pass over every .nav-link-item (desktop pill + mobile pill's
+        // own copies) keeps both in sync regardless of which was clicked
+        nav.querySelectorAll(".nav-link-item").forEach((l) => {
+          l.classList.toggle("active", pageNameFromUrl(l.getAttribute("href")) === destPage);
         });
 
         runArrival(incomingLink, fromKey);
@@ -272,12 +277,8 @@ const DEBUG_GRID = false;
         page = destPage;
         window.scrollTo(0, 0);
 
-        const destKey = destPage === "learn.html" ? "learn" : "play";
         nav.querySelectorAll(".nav-link-item").forEach((l) => {
-          l.classList.toggle("active", pageKeyFor(l) === destKey);
-        });
-        nav.querySelectorAll(".nav-mobile-menu a").forEach((a) => {
-          a.classList.toggle("active", pageNameFromUrl(a.getAttribute("href")) === destPage);
+          l.classList.toggle("active", pageNameFromUrl(l.getAttribute("href")) === destPage);
         });
       }
 
@@ -321,31 +322,32 @@ const DEBUG_GRID = false;
       });
     })();
 
-    // ── hamburger toggle ────────────────────────────────────────────────────────
+    // ── mobile pill toggle — expands in place to reveal Learn/Play; the
+    // toggle button itself never moves, only its label flips Menu<->Close ──
+    const mobilePill = nav.querySelector('.nav-mobile-pill');
     const hamburger = nav.querySelector('.nav-hamburger');
-    const mobileMenu = nav.querySelector('.nav-mobile-menu');
+    const hamburgerLabel = hamburger.querySelector('.nav-label');
+
+    function setMobilePillOpen(isOpen) {
+      mobilePill.classList.toggle('nav-mobile-pill--open', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+      hamburger.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+      hamburgerLabel.textContent = isOpen ? 'Close' : 'Menu';
+    }
 
     hamburger.addEventListener('click', () => {
-      const isOpen = mobileMenu.classList.toggle('nav-mobile-menu--open');
-      hamburger.classList.toggle('nav-hamburger--open', isOpen);
-      hamburger.setAttribute('aria-expanded', isOpen);
+      setMobilePillOpen(!mobilePill.classList.contains('nav-mobile-pill--open'));
     });
 
-    // close when a link is tapped
-    mobileMenu.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.remove('nav-mobile-menu--open');
-        hamburger.classList.remove('nav-hamburger--open');
-        hamburger.setAttribute('aria-expanded', 'false');
-      });
+    // close when a Learn/Play link inside the pill is tapped
+    mobilePill.querySelectorAll('.nav-mobile-link').forEach(link => {
+      link.addEventListener('click', () => setMobilePillOpen(false));
     });
 
     // close on outside tap
     document.addEventListener('click', (e) => {
       if (!nav.contains(e.target)) {
-        mobileMenu.classList.remove('nav-mobile-menu--open');
-        hamburger.classList.remove('nav-hamburger--open');
-        hamburger.setAttribute('aria-expanded', 'false');
+        setMobilePillOpen(false);
       }
     });
 
