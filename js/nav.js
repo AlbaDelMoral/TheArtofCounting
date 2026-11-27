@@ -107,6 +107,7 @@ const DEBUG_GRID = false;
 
       <!-- desktop links — each item's label sits at its own column's left edge -->
       <div class="nav-links">
+        <a href="index.html" class="nav-link-item nav-link-home${activeClass("index.html", "")}"><span class="nav-label">Home</span></a>
         <a href="learn.html" class="nav-link-item nav-link-learn${activeClass("learn.html")}"><span class="nav-label">Learn</span></a>
         <a href="play.html" class="nav-link-item nav-link-play${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-label">Play</span></a>
       </div>
@@ -153,12 +154,14 @@ const DEBUG_GRID = false;
       function pageKeyFor(link) {
         if (!link) return null;
         const p = pageNameFromUrl(link.getAttribute("href"));
+        if (p === "index.html") return "home";
         if (p === "learn.html") return "learn";
         if (p === "play.html") return "play";
         return null;
       }
 
       function getDesktopLink(key) {
+        if (key === "home") return nav.querySelector(".nav-link-home");
         return nav.querySelector(key === "learn" ? ".nav-link-learn" : ".nav-link-play");
       }
 
@@ -247,6 +250,17 @@ const DEBUG_GRID = false;
         nav.querySelectorAll(".nav-link-item").forEach((l) => {
           l.classList.toggle("active", pageNameFromUrl(l.getAttribute("href")) === destPage);
         });
+        // the logo hides itself on the homepage only — was set once at
+        // buildNav() time and never revisited, so it stayed hidden/shown
+        // from whichever page the nav first loaded on, regardless of
+        // where an SPA swap actually lands
+        const logoLink = nav.querySelector(".nav-logo-link");
+        if (logoLink) {
+          logoLink.classList.toggle(
+            "nav-logo-link--hidden",
+            destPage === "index.html" || destPage === ""
+          );
+        }
 
         runArrival(incomingLink, fromKey);
       }
@@ -280,6 +294,13 @@ const DEBUG_GRID = false;
         nav.querySelectorAll(".nav-link-item").forEach((l) => {
           l.classList.toggle("active", pageNameFromUrl(l.getAttribute("href")) === destPage);
         });
+        const logoLink = nav.querySelector(".nav-logo-link");
+        if (logoLink) {
+          logoLink.classList.toggle(
+            "nav-logo-link--hidden",
+            destPage === "index.html" || destPage === ""
+          );
+        }
       }
 
       // resolve from the (already-updated) URL rather than e.state, so this

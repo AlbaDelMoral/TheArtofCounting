@@ -4,17 +4,26 @@
 :root {
   --grid-columns: 9;
   --grid-gap: 0.75rem; /* 12px */
-  /* 15px, plus the notch/status-bar safe area now that the page extends
-     fully behind it (viewport-fit=cover) — env() is 0 on devices without one */
-  --grid-margin-top: calc(0.9375rem + env(safe-area-inset-top, 0px));
+  /* 25px, plus the notch/status-bar safe area now that the page extends
+     fully behind it (viewport-fit=cover) — env() is 0 on devices without
+     one. Same value on every breakpoint — see the mobile override below,
+     now just matching this instead of adding its own. */
+  --grid-margin-top: calc(1.5625rem + env(safe-area-inset-top, 0px));
   --grid-margin-x: 1.5625rem; /* 25px */
   --grid-line-color: rgba(0, 0, 0, 0);
+  /* document.documentElement.clientWidth, kept live by
+     js/grid-overlay.js — the device's width MINUS a real scrollbar's
+     width whenever one is actually showing. 100vw doesn't reliably give
+     us this (browsers disagree on whether it already excludes the
+     scrollbar), so every formula below measures it directly instead. The
+     100vw fallback only matters for the instant before that script runs. */
+  --viewport-width: 100vw;
 
   /* width of ONE grid column — reusable by any element that needs to span
      a given number of columns, e.g. calc(2 * var(--grid-col-width) + var(--grid-gap)) */
   --grid-col-width: calc(
     (
-        100vw - (2 * var(--grid-margin-x)) -
+        var(--viewport-width) - (2 * var(--grid-margin-x)) -
           ((var(--grid-columns) - 1) * var(--grid-gap))
       ) /
       var(--grid-columns)
@@ -24,7 +33,6 @@
 @media (max-width: 768px) {
   :root {
     --grid-columns: 6;
-    --grid-margin-top: calc(1.5625rem + env(safe-area-inset-top, 0px));
   }
 }
 

@@ -1,12 +1,9 @@
-/* home-hero.css — homepage is just the logo, centered, full viewport width */
+/* home-hero.css — homepage is the logo (bottom-left) + an intro line
+   (cols 1-2, vertically centered), over a full-bleed looping video */
 .home-hero {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
   overflow: hidden;
   background: #000;
 }
@@ -21,15 +18,46 @@
 }
 
 .home-hero-logo {
-  position: relative;
+  position: absolute;
+  bottom: var(--grid-margin-x, 1.875rem);
+  left: var(--grid-margin-x, 1.875rem);
   z-index: 1;
   display: block;
   width: calc(7 * var(--grid-col-width) + 6 * var(--grid-gap));
   height: auto;
-  margin: 0 0 0 var(--grid-margin-x, 1.875rem);
   /* original artwork is solid dark fill (#1e1f1d) on transparent bg —
      brightness(0) forces pure black, invert(1) flips it to pure white */
   filter: brightness(0) invert(1);
+}
+
+/* cols 1-3, vertically centered in the viewport */
+.home-hero-copy {
+  position: absolute;
+  top: 50%;
+  left: var(--grid-margin-x, 1.875rem);
+  transform: translateY(-50%);
+  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
+  z-index: 1;
+  letter-spacing: 0.03em;
+}
+
+.home-hero-copy-line1 {
+  display: block;
+  font-family: "Rhetorik Serif TRIAL", serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.home-hero-copy-line2 {
+  display: block;
+  margin-top: 0.3em;
+  font-family: "Aeonik TRIAL", sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  line-height: 1.15;
+  color: #fff;
 }
 
 .home-hero-subtitle {
@@ -50,6 +78,9 @@ body:has(.home-hero) .site-nav {
 @media (max-width: 768px) {
   .home-hero-logo {
     width: calc(100% - 2 * var(--grid-margin-x, 1.875rem));
-    margin: 0 var(--grid-margin-x, 1.875rem);
+  }
+
+  .home-hero-copy {
+    width: calc(100% - 2 * var(--grid-margin-x, 1.875rem));
   }
 }

@@ -38,34 +38,46 @@
   pointer-events: none;
 }
 
-/* two links — Learn/Play. Each item's box spans from the PRECEDING column's
-   right edge through the gap to its OWN column (Learn: col 8, Play: col 9):
-   label at the box's own column (left edge = previous-column-right-edge +
-   one gap).
+/* three links — Home/Learn/Play, laid out as an even flex row (a fixed
+   per-column anchor per item, like before, made the gaps uneven once a
+   3rd item joined — each item's own text width throws off column math
+   that was never meant to double as inter-item spacing). The pill's own
+   box is still 3 columns wide; its LEFT edge is computed explicitly from
+   --viewport-width (document.documentElement.clientWidth, kept live by
+   js/grid-overlay.js) minus the margin minus its own width, instead of
+   `right: margin-x` — browsers don't agree on whether a position:fixed
+   right offset already excludes a real scrollbar's width, so this pins
+   it from a value that's unambiguous by construction, same as the grid
+   itself, instead of trusting that edge case either way.
    Vertically, everything is bottom-aligned with the logo's own bottom edge
    (logo height: 20px, see .nav-logo-img). */
-/* pill wrapping Learn + Play together, spanning cols 8-9 — taller than the
-   logo (26px vs 20px), top nudged up so its bottom edge still lines up
-   with the logo's own bottom edge exactly */
 .nav-links {
   position: fixed;
   top: calc(var(--grid-margin-top, 1.25rem) - 2px);
-  left: calc(var(--grid-margin-x) + 7 * var(--grid-col-width) + 6 * var(--grid-gap));
-  width: calc(2 * var(--grid-col-width) + var(--grid-gap));
+  width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
+  left: calc(
+    var(--viewport-width) - var(--grid-margin-x, 1.875rem) -
+      (3 * var(--grid-col-width) + 2 * var(--grid-gap))
+  );
   height: 22px;
   z-index: 101;
-  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  /* left padding is bigger than right — leaves room for the active dot
+     (11px + 7px gap) when the FIRST item (Home) is the active one, same
+     math the dot's own -18px offset below relies on */
+  padding: 0 16px 0 25px;
   background: #f2f2f2;
   border-radius: 999px;
   color: var(--grey-1);
 }
 
 .nav-link-item {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  position: relative;
   display: block;
-  font-family: "Aeonik TRIAL", var(--font-display);
+  font-family: "Rhetorik Serif TRIAL", serif;
   font-weight: 400;
   font-size: var(--text-sm);
   color: var(--grey-1);
@@ -73,18 +85,6 @@
   text-decoration: none;
   line-height: 1;
   transition: color var(--duration-fast) var(--ease);
-}
-
-/* pinned to the pill's own padding — constant whether or not the dot is
-   showing, so the button itself never shifts position */
-.nav-link-learn {
-  left: 25px;
-}
-
-/* pinned exactly to col 9's own left edge (relative to the pill, which
-   starts at col 8), regardless of the pill's padding */
-.nav-link-play {
-  left: calc(var(--grid-col-width) + var(--grid-gap));
 }
 
 .nav-link-item:hover {
@@ -101,12 +101,13 @@
   opacity: 1;
 }
 
-/* the dot is a pure overlay — absolutely positioned OUT of the text flow,
-   so its presence/position never shifts where "Learn"/"Play" itself sits.
-   left:-18px puts the dot's LEFT edge 7px from the pill's edge (since
-   Learn always starts 25px from the pill's edge: 7 + 11px dot + 7),
-   and its own width means its RIGHT edge then sits exactly 7px before
-   the label too — equal 7px gaps on both sides of the dot itself. */
+/* the dot is a pure overlay — absolutely positioned OUT of the text flow
+   (relative to whichever .nav-link-item is active), so its presence/
+   position never shifts where the item's own label sits. left:-18px puts
+   the dot's LEFT edge 7px before the item (11px dot + 7px gap) — when Home
+   (the first item) is active, that 7px lands right at the pill's own edge,
+   since .nav-links' left padding (25px) already reserves exactly that
+   dot+gap space; for Learn/Play it just lands in the gap to their left. */
 .nav-link-item.active::before {
   content: "";
   position: absolute;
@@ -221,7 +222,7 @@
     background: none;
     padding: 0;
     cursor: pointer;
-    font-family: "Aeonik TRIAL", var(--font-display);
+    font-family: "Rhetorik Serif TRIAL", serif;
     font-weight: 400;
     font-size: var(--text-sm);
     letter-spacing: 0.04em;
@@ -298,7 +299,7 @@
     opacity: 0;
     pointer-events: none;
     flex-shrink: 0;
-    font-family: "Aeonik TRIAL", var(--font-display);
+    font-family: "Rhetorik Serif TRIAL", serif;
     font-weight: 400;
     font-size: var(--text-sm);
     letter-spacing: 0.04em;
