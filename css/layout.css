@@ -309,6 +309,20 @@
       opacity 0.25s ease;
   }
 
+  /* the lone grid item inside .nav-mobile-link's 0fr/1fr column — keeping
+     icon+label together as ONE child here is what lets that single-column
+     grid trick still work once there's more than just the label inside */
+  .nav-mobile-link-inner {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    /* a flex container's default auto min-width is based on its content,
+       which would stop the 0fr track above from ever actually reaching 0 —
+       same reason .nav-label alone needed this below, before this wrapper
+       existed */
+    min-width: 0;
+  }
+
   .nav-mobile-link .nav-label {
     min-width: 0;
     overflow: hidden;

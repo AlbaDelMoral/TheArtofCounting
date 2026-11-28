@@ -114,13 +114,14 @@ const DEBUG_GRID = false;
         <a href="play.html" class="nav-link-item nav-link-play${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-icon nav-icon-square"></span><span class="nav-label">Play</span></a>
       </div>
 
-      <!-- mobile pill — same pill as the desktop Learn/Play one. Collapsed,
+      <!-- mobile pill — same pill as the desktop Home/Learn/Play one. Collapsed,
            it shows just the dot + "Menu" toggle; tapping it expands the pill
-           leftward (the toggle itself never moves) to reveal Learn/Play,
+           leftward (the toggle itself never moves) to reveal Home/Learn/Play,
            and the toggle's own label flips to "Close". -->
       <div class="nav-mobile-pill">
-        <a href="learn.html" class="nav-link-item nav-mobile-link${activeClass("learn.html")}"><span class="nav-label">Learn</span></a>
-        <a href="play.html" class="nav-link-item nav-mobile-link${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-label">Play</span></a>
+        <a href="index.html" class="nav-link-item nav-mobile-link${activeClass("index.html", "")}"><span class="nav-mobile-link-inner"><span class="nav-icon nav-icon-circle"></span><span class="nav-label">Home</span></span></a>
+        <a href="learn.html" class="nav-link-item nav-mobile-link${activeClass("learn.html")}"><span class="nav-mobile-link-inner"><span class="nav-icon nav-icon-line"></span><span class="nav-label">Learn</span></span></a>
+        <a href="play.html" class="nav-link-item nav-mobile-link${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-mobile-link-inner"><span class="nav-icon nav-icon-square"></span><span class="nav-label">Play</span></span></a>
         <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false">
           <span class="nav-hamburger-icon">
             <span class="nav-hamburger-dot"></span>
