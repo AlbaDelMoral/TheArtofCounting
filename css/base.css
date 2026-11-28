@@ -356,10 +356,33 @@
 }
 
 /* ── base ────────────────────────────────────────────────────────────────── */
-html,
-body {
+/* html is the ONLY element with a set height — it's what scrolls, and the
+   one true "viewport" every vw unit and fixed-position offset is measured
+   against. body used to also get height:100%, which (combined with its own
+   overflow-x:hidden below) made body a second, independent scroll box
+   nested inside an html that never scrolled — so the real scrollbar lived
+   on body, invisible to 100vw, to scrollbar-gutter on html, and to a
+   document.documentElement.clientWidth measurement, which is the actual
+   reason the right margin drifted between scrolling and non-scrolling
+   pages. With only html scrolling, scrollbar-gutter below reserves that
+   one scrollbar's track on every page, scrolling or not, so the margin
+   never moves. */
+html {
   height: 100%;
   overflow-x: hidden; /* prevent horizontal scroll from rotated hero group */
+  /* forces the vertical scrollbar track to always render, even on a page
+     short enough that nothing overflows — so every page reserves the same
+     width for it, and the right margin never shifts when a page grows past
+     one viewport. (scrollbar-gutter: stable is the newer, "only reserve it"
+     version of this same idea, but isn't actually honored here, so this is
+     the one that works.) Safe now that nothing on the page sizes itself
+     with 100vw — every full-bleed element below uses width:100%, which is
+     already relative to this reserved-gutter box, not the raw viewport. */
+  overflow-y: scroll;
+}
+
+html,
+body {
   background: var(--color-bg);
   color: var(--color-second);
   font-family: var(--font-sans);

@@ -105,11 +105,13 @@ const DEBUG_GRID = false;
         </svg>
       </a>
 
-      <!-- desktop links — each item's label sits at its own column's left edge -->
+      <!-- desktop links — each item's label sits at its own column's left edge.
+           Each item carries its own permanent icon (circle/line/square) —
+           it no longer marks "active" by having a dot travel to it. -->
       <div class="nav-links">
-        <a href="index.html" class="nav-link-item nav-link-home${activeClass("index.html", "")}"><span class="nav-label">Home</span></a>
-        <a href="learn.html" class="nav-link-item nav-link-learn${activeClass("learn.html")}"><span class="nav-label">Learn</span></a>
-        <a href="play.html" class="nav-link-item nav-link-play${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-label">Play</span></a>
+        <a href="index.html" class="nav-link-item nav-link-home${activeClass("index.html", "")}"><span class="nav-icon nav-icon-circle"></span><span class="nav-label">Home</span></a>
+        <a href="learn.html" class="nav-link-item nav-link-learn${activeClass("learn.html")}"><span class="nav-icon nav-icon-line"></span><span class="nav-label">Learn</span></a>
+        <a href="play.html" class="nav-link-item nav-link-play${activeClass("play.html", "numbers.html", "operations.html", "multiplication.html")}"><span class="nav-icon nav-icon-square"></span><span class="nav-label">Play</span></a>
       </div>
 
       <!-- mobile pill — same pill as the desktop Learn/Play one. Collapsed,
@@ -135,69 +137,47 @@ const DEBUG_GRID = false;
     document.body.prepend(nav);
 
     // ── Learn/Play cross-page transition ─────────────────────────────────────
-    // Two paths, sharing the same CSS classes (nav-link-item--leaving/
-    // --arriving/--settling, see css/layout.css):
+    // Each nav item now carries its own permanent icon (no shared dot that
+    // travels between items), so all this has to do is fade the item's
+    // opacity down before it leaves and back up when it (re)arrives as
+    // active — sharing the same CSS classes (nav-link-item--leaving/
+    // --arriving/--settling, see css/layout.css). Two paths:
     //  1. SPA swap (index.html <-> learn.html): the nav element itself never
     //     gets destroyed, so this drives the whole leave→fetch→swap→arrive
     //     sequence directly, in one script.
     //  2. Real navigation (anything involving play.html's sketch pages, or
     //     if the fetch fails): the old page can only fade itself out before
-    //     unloading, so it stashes which page that was in sessionStorage and
-    //     the arriving page reads it back to run the arrival half.
+    //     unloading, so it leaves a flag in sessionStorage and the arriving
+    //     page reads it back to run the arrival half.
     (function setupNavTransition() {
-      const STORAGE_KEY = "navDotFrom";
+      const STORAGE_KEY = "navArriving";
       const LEAVE_FADE_MS = 400;
-      const SETTLE_MS = 1000;
+      const SETTLE_MS = 600;
 
-      // href-based rather than class-based, so it works for both the
-      // desktop pill's links and the mobile pill's own Learn/Play copies
-      function pageKeyFor(link) {
-        if (!link) return null;
-        const p = pageNameFromUrl(link.getAttribute("href"));
-        if (p === "index.html") return "home";
-        if (p === "learn.html") return "learn";
-        if (p === "play.html") return "play";
-        return null;
-      }
-
-      function getDesktopLink(key) {
-        if (key === "home") return nav.querySelector(".nav-link-home");
-        return nav.querySelector(key === "learn" ? ".nav-link-learn" : ".nav-link-play");
-      }
-
-      function runArrival(activeLink, fromKey) {
-        if (!activeLink || !fromKey || fromKey === pageKeyFor(activeLink)) return;
-        const fromLink = getDesktopLink(fromKey);
-        if (fromLink) {
-          const delta =
-            fromLink.getBoundingClientRect().left - activeLink.getBoundingClientRect().left;
-          activeLink.style.setProperty("--dot-from-x", `${delta}px`);
-        }
+      function runArrival(activeLink) {
+        if (!activeLink) return;
         activeLink.classList.add("nav-link-item--arriving");
         // force a synchronous style flush so the browser actually commits
-        // the faded/offset start state before we switch to the resting
-        // one — relying on rAF timing alone for this is flaky and can
-        // skip the transition entirely, making it look like a blink
-        // instead of a fade/slide
+        // the faded start state before we switch to the resting one —
+        // relying on rAF timing alone for this is flaky and can skip the
+        // transition entirely, making it look like a blink instead of a fade
         void activeLink.offsetWidth;
         activeLink.classList.remove("nav-link-item--arriving");
         activeLink.classList.add("nav-link-item--settling");
-        activeLink.style.setProperty("--dot-from-x", "0px");
         setTimeout(() => {
           activeLink.classList.remove("nav-link-item--settling");
-          activeLink.style.removeProperty("--dot-from-x");
         }, SETTLE_MS);
       }
 
       // on a REAL load, pick up any arrival flag a previous page left behind
-      let storedFromKey = null;
+      let hadPendingArrival = false;
       try {
-        storedFromKey = sessionStorage.getItem(STORAGE_KEY);
+        hadPendingArrival = sessionStorage.getItem(STORAGE_KEY) === "1";
         sessionStorage.removeItem(STORAGE_KEY);
       } catch (err) {
-        storedFromKey = null;
+        hadPendingArrival = false;
       }
-      runArrival(nav.querySelector(".nav-link-item.active"), storedFromKey);
+      if (hadPendingArrival) runArrival(nav.querySelector(".nav-link-item.active"));
 
       async function performSpaNavigation(outgoingLink, incomingLink, href, destPage) {
         if (outgoingLink) outgoingLink.classList.add("nav-link-item--leaving");
@@ -216,10 +196,6 @@ const DEBUG_GRID = false;
         }
 
         const newDoc = new DOMParser().parseFromString(html, "text/html");
-
-        // measure before flipping .active, so the delta reflects the real
-        // old→new dot travel distance
-        const fromKey = pageKeyFor(outgoingLink);
 
         document.title = newDoc.title;
         reconcileStylesheets(newDoc.head);
@@ -262,7 +238,7 @@ const DEBUG_GRID = false;
           );
         }
 
-        runArrival(incomingLink, fromKey);
+        runArrival(incomingLink);
       }
 
       async function restoreSpaPage(destPage) {
@@ -331,7 +307,7 @@ const DEBUG_GRID = false;
           // then a flag in sessionStorage so the destination's fresh load
           // can run the arrival half above
           try {
-            sessionStorage.setItem(STORAGE_KEY, pageKeyFor(activeLink));
+            sessionStorage.setItem(STORAGE_KEY, "1");
           } catch (err) {
             /* no sessionStorage — just navigate immediately below */
           }

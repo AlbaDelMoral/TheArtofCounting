@@ -42,33 +42,24 @@
    per-column anchor per item, like before, made the gaps uneven once a
    3rd item joined — each item's own text width throws off column math
    that was never meant to double as inter-item spacing). The pill's own
-   box is still 3 columns wide; its LEFT edge is computed explicitly from
-   --viewport-width (document.documentElement.clientWidth, kept live by
-   js/grid-overlay.js) minus the margin minus its own width, instead of
-   `right: margin-x` — browsers don't agree on whether a position:fixed
-   right offset already excludes a real scrollbar's width, so this pins
-   it from a value that's unambiguous by construction, same as the grid
-   itself, instead of trusting that edge case either way.
+   box is still 3 columns wide, pinned to the right margin the same way
+   the logo is pinned to the left one — safe now that base.css reserves
+   the scrollbar's track unconditionally (see html's overflow-y there),
+   so that edge never moves.
    Vertically, everything is bottom-aligned with the logo's own bottom edge
    (logo height: 20px, see .nav-logo-img). */
 .nav-links {
   position: fixed;
   top: calc(var(--grid-margin-top, 1.25rem) - 2px);
   width: calc(3 * var(--grid-col-width) + 2 * var(--grid-gap));
-  left: calc(
-    var(--viewport-width) - var(--grid-margin-x, 1.875rem) -
-      (3 * var(--grid-col-width) + 2 * var(--grid-gap))
-  );
+  right: var(--grid-margin-x, 1.875rem);
   height: 22px;
   z-index: 101;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  /* left padding is bigger than right — leaves room for the active dot
-     (11px + 7px gap) when the FIRST item (Home) is the active one, same
-     math the dot's own -18px offset below relies on */
-  padding: 0 16px 0 25px;
+  padding: 0 9px;
   background: #f2f2f2;
   border-radius: 999px;
   color: var(--grey-1);
@@ -76,7 +67,9 @@
 
 .nav-link-item {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-family: "Rhetorik Serif TRIAL", serif;
   font-weight: 400;
   font-size: var(--text-sm);
@@ -91,7 +84,9 @@
   color: var(--grey-1);
 }
 
-/* the page you're NOT on rests at 30% opacity; hover brings it to full */
+/* the page you're NOT on rests at 30% opacity; hover brings it to full —
+   this covers the item's icon too, since the icon is just another child
+   of the same anchor */
 .nav-link-item:not(.active) {
   opacity: 0.3;
   transition: opacity var(--duration-fast) var(--ease);
@@ -101,34 +96,45 @@
   opacity: 1;
 }
 
-/* the dot is a pure overlay — absolutely positioned OUT of the text flow
-   (relative to whichever .nav-link-item is active), so its presence/
-   position never shifts where the item's own label sits. left:-18px puts
-   the dot's LEFT edge 7px before the item (11px dot + 7px gap) — when Home
-   (the first item) is active, that 7px lands right at the pill's own edge,
-   since .nav-links' left padding (25px) already reserves exactly that
-   dot+gap space; for Learn/Play it just lands in the gap to their left. */
-.nav-link-item.active::before {
+/* each item's icon is permanent — it marks WHICH page that link goes to,
+   not whether it's the active one (opacity above already shows that) */
+.nav-icon {
+  display: block;
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+}
+
+.nav-icon-circle {
+  border-radius: 50%;
+  border: 1px solid currentColor;
+}
+
+.nav-icon-square {
+  border: 1px solid currentColor;
+  border-radius: 1px;
+}
+
+/* a diagonal line across the same 11x11 box the circle/square occupy, so
+   all three icons take up identical space regardless of their shape */
+.nav-icon-line {
+  position: relative;
+}
+.nav-icon-line::before {
   content: "";
   position: absolute;
   top: 50%;
-  left: -18px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  border: 1px solid currentColor;
-  background: transparent;
-  transform: translateY(-50%) translateX(var(--dot-from-x, 0px));
+  left: 50%;
+  width: 15px;
+  height: 1px;
+  background: currentColor;
+  border-radius: 999px;
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 /* ── cross-page transition — js/nav.js fakes continuity across the full
-   page reload: the page being left quickly fades its own active dot+label,
-   stashes which page that was, then the arriving page starts its own
-   active dot+label faded out, with the DOT additionally offset (via
-   --dot-from-x, measured by JS) to sit exactly where the OLD page's dot
-   was — then both animate back: the dot slides into its resting spot
-   while everything fades up to full opacity. The Learn/Play buttons
-   themselves never move — only the dot changes position. */
+   page reload: the page being left quickly fades itself out, then the
+   arriving page's newly-active item fades back in to full opacity. */
 .nav-link-item.active.nav-link-item--leaving {
   opacity: 0.3;
   transition: opacity 400ms ease;
@@ -141,10 +147,6 @@
 .nav-link-item.active.nav-link-item--settling {
   opacity: 1;
   transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.nav-link-item.active.nav-link-item--settling::before {
-  /* quicker off the mark, still a gentle ease-out landing */
-  transition: transform 950ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* ── mobile pill — hidden on desktop ──────────────────────────────────────── */
